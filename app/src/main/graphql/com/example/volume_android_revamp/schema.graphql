@@ -1,0 +1,87 @@
+# Exposes a URL that specifies the behaviour of this scalar.
+directive @specifiedBy(
+  # The URL that specifies the behaviour of this scalar.
+  url: String!
+) on SCALAR
+# The Article Model
+type Article {
+  id: ID!
+  articleURL: String!
+  date: DateTime!
+  imageURL: String!
+  publication: Publication!
+  publicationSlug: String!
+  shoutouts: Float!
+  title: String!
+  nsfw: Boolean!
+  isTrending: Boolean!
+  isFiltered: Boolean!
+  trendiness: Float!
+}
+
+# The javascript `Date` as string. Type represents date and time as the ISO Date string.
+scalar DateTime
+
+type Mutation {
+  incrementShoutouts(id: String!): Article!
+  createUser(
+    deviceType: String!
+    followedPublications: [String!]!
+    deviceToken: String!
+  ): User!
+  followPublication(pubID: String!, uuid: String!): User!
+  unfollowPublication(pubID: String!, uuid: String!): User!
+}
+
+# The Publication Model
+type Publication {
+  id: ID!
+  backgroundImageURL: String!
+  bio: String!
+  bioShort: String!
+  name: String!
+  profileImageURL: String!
+  rssName: String!
+  rssURL: String!
+  slug: String!
+  shoutouts: Float!
+  websiteURL: String!
+  mostRecentArticle: Article
+  numArticles: Float!
+  socials: [Social!]!
+}
+
+# ID of a Publication
+type PublicationID {
+  id: String!
+}
+
+type Query {
+  getArticleByID(id: String!): Article
+  getArticlesByIDs(ids: [String!]!): [Article!]!
+  getAllArticles(limit: Float = 25): [Article!]!
+  getArticlesByPublicationID(publicationID: String!): [Article!]!
+  getArticlesByPublicationIDs(publicationIDs: [String!]!): [Article!]!
+  getArticlesAfterDate(limit: Float = 25, since: String!): [Article!]!
+  getTrendingArticles(limit: Float = 25): [Article!]!
+  getAllPublications: [Publication!]!
+  getPublicationByID(id: String!): Publication
+  getPublicationBySlug(slug: String!): Publication
+  getPublicationsByIDs(ids: [String!]!): [Publication!]!
+}
+
+# Holds information about social
+type Social {
+  social: String!
+  URL: String!
+}
+
+# The User Model
+type User {
+  id: ID!
+  uuid: String!
+  followedPublications: [PublicationID!]!
+  deviceToken: String!
+  deviceType: String!
+}
+
