@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">volume-android-revamp</string>
+
+
+<!--    Content Descriptions-->
+    <string name="volume_title">Volume Title</string>
 </resources>
