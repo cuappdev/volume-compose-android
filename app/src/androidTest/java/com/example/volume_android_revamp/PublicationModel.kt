@@ -1,7 +1,5 @@
 package com.example.volume_android_revamp
 
-
-
 data class Article(
         var id: String,
         var articlURL: String,
