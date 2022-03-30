@@ -1,0 +1,372 @@
+query AllArticles{
+    getAllArticles{
+        id
+        title
+        publication{
+            id
+            backgroundImageURL
+            bio
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            socials{
+                social
+                url:URL
+            }
+            mostRecentArticle{
+                id
+                articleURL
+                imageURL
+                date
+                title
+                shoutouts
+                nsfw
+            }
+        }
+        nsfw
+        articleURL
+        imageURL
+        publicationSlug
+        date
+        shoutouts
+    }
+}
+
+query AllPublications{
+    getAllPublications{
+        id
+        backgroundImageURL
+        bio
+        name
+        profileImageURL
+        rssName
+        rssURL
+        slug
+        shoutouts
+        websiteURL
+        socials{
+            social
+            url:URL
+        }
+        mostRecentArticle{
+            id
+            articleURL
+            imageURL
+            date
+            title
+            shoutouts
+            nsfw
+        }
+    }
+}
+
+query PublicationByID($id: String!){
+    getPublicationByID(id:$id){
+        id
+        backgroundImageURL
+        bio
+        name
+        profileImageURL
+        rssName
+        rssURL
+        slug
+        shoutouts
+        websiteURL
+        socials{
+            social
+            url:URL
+        }
+        mostRecentArticle{
+            id
+            articleURL
+            imageURL
+            date
+            title
+            shoutouts
+            nsfw
+        }
+    }
+}
+
+query PublicationsByIDs($ids: [String!]!){
+    getPublicationsByIDs(ids:$ids){
+        id
+        backgroundImageURL
+        bio
+        name
+        profileImageURL
+        rssName
+        rssURL
+        slug
+        shoutouts
+        websiteURL
+        socials{
+            social
+            url:URL
+        }
+        mostRecentArticle{
+            id
+            articleURL
+            imageURL
+            date
+            title
+            shoutouts
+            nsfw
+        }
+    }
+}
+
+query TrendingArticles ($limit: Float){
+    getTrendingArticles(limit:$limit){
+        id
+        title
+        publication{
+            id
+            backgroundImageURL
+            bio
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            socials{
+                social
+                url:URL
+            }
+            mostRecentArticle{
+                id
+                articleURL
+                imageURL
+                date
+                title
+                shoutouts
+                nsfw
+            }
+        }
+        articleURL
+        imageURL
+        date
+        shoutouts
+        nsfw
+    }
+}
+
+query ArticlesByPublicationID($publicationID:String!){
+    getArticlesByPublicationID(publicationID: $publicationID){
+        id
+        articleURL
+        date
+        imageURL
+        publication{
+            id
+            backgroundImageURL
+            bio
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            socials{
+                social
+                url:URL
+            }
+            mostRecentArticle{
+                id
+                articleURL
+                imageURL
+                date
+                title
+                shoutouts
+                nsfw
+            }
+        }
+        shoutouts
+        title
+        nsfw
+    }
+
+}
+
+query ArticlesByIDs($ids:[String!]!){
+    getArticlesByIDs(ids:$ids){
+        id
+        title
+        publication{
+            id
+            backgroundImageURL
+            bio
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            socials{
+                social
+                url:URL
+            }
+            mostRecentArticle{
+                id
+                articleURL
+                imageURL
+                date
+                title
+                shoutouts
+                nsfw
+            }
+        }
+        articleURL
+        imageURL
+        date
+        shoutouts
+        nsfw
+    }
+}
+
+query ArticleByID($id:String!) {
+    getArticleByID(id:$id) {
+        id
+        title
+        publication {
+            id
+            backgroundImageURL
+            bio
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            socials{
+                social
+                url:URL
+            }
+            mostRecentArticle{
+                id
+                articleURL
+                imageURL
+                date
+                title
+                shoutouts
+                nsfw
+            }
+        }
+        articleURL
+        imageURL
+        date
+        shoutouts
+        nsfw
+    }
+}
+
+query ArticlesByPublicationIDs($publicationIDs:[String!]!){
+    getArticlesByPublicationIDs(publicationIDs:$publicationIDs){
+        id
+        articleURL
+        date
+        imageURL
+        publication{
+            id
+            backgroundImageURL
+            bio
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            socials{
+                social
+                url:URL
+            }
+            mostRecentArticle{
+                id
+                articleURL
+                imageURL
+                date
+                title
+                shoutouts
+                nsfw
+            }
+        }
+        shoutouts
+        title
+        nsfw
+    }
+}
+
+mutation IncrementShoutout($id:String!){
+
+    incrementShoutouts(id:$id){
+        id
+        shoutouts
+    }
+}
+
+query ArticlesAfterDate($since: String!){
+    getArticlesAfterDate(since:$since){
+        id
+        articleURL
+        date
+        imageURL
+        publicationSlug
+        shoutouts
+        title
+        publication{
+            id
+            backgroundImageURL
+            bio
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            socials{
+                social
+                url:URL
+            }
+            mostRecentArticle{
+                id
+                articleURL
+                imageURL
+                date
+                title
+                shoutouts
+                nsfw
+            }
+        }
+        trendiness
+        nsfw
+    }
+}
+
+mutation CreateUser($deviceType:String!, $followedPublications: [String!]!, $deviceToken:String!) {
+    createUser(deviceType:$deviceType, followedPublications:$followedPublications, deviceToken:$deviceToken) {
+        uuid
+    }
+}
+
+mutation FollowPublication($pubID:String!, $uuid: String!) {
+    followPublication(pubID:$pubID, uuid:$uuid) {
+        uuid
+    }
+}
+
+mutation UnfollowPublication($pubID:String!, $uuid: String!) {
+    unfollowPublication(pubID:$pubID, uuid:$uuid) {
+        uuid
+    }
+}
