@@ -31,15 +31,7 @@ class MainActivity : AppCompatActivity() {
         Scaffold(
             bottomBar = { BottomNavigationBar(navController) }
         ) {
-            VolumeTitle()
 
-        }
-    }
-
-    @Composable
-    fun VolumeTitle(){
-        Row {
-            Image(painter = painterResource(R.drawable.volume_title), contentDescription = getString(R.string.volume_title))
         }
     }
 
@@ -84,27 +76,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @Composable
-    private fun MainScreenNavigationConfigurations(
-            navController: NavHostController,
-            homeTab: NavigationItem,
-            magazineTab: NavigationItem,
-            publicationsTab: NavigationItem,
-            bookmarksTab: NavigationItem
-    ){
-        NavHost(navController = navController, startDestination = homeTab.route) {
-            composable(homeTab.route){
-                HomeTabController()
-            }
-            composable(magazineTab.route){
-                MagazineTabController()
-            }
-            composable(publicationsTab.route){
-                PublicationsTabController()
-            }
-            composable(bookmarksTab.route){
-                BookmarksTabController()
-            }
-        }
-    }
+//    @Composable
+//    private fun MainScreenNavigationConfigurations(
+//            navController: NavHostController,
+//            homeTab: NavigationItem,
+//            magazineTab: NavigationItem,
+//            publicationsTab: NavigationItem,
+//            bookmarksTab: NavigationItem
+//    ){
+//        NavHost(navController = navController, startDestination = homeTab.route) {
+//            composable(homeTab.route){
+//                HomeTabController()
+//            }
+//            composable(magazineTab.route){
+//                MagazineTabController()
+//            }
+//            composable(publicationsTab.route){
+//                PublicationsTabController()
+//            }
+//            composable(bookmarksTab.route){
+//                BookmarksTabController()
+//            }
+//        }
+//    }
 }
