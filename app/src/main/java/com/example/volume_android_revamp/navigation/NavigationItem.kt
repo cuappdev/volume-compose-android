@@ -1,4 +1,6 @@
-package com.example.volume_android_revamp
+package com.example.volume_android_revamp.navigation
+
+import com.example.volume_android_revamp.R
 
 sealed class NavigationItem(var route: String, var icon: Int, var title: String){
     object Home : NavigationItem("home", R.drawable.ic_volume_bars_gray_tab, "For You")
