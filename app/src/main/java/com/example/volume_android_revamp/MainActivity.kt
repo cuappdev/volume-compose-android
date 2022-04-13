@@ -11,13 +11,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHost
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 
 class MainActivity : AppCompatActivity() {
+    private val items = listOf(
+        NavigationItem.Home,
+        NavigationItem.Magazines,
+        NavigationItem.Publications,
+        NavigationItem.Bookmarks
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent{
@@ -31,7 +40,13 @@ class MainActivity : AppCompatActivity() {
         Scaffold(
             bottomBar = { BottomNavigationBar(navController) }
         ) {
-
+            MainScreenNavigationConfigurations(
+                navController = navController,
+                homeTab = items[0],
+                magazineTab = items[1] ,
+                publicationsTab = items[2],
+                bookmarksTab = items[3]
+            )
         }
     }
 
@@ -43,12 +58,6 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     fun BottomNavigationBar(navController: NavHostController) {
-        val items = listOf(
-            NavigationItem.Home,
-            NavigationItem.Magazines,
-            NavigationItem.Publications,
-            NavigationItem.Bookmarks
-        )
         BottomNavigation(
             backgroundColor = Color.White
         ) {
@@ -76,27 +85,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    @Composable
-//    private fun MainScreenNavigationConfigurations(
-//            navController: NavHostController,
-//            homeTab: NavigationItem,
-//            magazineTab: NavigationItem,
-//            publicationsTab: NavigationItem,
-//            bookmarksTab: NavigationItem
-//    ){
-//        NavHost(navController = navController, startDestination = homeTab.route) {
-//            composable(homeTab.route){
-//                HomeTabController()
-//            }
-//            composable(magazineTab.route){
-//                MagazineTabController()
-//            }
-//            composable(publicationsTab.route){
-//                PublicationsTabController()
-//            }
-//            composable(bookmarksTab.route){
-//                BookmarksTabController()
-//            }
-//        }
-//    }
+    @Composable
+    private fun MainScreenNavigationConfigurations(
+            navController: NavHostController,
+            homeTab: NavigationItem,
+            magazineTab: NavigationItem,
+            publicationsTab: NavigationItem,
+            bookmarksTab: NavigationItem
+    ){
+
+        NavHost(navController = navController, startDestination = homeTab.route){
+            composable(homeTab.route){}
+            composable(magazineTab.route){}
+            composable(publicationsTab.route){}
+            composable(bookmarksTab.route){}
+        }
+    }
 }
