@@ -1,5 +1,6 @@
 package com.example.volume_android_revamp.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,13 +20,18 @@ class HomeTabViewModel(private val repository: DataRepository):ViewModel() {
 
     val trendingArticlesState: StateFlow<State<TrendingArticlesQuery.Data>> = _trendingArticlesState
 
-    fun queryTrendArticles() = viewModelScope.launch {
+    init{
+        queryTrendingArticles()
+    }
+
+    private fun queryTrendingArticles() = viewModelScope.launch {
         _trendingArticlesState.value = State.Loading()
         try {
             val response = repository.fetchTrendingArticles()
             _trendingArticlesState.value = response?.let { State.Success(it) }!!
 
         }catch (e:Exception){
+            Log.d("home", e.toString())
             _trendingArticlesState.value = State.Error("There was an error loading trending articles!")
         }
     }
