@@ -4,6 +4,10 @@ plugins {
     id('com.apollographql.apollo3').version('3.1.0')
 }
 
+def secretsPropertiesFile = rootProject.file('secrets.properties');
+def secretsProperties = new Properties()
+secretsProperties.load(new FileInputStream(secretsPropertiesFile))
+
 android {
     compileSdk 32
 
@@ -15,6 +19,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "prod_endpoint", secretsProperties['PROD_ENDPOINT'])
         vectorDrawables {
             useSupportLibrary true
         }
@@ -33,6 +38,14 @@ android {
     kotlinOptions {
         jvmTarget = '11'
     }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerVersion "1.6.0"
+        kotlinCompilerExtensionVersion "1.1.0-beta04"
+    }
+    namespace 'com.example.volume_android_revamp'
 }
 
 dependencies {
@@ -50,10 +63,12 @@ dependencies {
     implementation 'androidx.compose.runtime:runtime-livedata:1.1.1'
     implementation 'androidx.compose.runtime:runtime-rxjava2:1.1.1'
     implementation 'com.apollographql.apollo3:apollo-runtime:3.1.0'
+    implementation 'com.squareup.okhttp3:okhttp'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
-    implementation "androidx.navigation:navigation-compose:2.4.0-beta02"
+    implementation 'androidx.navigation:navigation-compose:2.4.0-beta02'
+    implementation 'io.coil-kt:coil-compose:2.0.0-rc01'
 
 
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
