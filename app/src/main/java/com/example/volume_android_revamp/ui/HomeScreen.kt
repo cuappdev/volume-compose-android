@@ -5,22 +5,22 @@ import android.graphics.Color.red
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,6 +29,7 @@ import com.example.volume_android_revamp.navigation.NavigationItem
 import com.example.volume_android_revamp.state.State
 import com.example.volume_android_revamp.viewmodels.HomeTabViewModel
 import okhttp3.internal.http2.Header
+import org.intellij.lang.annotations.JdkConstants
 
 @Composable
 fun HomeScreen(homeTabViewModel: HomeTabViewModel){
@@ -58,15 +59,16 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel){
 
         item { Text(text = "Following", modifier = Modifier.padding(start = 20.dp)) }
         item {
-            Image(
-                painter = painterResource(id = R.drawable.ic_bar_chart_2),
-                contentDescription = null,
-                alignment = Alignment.Center
-            )
+            Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_bar_chart_2),
+                    contentDescription = null,
+                )
+                Text(text = "Nothing to see here!")
+                Text(text = "Follow some student publications that you are interested in")
+                Text(text = "Other Articles")
+            }
         }
-        item { Text(text = "Nothing to see here!") }
-        item { Text(text = "Follow some student publications that you are interested in") }
-        item { Text(text = "Other Articles") }
         otherArticleState.value?.getAllArticles?.let {
             items(it.size) {
                 when (val allArticlesState = homeTabViewModel.allArticlesState.collectAsState().value) {
@@ -93,17 +95,22 @@ fun volumeTitle(){
 
 @Composable
 fun trendingArticleItem(data: TrendingArticlesQuery.GetTrendingArticle){
-    Column {
-        AsyncImage(model = data.imageURL, contentDescription = null)
-        Text(text=data.publication.name)
-        Text(text = truncateTitle(data.title))
+    Column(modifier = Modifier.width(204.dp)) {
+        AsyncImage(model = data.imageURL, modifier = Modifier
+            .height(180.dp)
+            .width(180.dp), contentDescription = null, contentScale = ContentScale.Crop)
+        Text(text=data.publication.name, overflow = TextOverflow.Clip)
+        Text(text = truncateTitle(data.title), softWrap = false, maxLines = 3, overflow = TextOverflow.Ellipsis)
         Text(text = data.date.toString()+" · " +data.shoutouts.toString())
     }
 }
 
 @Composable
 fun otherArticleItem(data: AllArticlesQuery.GetAllArticle?){
-    Row {
+    Box(modifier = Modifier
+        .fillMaxHeight()
+        .fillMaxWidth()
+        .padding(start = 20.dp)) {
         Column {
             data?.publication?.let { Text(text = it.name) }
             if (data != null) {
@@ -113,9 +120,11 @@ fun otherArticleItem(data: AllArticlesQuery.GetAllArticle?){
                 Text(text = data.date.toString()+" · " +data.shoutouts.toString())
             }
         }
-        Column {
+        Box(modifier = Modifier.align(Alignment.CenterEnd)) {
             if (data != null) {
-                AsyncImage(model = data.imageURL, contentDescription = null)
+                AsyncImage(model = data.imageURL, modifier = Modifier
+                    .height(100.dp)
+                    .width(100.dp), contentDescription = null, contentScale = ContentScale.Crop)
             }
         }
     }
