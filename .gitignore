@@ -86,3 +86,6 @@ lint/tmp/
 
 # secrets.properties
 secrets.properties 
+
+#.DS_Store
+.DS_Store
