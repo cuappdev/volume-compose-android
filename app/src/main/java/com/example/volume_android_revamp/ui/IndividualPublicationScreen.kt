@@ -39,29 +39,19 @@ import org.w3c.dom.Text
 fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublicationViewModel) {
     val publicationByIDState =
         individualPublicationViewModel.publicationByIDState.collectAsState().value
-    LazyColumn() {
-        item {
-            publicationByIDState.value?.getPublicationByID?.let {
+    val articlesByPublicationIDState =
+        individualPublicationViewModel.articlesByPubIDState.collectAsState().value
+    Column() {
 
-                when (val publicationByIDState =
-                    individualPublicationViewModel.publicationByIDState.collectAsState().value) {
-                    is State.Success<PublicationByIDQuery.Data> ->
-                        publicationByIDState.value!!.getPublicationByID?.let { it1 -> PublicationScreen(data = it1) }
-                    is State.Error<PublicationByIDQuery.Data> -> Log.d(
-                        "HomeTab",
-                        "EROROROROROROR"
-                    )
-                    is State.Loading<PublicationByIDQuery.Data> -> Log.d("HomeTab", "loading aa")
-                    is State.Empty<PublicationByIDQuery.Data> -> Log.d("HomeTab", "empty aa")
-                }
-
-            }
-        }
-        item(){
+        publicationByIDState.value?.getPublicationByID?.let {
             when (val publicationByIDState =
                 individualPublicationViewModel.publicationByIDState.collectAsState().value) {
                 is State.Success<PublicationByIDQuery.Data> ->
-                    publicationByIDState.value!!.getPublicationByID?.let { it1 -> PublicationRecent(data = it1) }
+                    publicationByIDState.value!!.getPublicationByID?.let { it1 ->
+                        PublicationScreen(
+                            data = it1
+                        )
+                    }
                 is State.Error<PublicationByIDQuery.Data> -> Log.d(
                     "HomeTab",
                     "EROROROROROROR"
@@ -69,14 +59,39 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
                 is State.Loading<PublicationByIDQuery.Data> -> Log.d("HomeTab", "loading aa")
                 is State.Empty<PublicationByIDQuery.Data> -> Log.d("HomeTab", "empty aa")
             }
+
         }
+
+
+
+        articlesByPublicationIDState.value?.getArticlesByPublicationID?.let {
+            when (val articlesByPublicationIDState =
+                individualPublicationViewModel.articlesByPubIDState.collectAsState().value) {
+                is State.Success<ArticlesByPublicationIDQuery.Data> ->
+                    articlesByPublicationIDState.value!!.getArticlesByPublicationID?.let { it1 ->
+                        PublicationRecent(
+                            data = it1
+                        )
+                    }
+                is State.Error<ArticlesByPublicationIDQuery.Data> -> Log.d(
+                    "HomeTab",
+                    "EROROROROROROR"
+                )
+                is State.Loading<ArticlesByPublicationIDQuery.Data> -> Log.d(
+                    "HomeTab",
+                    "loading aa"
+                )
+                is State.Empty<ArticlesByPublicationIDQuery.Data> -> Log.d("HomeTab", "empty aa")
+            }
+        }
+
     }
 }
 //data: PublicationByIDQuery.GetPublicationByID
 @Composable
 fun PublicationScreen(data: PublicationByIDQuery.GetPublicationByID) {
     //val data= PublicationByIDQuery.GetPublicationByID(data1)
-    Column {
+
         Box(modifier=Modifier.height(400.dp)){
             AsyncImage(
                 model = data.backgroundImageURL, modifier = Modifier
@@ -99,7 +114,7 @@ fun PublicationScreen(data: PublicationByIDQuery.GetPublicationByID) {
             }
             Text(data.bio, modifier=Modifier.padding(top=100.dp), fontSize = 15.sp)
             //Social Medias
-            Publicationsocial(data)
+            PublicationSocial(data)
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_divider),
@@ -113,39 +128,18 @@ fun PublicationScreen(data: PublicationByIDQuery.GetPublicationByID) {
                     contentDescription = "", modifier = Modifier.padding(top = 75.dp)
                 )
             }
-
-            //print out the most recent articles?? didnt get a list from backend
-            for (i in 1..data.numArticles.toInt()){
-                PublicationRecent(data)
-             }
-
-        }
-
-
-
-    }
-}
-
-//data: PublicationByIDQuery.GetPublicationByID
-@Composable
-fun PublicationProfilePic(data: PublicationByIDQuery.GetPublicationByID){
-    Column{
-        AsyncImage(model = data.profileImageURL, modifier= Modifier
-            .height(180.dp)
-            .width(180.dp), contentDescription = null, contentScale = ContentScale.Crop)
     }
 }
 
 @Composable
-fun PublicationRecent(data: PublicationByIDQuery.GetPublicationByID){
-    Column{
-        val recent=data.mostRecentArticle
-        Box(){
-            Column() {
+fun PublicationRecent(data: List<ArticlesByPublicationIDQuery.GetArticlesByPublicationID>){
+    LazyColumn(){
+        for (i in 1..data.size){
+            item() {
                 Row() {
-                    Text(recent!!.title, fontSize=20.sp)
+                    Text(data[i].title, fontSize = 20.sp)
                     AsyncImage(
-                        model = recent.imageURL,
+                        model = data[i].imageURL,
                         modifier = Modifier
                             .height(180.dp)
                             .width(180.dp)
@@ -154,18 +148,17 @@ fun PublicationRecent(data: PublicationByIDQuery.GetPublicationByID){
                         contentScale = ContentScale.Crop
                     )
                 }
-                Row(modifier=Modifier.padding(20.dp)){
-                    Text(recent!!.date.toString()+" • "+recent.shoutouts.toString()+"shout-outs")
+                Row(modifier = Modifier.padding(20.dp)) {
+                    Text(data[i].date.toString() + " • " + data[i].shoutouts.toString() + "shout-outs")
                 }
-
-
             }
         }
     }
 }
 
+//for social medias but I didn't get to completely finish because im not sure if this method works
 @Composable
-fun Publicationsocial(data: PublicationByIDQuery.GetPublicationByID){
+fun PublicationSocial(data: PublicationByIDQuery.GetPublicationByID){
     // Creating an annonated string
     Row(){
         Image(
@@ -225,6 +218,7 @@ fun Publicationsocial(data: PublicationByIDQuery.GetPublicationByID){
     }
 
 }
+
 
 
 /**
