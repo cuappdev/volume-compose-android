@@ -2,6 +2,12 @@
     <string name="app_name">volume-android-revamp</string>
     <string name="title_activity_graph_ql_util">GraphQlUtil</string>
 
+    <!--    Publications Page -->
+    <string name="following">Following</string>
+    <string name="more_publicationa">More Publications</string>
+
     <!--    Content Descriptions-->
     <string name="volume_title">Volume Title</string>
+    <string name="publications_title">Publications Title</string>
+    <string name="underline">Underline</string>
 </resources>
