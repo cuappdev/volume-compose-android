@@ -1,6 +1,13 @@
 <resources>
-    <string name="app_name">volume-android-revamp</string>
+    <string name="app_name">Volume</string>
     <string name="title_activity_graph_ql_util">GraphQlUtil</string>
+
+    <!-- General -->
+    <plurals name="shoutout_count">
+        <item quantity="one">%1$d shout-out</item>
+        <item quantity="other">%1$d shout-outs</item>
+    </plurals>
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
 
     <!--    Publications Page -->
     <string name="following">Following</string>
@@ -10,4 +17,26 @@
     <string name="volume_title">Volume Title</string>
     <string name="publications_title">Publications Title</string>
     <string name="underline">Underline</string>
+
+    <!-- Article class -->
+    <plurals name="x_h_ago">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <plurals name="x_days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <plurals name="x_weeks_ago">
+        <item quantity="one">%d week ago</item>
+        <item quantity="other">%d weeks ago</item>
+    </plurals>
+    <plurals name="x_months_ago">
+        <item quantity="one">%d month ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="x_years_ago">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
 </resources>

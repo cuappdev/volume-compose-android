@@ -2,24 +2,27 @@ plugins {
     id('com.android.application')
     id('kotlin-android')
     id('com.apollographql.apollo3').version('3.1.0')
+    id('com.google.protobuf').version('0.8.17')
 }
 
-def secretsPropertiesFile = rootProject.file('secrets.properties');
+def secretsPropertiesFile = rootProject.file('secrets.properties')
 def secretsProperties = new Properties()
 secretsProperties.load(new FileInputStream(secretsPropertiesFile))
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.volume_android_revamp"
-        minSdk 21
+        applicationId "com.cornellappdev.volume"
+        minSdk 27
         targetSdk 32
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "prod_endpoint", secretsProperties['PROD_ENDPOINT'])
+        buildConfigField("String", "PROD_ENDPOINT", secretsProperties['PROD_ENDPOINT'])
+        buildConfigField("String", "DEV_ENDPOINT", secretsProperties['DEV_ENDPOINT'])
+
         vectorDrawables {
             useSupportLibrary true
         }
@@ -45,30 +48,45 @@ android {
         kotlinCompilerVersion "1.6.0"
         kotlinCompilerExtensionVersion "1.1.0-beta04"
     }
-    namespace 'com.example.volume_android_revamp'
+    namespace 'com.cornellappdev.volume'
 }
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'com.google.android.material:material:1.1.0-alpha09'
-    implementation 'androidx.compose.ui:ui:1.1.1'
-    implementation 'androidx.compose.ui:ui-tooling:1.1.1'
-    implementation 'androidx.compose.foundation:foundation:1.1.1'
-    implementation 'androidx.compose.material:material:1.1.1'
-    implementation 'androidx.compose.material:material-icons-core:1.1.1'
-    implementation 'androidx.compose.material:material-icons-extended:1.1.1'
-    implementation 'androidx.activity:activity-compose:1.4.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
-    implementation 'androidx.compose.runtime:runtime-livedata:1.1.1'
-    implementation 'androidx.compose.runtime:runtime-rxjava2:1.1.1'
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'com.google.android.material:material:1.7.0-beta01'
+    implementation 'androidx.compose.ui:ui:1.2.1'
+    implementation 'androidx.compose.ui:ui-tooling:1.2.1'
+    implementation 'androidx.compose.foundation:foundation:1.2.1'
+    implementation 'androidx.compose.material:material:1.2.1'
+    implementation 'androidx.compose.material:material-icons-core:1.2.1'
+    implementation 'androidx.compose.material:material-icons-extended:1.2.1'
+    implementation 'androidx.activity:activity-compose:1.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
+    implementation "androidx.compose.runtime:runtime:$compose_version"
+    implementation 'androidx.compose.runtime:runtime-livedata:1.2.1'
+    implementation 'androidx.compose.runtime:runtime-rxjava2:1.2.1'
     implementation 'com.apollographql.apollo3:apollo-runtime:3.1.0'
     implementation 'com.squareup.okhttp3:okhttp'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
-    implementation 'androidx.navigation:navigation-compose:2.4.0-beta02'
-    implementation 'io.coil-kt:coil-compose:2.0.0-rc01'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation 'androidx.navigation:navigation-compose:2.5.1'
+    implementation 'io.coil-kt:coil-compose:2.1.0'
+    implementation "androidx.datastore:datastore:1.0.0"
+    implementation "androidx.datastore:datastore-core:1.0.0"
+    implementation "com.google.protobuf:protobuf-javalite:3.21.1"
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:27.0.0')
+    implementation 'com.google.firebase:firebase-inappmessaging-display-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-installations:17.0.1'
+
+    // Accompanist
+    implementation 'com.google.accompanist:accompanist-pager:0.26.1-alpha'
+    implementation 'com.google.accompanist:accompanist-pager-indicators:0.26.1-alpha'
 
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
     testImplementation 'junit:junit:4.+'
@@ -78,7 +96,22 @@ dependencies {
 }
 
 apollo {
-    packageName.set("com.example.volume_android_revamp")
+    packageName.set("com.cornellappdev.volume")
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.20.0-rc-1"
+    }
+
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option 'lite'
+                }
+            }
+        }
+    }
+}
 
