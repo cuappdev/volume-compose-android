@@ -52,7 +52,6 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
     }, content = {
         Column(
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
                 .padding(start = 12.dp, top = 16.dp),
         ) {
             Text(
@@ -133,9 +132,10 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
                     // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
                 }
                 is HomeTabViewModel.ArticleState.Success -> {
+                    // TODO fix issue where last item not showing up
                     LazyColumn(
                         modifier = Modifier
-                            .height(600.dp)
+                            .weight(1f, true)
                             .padding(end = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
