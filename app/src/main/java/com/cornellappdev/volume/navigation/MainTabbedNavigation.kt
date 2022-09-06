@@ -1,6 +1,7 @@
 package com.cornellappdev.volume.navigation
 
 import android.annotation.SuppressLint
+import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -19,12 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.volume.AppContainer
+import com.cornellappdev.volume.UserPreferences
+import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.ui.screens.HomeScreen
 import com.cornellappdev.volume.ui.screens.OnboardingScreen
 import com.cornellappdev.volume.ui.theme.DarkGray
@@ -35,7 +39,7 @@ import com.cornellappdev.volume.ui.viewmodels.OnboardingViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun TabbedNavigationSetup(appContainer: AppContainer) {
+fun TabbedNavigationSetup(appContainer: AppContainer, notificationBundle: Bundle?) {
     val navController = rememberNavController()
     val (showBottomBar, setShowBottomBar) = rememberSaveable { mutableStateOf(false) }
 
@@ -101,11 +105,12 @@ private fun MainScreenNavigationConfigurations(
     navigationViewModel: NavigationViewModel,
     setShowBottomBar: (Boolean) -> Unit,
 ) {
+    // Checks to see if onboarding has already been completed
     val onboardingCompletedState = navigationViewModel.onboardingState.collectAsState().value
 
     when (onboardingCompletedState.state) {
         NavigationViewModel.OnboardingState.Pending -> {
-            // Loads a progress animation while fetching is happening
+            // Loads a progress animation while fetching from datastore is happening
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -116,21 +121,20 @@ private fun MainScreenNavigationConfigurations(
         }
         is NavigationViewModel.OnboardingState.Success -> {
             val onboardingIsCompleted = onboardingCompletedState.state.onboardingCompleted
+            // The starting destination switches to onboarding if it isn't completed.
             NavHost(
                 navController = navController,
                 startDestination = if (onboardingIsCompleted) Routes.HOME.route else Routes.ONBOARDING.route
             ) {
                 composable(Routes.HOME.route) {
                     setShowBottomBar(true)
-                    HomeScreen(HomeTabViewModel(articleRepository = appContainer.articleRepository))
+                    HomeScreen(HomeTabViewModel(appContainer.userPreferencesRepository))
                 }
                 composable(Routes.ONBOARDING.route) {
                     setShowBottomBar(false)
                     OnboardingScreen(
                         onboardingViewModel = OnboardingViewModel(
-                            userRepository = appContainer.userRepository,
-                            userPreferencesRepository = appContainer.userPreferencesRepository,
-                            publicationRepository = appContainer.publicationRepository
+                            userPreferencesRepository = appContainer.userPreferencesRepository
                         )
                     ) {
                         navController.navigate(Routes.HOME.route)

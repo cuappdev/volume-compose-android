@@ -4,15 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.repositories.PublicationRepository
+import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
+import com.cornellappdev.volume.data.repositories.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 // Should also use the UserRepository to retrieve the list of publications followed
-// by the User, currently there is no mutation for obtaining a user by a UUID (the UUID
-// saved in the Android device can be obtained by UserPreferencesRepository
-class PublicationTabViewModel(private val publicationRepository: PublicationRepository) :
+// by the User using the UUID obtained from userPreferencesRepository
+class PublicationTabViewModel(
+    private val publicationRepository: PublicationRepository = PublicationRepository,
+    private val userRepository: UserRepository = UserRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
+) :
     ViewModel() {
 
     data class AllPublicationUIState(
@@ -32,6 +37,16 @@ class PublicationTabViewModel(private val publicationRepository: PublicationRepo
 
     init {
         queryAllPublications()
+    }
+
+    fun followPublication(id: String) = viewModelScope.launch {
+        val uuid = userPreferencesRepository.fetchUuid()
+        userRepository.followPublication(id, uuid)
+    }
+
+    fun unfollowPublication(id: String) = viewModelScope.launch {
+        val uuid = userPreferencesRepository.fetchUuid()
+        userRepository.unfollowPublication(id, uuid)
     }
 
     private fun queryAllPublications() = viewModelScope.launch {

@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class IndividualPublicationViewModel(
-    private val articleRepository: ArticleRepository,
-    private val publicationRepository: PublicationRepository,
-    id: String
+    id: String,
+    private val articleRepository: ArticleRepository = ArticleRepository,
+    private val publicationRepository: PublicationRepository = PublicationRepository,
 ) : ViewModel() {
     data class ArticlesByPublicationUIState(
         val articleState: ArticleState

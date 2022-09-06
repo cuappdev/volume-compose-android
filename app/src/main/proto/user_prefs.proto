@@ -3,9 +3,12 @@ option java_package = "com.cornellappdev.volume";
 option java_multiple_files = true;
 
 message UserPreferences {
-
+  // Keeps track of whether onboarding has been completed. By default it's false.
   bool onboarding_completed = 1;
+
+  // The unique identifier for a user on Volume
   string uuid = 2;
+
+  // The device token for Firebase notifications
   string device_token = 3;
-  repeated string followed_publications = 4;
 }

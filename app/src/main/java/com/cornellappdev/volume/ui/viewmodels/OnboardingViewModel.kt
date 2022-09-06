@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class OnboardingViewModel(
-    private val userRepository: UserRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val publicationRepository: PublicationRepository
+    private val userRepository: UserRepository = UserRepository,
+    private val publicationRepository: PublicationRepository = PublicationRepository
 ) : ViewModel() {
 
     data class CreatingUserState(
@@ -68,7 +68,6 @@ class OnboardingViewModel(
                 listOfPubsFollowed,
                 userPreferencesRepository.fetchDeviceToken()
             )
-            userPreferencesRepository.updateFollowedPublications(user.followedPublicationIDs)
             userPreferencesRepository.updateUuid(user.uuid)
             userRepository.followPublications(listOfPubsFollowed, user.uuid)
             _creatingUserState.value = _creatingUserState.value.copy(

@@ -12,6 +12,11 @@ import java.io.OutputStream
 
 const val DATA_STORE_FILE_NAME = "user_prefs.pb"
 
+/**
+ * Tells the DataStore how to read and write the data type we defined in the proto file.
+ *
+ * See the user_prefs.proto file
+ */
 object UserPreferencesSerializer : Serializer<UserPreferences> {
     override val defaultValue: UserPreferences = UserPreferences.getDefaultInstance()
     override suspend fun readFrom(input: InputStream): UserPreferences {

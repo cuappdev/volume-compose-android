@@ -6,27 +6,33 @@ import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.models.Social
 
-class ArticleRepository(private val webService: NetworkingApi) {
-    suspend fun fetchAllArticles(): List<Article> =
-        webService.fetchAllArticles().dataAssertNoErrors.mapDataToArticles()
+/**
+ * Article Repository. Encapsulate the logic required to access data sources, particularly
+ * those depending on the Article model and mutations/queries on Articles.
+ *
+ * @see Article
+ */
+object ArticleRepository {
+    suspend fun fetchAllArticles(limit: Double? = null): List<Article> =
+        NetworkingApi.fetchAllArticles(limit).dataAssertNoErrors.mapDataToArticles()
 
-    suspend fun fetchTrendingArticles(): List<Article> =
-        webService.fetchTrendingArticles().dataAssertNoErrors.mapDataToArticles()
+    suspend fun fetchTrendingArticles(limit: Double? = null): List<Article> =
+        NetworkingApi.fetchTrendingArticles(limit).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByPublicationID(pubID: String): List<Article> =
-        webService.fetchArticleByPublicationID(pubID).dataAssertNoErrors.mapDataToArticles()
+        NetworkingApi.fetchArticleByPublicationID(pubID).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByPublicationIDs(pubIDs: MutableList<String>): List<Article> =
-        webService.fetchArticlesByPublicationIDs(pubIDs).dataAssertNoErrors.mapDataToArticles()
+        NetworkingApi.fetchArticlesByPublicationIDs(pubIDs).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByIDs(ids: MutableSet<String>): List<Article> =
-        webService.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
+        NetworkingApi.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticleByID(id: String): List<Article> =
-        webService.fetchArticleByID(id).dataAssertNoErrors.mapDataToArticles()
+        NetworkingApi.fetchArticleByID(id).dataAssertNoErrors.mapDataToArticles()
 
-    suspend fun incrementShoutout(id: String): IncrementShoutoutMutation.Data =
-        webService.incrementShoutout(id).dataAssertNoErrors
+    suspend fun incrementShoutout(id: String, uuid: String): IncrementShoutoutMutation.Data =
+        NetworkingApi.incrementShoutout(id, uuid).dataAssertNoErrors
 
     private fun AllArticlesQuery.Data.mapDataToArticles(): List<Article> {
         return this.getAllArticles.map { articleData ->

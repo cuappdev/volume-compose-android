@@ -23,6 +23,15 @@ import coil.compose.AsyncImage
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.ui.theme.*
 
+/**
+ * Creates a Horizontal Publication Row for the Publication passed in.
+ *
+ * The callback returns the publication back when the follow button is
+ * clicked, and returns true when the publication is followed.
+ *
+ * @param publication
+ * @param followButtonClicked
+ */
 @Composable
 fun CreateHorizontalPublicationRow(
     publication: Publication,

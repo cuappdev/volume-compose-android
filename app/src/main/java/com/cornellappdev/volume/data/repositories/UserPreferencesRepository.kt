@@ -2,6 +2,7 @@ package com.cornellappdev.volume.data.repositories
 
 import androidx.datastore.core.DataStore
 import com.cornellappdev.volume.UserPreferences
+import com.cornellappdev.volume.util.userPreferencesStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
@@ -22,21 +23,11 @@ class UserPreferencesRepository(
         }
     }
 
-    suspend fun updateFollowedPublications(followedPublications: List<String>) {
-        userPreferencesStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder().clearFollowedPublications()
-                .addAllFollowedPublications(followedPublications).build()
-        }
-    }
-
     suspend fun fetchOnboardingCompleted(): Boolean =
         userPreferencesFlow.first().onboardingCompleted
 
     suspend fun fetchUuid(): String =
         userPreferencesFlow.first().uuid
-
-    suspend fun fetchFollowedPublications(): List<String> =
-        userPreferencesFlow.first().followedPublicationsList
 
     suspend fun fetchDeviceToken(): String =
         userPreferencesFlow.first().deviceToken

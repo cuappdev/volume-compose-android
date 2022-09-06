@@ -14,26 +14,42 @@ import com.cornellappdev.volume.MainActivity
 import com.cornellappdev.volume.R
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
+/**
+ * Configures the NotificationService for Firebase Messaging
+ */
 class NotificationService : FirebaseMessagingService() {
 
+    /**
+     * Represents the keys for the fields of data in the notification
+     * data bundle sent from the backend. The same keys are used
+     * as keys for the intent bundle to the MainActivity.
+     *
+     * @property key key name
+     */
     enum class NotificationDataKeys(val key: String) {
         ARTICLE_ID("articleID"),
         ARTICLE_URL("articleURL"),
         NOTIFICATION_TYPE("notification_type")
     }
 
+    /**
+     * Notifications from the backend are identifiable from their type.
+     *
+     * @property type notification type
+     */
     enum class NotificationType(val type: String) {
         WEEKLY_DEBRIEF("weekly_debrief"),
         NEW_ARTICLE("new_article")
-    }
-
-    enum class NotificationIntentKeys(val key: String) {
-        ARTICLE("article")
     }
 
     /**
@@ -41,9 +57,7 @@ class NotificationService : FirebaseMessagingService() {
      *
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
-    // [START receive_message]
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
         // traditionally used with GCM. Notification messages are only received here in onMessageReceived when the app
@@ -51,7 +65,6 @@ class NotificationService : FirebaseMessagingService() {
         // When the user taps on the notification they are returned to the app. Messages containing both notification
         // and data payloads are treated as notification messages. The Firebase console always sends notification
         // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
-        // [END_EXCLUDE]
 
         // Check if message contains a notification payload.
         remoteMessage.notification?.let {
@@ -59,7 +72,6 @@ class NotificationService : FirebaseMessagingService() {
             Log.d(TAG, "Message Notification Body: ${it.body}")
         }
     }
-    // [END receive_message]
 
     /**
      * Called if the FCM registration token is updated. This may occur if the security of
@@ -67,7 +79,8 @@ class NotificationService : FirebaseMessagingService() {
      * FCM registration token is initially generated so this is where you would retrieve the token.
      */
     override fun onNewToken(token: String) {
-        runBlocking {
+        // TODO If a new token is received, a new user should technically be created. May be easier to have a backend route to update the device token for a User if there's a uuid in the user preferences.
+        CoroutineScope(Dispatchers.IO).launch {
             baseContext.userPreferencesStore.updateData { currentPreferences ->
                 currentPreferences.toBuilder().setDeviceToken(token).build()
             }
@@ -83,13 +96,15 @@ class NotificationService : FirebaseMessagingService() {
     ) {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        intent.putExtra(
-            NotificationIntentKeys.ARTICLE.key,
-            data[NotificationIntentKeys.ARTICLE.key]
-        )
 
+        // What's sent back to the MainActivity depends on the type of the notification
+        // received from Firebase. The type is embedded in the data sent for the notification.
         when (data[NotificationDataKeys.NOTIFICATION_TYPE.key]) {
             NotificationType.NEW_ARTICLE.type -> {
+                intent.putExtra(
+                    NotificationDataKeys.NOTIFICATION_TYPE.key,
+                    NotificationType.NEW_ARTICLE.type
+                )
                 intent.putExtra(
                     NotificationDataKeys.ARTICLE_ID.key,
                     data[NotificationDataKeys.ARTICLE_ID.key]
@@ -97,6 +112,14 @@ class NotificationService : FirebaseMessagingService() {
                 intent.putExtra(
                     NotificationDataKeys.ARTICLE_URL.key,
                     data[NotificationDataKeys.ARTICLE_URL.key]
+                )
+            }
+            NotificationType.WEEKLY_DEBRIEF.type -> {
+                // We simply just need to identify the type of the notification. The
+                // WeeklyDebrief can be retrieved from the UserRepository#GetUser
+                intent.putExtra(
+                    NotificationDataKeys.NOTIFICATION_TYPE.key,
+                    NotificationType.NEW_ARTICLE.type
                 )
             }
         }

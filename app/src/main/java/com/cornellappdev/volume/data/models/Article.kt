@@ -9,6 +9,18 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
+/**
+ * Model class for Articles on Volume
+ *
+ * @property id
+ * @property title
+ * @property articleURL
+ * @property imageURL
+ * @property publication
+ * @property date
+ * @property shoutouts
+ * @property nsfw
+ */
 data class Article(
     val id: String,
     val title: String,
@@ -19,6 +31,14 @@ data class Article(
     val shoutouts: Double,
     val nsfw: Boolean = false
 ) {
+    companion object {
+        fun sortByDate(articles: MutableList<Article>) {
+            articles.sortWith(compareByDescending { article ->
+                article.date
+            })
+        }
+    }
+
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun getTimeSinceArticlePublished(): String {

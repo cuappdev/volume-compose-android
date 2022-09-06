@@ -1,13 +1,15 @@
 package com.cornellappdev.volume.ui.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -17,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -28,6 +32,8 @@ import coil.compose.AsyncImage
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
+import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheEnd
+import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheStart
 import com.cornellappdev.volume.ui.theme.GrayOne
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.lato
@@ -38,16 +44,19 @@ import com.cornellappdev.volume.ui.viewmodels.HomeTabViewModel
 @Composable
 fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
     val trendingArticleUiState = homeTabViewModel.trendingArticlesState.collectAsState().value
-    val otherArticleState = homeTabViewModel.allArticlesState.collectAsState().value
+    val followingArticleUiState = homeTabViewModel.followedArticlesState.collectAsState().value
+    val otherArticleState = homeTabViewModel.otherArticlesState.collectAsState().value
 
+    // TODO add scrollability to content
     Scaffold(topBar = {
+        // TODO fix positioning
         Image(
             painter = painterResource(R.drawable.volume_title),
             contentDescription = null,
             alignment = Alignment.CenterStart,
             modifier = Modifier
                 .scale(0.7f)
-                .padding(start = (10).dp)
+                .padding(start = 10.dp)
         )
     }, content = {
         Column(
@@ -95,18 +104,106 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_bar_chart_2),
-                    contentDescription = null,
-                )
-                Text(text = "Nothing to see here!")
-                Text(text = "Follow some student publications that you are interested in")
+            when (followingArticleUiState.articleState) {
+                HomeTabViewModel.ArticleState.Loading -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(color = VolumeOrange)
+                    }
+                }
+                HomeTabViewModel.ArticleState.Error -> {
+                    // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
+                }
+                is HomeTabViewModel.ArticleState.Success -> {
+                    val following = followingArticleUiState.articleState.article
+                    if (following.isEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .padding(vertical = 10.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_bar_chart_2),
+                                contentDescription = null,
+                            )
+                            Text(text = "Nothing to see here!")
+                            Text(text = "Follow some student publications that you are interested in")
+                        }
+                    } else {
+                        val lazyListState = rememberLazyListState()
+
+                        // TODO adjust height, add onClick
+                        Box {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .height(300.dp)
+                                    .padding(end = 12.dp),
+                                state = lazyListState,
+                                verticalArrangement = Arrangement.spacedBy(20.dp),
+                            ) {
+                                items(followingArticleUiState.articleState.article) { article ->
+                                    CreateHorizontalArticleRow(article)
+                                }
+                            }
+
+                            // Gradient overlay to the top of the following articles LazyColumn
+                            androidx.compose.animation.AnimatedVisibility(
+                                modifier = Modifier
+                                    .align(Alignment.TopStart)
+                                    .height(30.dp)
+                                    .fillMaxWidth(),
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                                // The gradient overlay is only visible when the user is scrolled past the start
+                                // so the gradient isn't blocking the first article
+                                visible = !lazyListState.isScrolledToTheStart()
+                            ) {
+                                Spacer(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            brush = Brush.verticalGradient(
+                                                colors = listOf(
+                                                    Color.White,
+                                                    Color.Transparent
+                                                )
+                                            )
+                                        )
+                                )
+                            }
+
+                            // Gradient overlay to the bottom of the following articles LazyColumn
+                            androidx.compose.animation.AnimatedVisibility(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .height(30.dp)
+                                    .fillMaxWidth(),
+                                enter = fadeIn(),
+                                exit = fadeOut(),
+                                // The gradient overlay is only visible when the user hasn't scrolled to the end
+                                // so the gradient isn't blocking the final article
+                                visible = !lazyListState.isScrolledToTheEnd()
+                            ) {
+                                Spacer(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            brush = Brush.verticalGradient(
+                                                colors = listOf(
+                                                    Color.Transparent,
+                                                    Color.White
+                                                )
+                                            )
+                                        )
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -132,10 +229,10 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
                     // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
                 }
                 is HomeTabViewModel.ArticleState.Success -> {
-                    // TODO fix issue where last item not showing up
+                    // TODO adjust height, add onClick
                     LazyColumn(
                         modifier = Modifier
-                            .weight(1f, true)
+                            .height(200.dp)
                             .padding(end = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {

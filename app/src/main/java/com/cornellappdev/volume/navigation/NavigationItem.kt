@@ -5,8 +5,10 @@ import com.cornellappdev.volume.R
 /**
  * Class to represent each tab.
  *
- * The route is needed to match the tab to the correct screen.
- * The iconId is the resource id number for the drawable for the icon of the tab.
+ * @property route matches the tab to the correct screen
+ * @property unselectedIconId represents the resource id number for the tab icon when not selected
+ * @property selectedIconId represents the resource id number for the tab icon when selected
+ * @property title title of tab
  */
 sealed class NavigationItem(
     val route: String,
@@ -14,6 +16,7 @@ sealed class NavigationItem(
     val selectedIconId: Int,
     val title: String
 ) {
+    // TODO not sure if tabs have titles, double check
     object Home : NavigationItem(
         Routes.HOME.route,
         R.drawable.ic_volume_bars_gray,
@@ -63,7 +66,7 @@ interface NavUnit {
 
 /**
  * Contains information about all known routes. These should correspond to routes in our
- * NavHost/new routes should be added here.
+ * NavHost/new routes should be added here. Routes can exist independent of tabs (like onboarding).
  */
 enum class Routes(override var route: String) : NavUnit {
     HOME("HOME"),

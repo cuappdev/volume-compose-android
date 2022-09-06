@@ -18,6 +18,12 @@ import com.cornellappdev.volume.ui.theme.GrayOne
 import com.cornellappdev.volume.ui.theme.lato
 import com.cornellappdev.volume.ui.theme.notoserif
 
+/**
+ *
+ * Creates a Horizontal Article Row for the article passed in.
+ *
+ * @param article
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CreateHorizontalArticleRow(article: Article) {
@@ -77,4 +83,9 @@ fun CreateHorizontalArticleRow(article: Article) {
                 .width(100.dp), contentDescription = null, contentScale = ContentScale.Crop
         )
     }
+}
+
+// TODO create
+fun CreateBigReadRow(article: Article) {
+
 }

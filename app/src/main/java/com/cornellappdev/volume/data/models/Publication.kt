@@ -1,5 +1,21 @@
 package com.cornellappdev.volume.data.models
 
+/**
+ * Model class for Publications on Volume
+ *
+ * @property id
+ * @property backgroundImageURL
+ * @property bio
+ * @property name
+ * @property profileImageURL
+ * @property rssName
+ * @property rssURL
+ * @property slug
+ * @property shoutouts
+ * @property websiteURL
+ * @property mostRecentArticle
+ * @property socials
+ */
 data class Publication(
     val id: String,
     val backgroundImageURL: String,

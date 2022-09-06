@@ -230,6 +230,13 @@ fun SecondPage(
 }
 
 /**
+ * Detects when the given LazyList is scrolled to the start.
+ */
+fun LazyListState.isScrolledToTheStart() =
+    layoutInfo.visibleItemsInfo.firstOrNull()?.index == 0
+
+
+/**
  * Detects when the given LazyList has scrolled to the end.
  */
 fun LazyListState.isScrolledToTheEnd() =

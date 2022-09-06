@@ -9,11 +9,11 @@ import com.cornellappdev.volume.util.userPreferencesStore
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val appContainer = AppContainer(userPreferencesStore = userPreferencesStore)
+        // Holds potential bundle of notification data payload
+        val notificationBundle = intent.extras
 
         setContent {
-            TabbedNavigationSetup(appContainer)
+            TabbedNavigationSetup(AppContainer(userPreferencesStore), notificationBundle)
         }
     }
 }
