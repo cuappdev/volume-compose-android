@@ -15,6 +15,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -42,22 +43,20 @@ import com.cornellappdev.volume.ui.viewmodels.HomeTabViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
-    val trendingArticleUiState = homeTabViewModel.trendingArticlesState.collectAsState().value
-    val followingArticleUiState = homeTabViewModel.followedArticlesState.collectAsState().value
-    val otherArticleState = homeTabViewModel.otherArticlesState.collectAsState().value
+fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> Unit) {
+    val articlesState by homeTabViewModel.articlesState.collectAsState()
 
     // TODO add scrollability to content
     Scaffold(topBar = {
-        // TODO fix positioning
+
         Image(
             painter = painterResource(R.drawable.volume_title),
             contentDescription = null,
-            alignment = Alignment.CenterStart,
             modifier = Modifier
                 .scale(0.7f)
-                .padding(start = 10.dp)
         )
+
+        // TODO fix positioning
     }, content = {
         Column(
             modifier = Modifier
@@ -72,7 +71,7 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
 
             Spacer(modifier = Modifier.height(22.dp))
 
-            when (trendingArticleUiState.articleState) {
+            when (val trendingArticles = articlesState.trendingArticlesState) {
                 HomeTabViewModel.ArticleState.Loading -> {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -86,7 +85,7 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
                 }
                 is HomeTabViewModel.ArticleState.Success -> {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                        items(trendingArticleUiState.articleState.article) { article ->
+                        items(trendingArticles.articles) { article ->
                             TrendingArticleItem(article = article)
                         }
                     }
@@ -104,7 +103,7 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            when (followingArticleUiState.articleState) {
+            when (val followingArticles = articlesState.followingArticlesState) {
                 HomeTabViewModel.ArticleState.Loading -> {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -117,8 +116,7 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
                     // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
                 }
                 is HomeTabViewModel.ArticleState.Success -> {
-                    val following = followingArticleUiState.articleState.article
-                    if (following.isEmpty()) {
+                    if (followingArticles.articles.isEmpty()) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -136,7 +134,7 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
                     } else {
                         val lazyListState = rememberLazyListState()
 
-                        // TODO adjust height, add onClick
+                        // TODO adjust height of LazyColumn
                         Box {
                             LazyColumn(
                                 modifier = Modifier
@@ -145,8 +143,8 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
                                 state = lazyListState,
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
-                                items(followingArticleUiState.articleState.article) { article ->
-                                    CreateHorizontalArticleRow(article)
+                                items(followingArticles.articles) { article ->
+                                    CreateHorizontalArticleRow(article, onArticleClick)
                                 }
                             }
 
@@ -215,8 +213,7 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
                 fontWeight = FontWeight.Medium
             )
 
-
-            when (otherArticleState.articleState) {
+            when (val otherArticles = articlesState.otherArticlesState) {
                 HomeTabViewModel.ArticleState.Loading -> {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -229,15 +226,15 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
                     // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
                 }
                 is HomeTabViewModel.ArticleState.Success -> {
-                    // TODO adjust height, add onClick
+                    // TODO adjust height of LazyColumn
                     LazyColumn(
                         modifier = Modifier
                             .height(200.dp)
                             .padding(end = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
-                        items(otherArticleState.articleState.article) { article ->
-                            CreateHorizontalArticleRow(article)
+                        items(otherArticles.articles) { article ->
+                            CreateHorizontalArticleRow(article, onArticleClick)
                         }
                     }
                 }
@@ -246,6 +243,7 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel) {
     })
 }
 
+// TODO move to ArticleComponents, add onClick
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TrendingArticleItem(article: Article) {

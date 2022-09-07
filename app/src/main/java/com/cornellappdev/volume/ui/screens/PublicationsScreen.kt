@@ -7,15 +7,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.viewmodels.PublicationTabViewModel
 
 
 @Composable
-fun PublicationScreen(publicationTabViewModel: PublicationTabViewModel) {
+fun PublicationScreen(
+    publicationTabViewModel: PublicationTabViewModel,
+    navController: NavController,
+    onPublicationClick: (Publication) -> Unit
+) {
     val allPublicationState = publicationTabViewModel.allPublicationsState.collectAsState().value
     LazyColumn {
         item { publicationsTitle() }
@@ -41,6 +48,12 @@ fun PublicationScreen(publicationTabViewModel: PublicationTabViewModel) {
             }
         }
     }
+
+    val data =
+        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>("fromIndividualPublication")
+            ?.observeAsState()
+
+
 }
 
 @Composable

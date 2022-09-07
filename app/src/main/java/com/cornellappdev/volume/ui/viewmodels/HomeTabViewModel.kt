@@ -1,6 +1,8 @@
 package com.cornellappdev.volume.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.Publication
@@ -13,14 +15,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// TODO test following publication updates if articles update
+// TODO add refreshing if user follows new users?
 // TODO optimize loading?
 class HomeTabViewModel(
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val articleRepository: ArticleRepository = ArticleRepository,
-    private val publicationRepository: PublicationRepository = PublicationRepository,
-    private val userRepository: UserRepository = UserRepository,
 ) : ViewModel() {
+
+    // A factory is necessary to create a ViewModel with arguments
+    class Factory(private val userPreferencesRepository: UserPreferencesRepository) :
+        ViewModelProvider.Factory {
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            HomeTabViewModel(userPreferencesRepository) as T
+    }
 
     companion object {
         const val NUMBER_OF_TRENDING_ARTICLES = 7.0
@@ -28,49 +36,31 @@ class HomeTabViewModel(
         const val NUMBER_OF_OTHER_ARTICLES = 45
     }
 
-    data class TrendingArticlesUiState(
-        val articleState: ArticleState
-    )
-
-    data class OtherArticlesUiState(
-        val articleState: ArticleState
-    )
-
-    data class FollowedArticlesUiState(
-        val articleState: ArticleState,
-        val remainingFollowingArticleState: ArticleState
+    data class ArticlesState(
+        val trendingArticlesState: ArticleState,
+        val otherArticlesState: ArticleState,
+        val followingArticlesState: ArticleState,
+        val remainingFollowing: ArticleState
     )
 
     sealed interface ArticleState {
-        data class Success(val article: List<Article>) : ArticleState
+        data class Success(val articles: List<Article>) : ArticleState
         object Error : ArticleState
         object Loading : ArticleState
     }
 
-    // Backing property to avoid state updates from other classes
-    private val _trendingArticlesState =
-        MutableStateFlow(TrendingArticlesUiState(ArticleState.Loading))
+    private val _articlesState = MutableStateFlow(
+        ArticlesState(
+            trendingArticlesState = ArticleState.Loading,
+            otherArticlesState = ArticleState.Loading,
+            followingArticlesState = ArticleState.Loading,
+            remainingFollowing = ArticleState.Loading
+        )
+    )
 
-    // The UI collects from this StateFlow to get its state updates
-    val trendingArticlesState: StateFlow<TrendingArticlesUiState> =
-        _trendingArticlesState.asStateFlow()
+    val articlesState: StateFlow<ArticlesState> =
+        _articlesState.asStateFlow()
 
-    // Backing property to avoid state updates from other classes
-    private val _followedArticlesState =
-        MutableStateFlow(FollowedArticlesUiState(ArticleState.Loading, ArticleState.Loading))
-
-    // The UI collects from this StateFlow to get its state updates
-    val followedArticlesState: StateFlow<FollowedArticlesUiState> =
-        _followedArticlesState.asStateFlow()
-
-    // Backing property to avoid state updates from other classes
-    private val _otherArticlesState = MutableStateFlow(OtherArticlesUiState(ArticleState.Loading))
-
-    // The UI collects from this StateFlow to get its state updates
-    val otherArticlesState: StateFlow<OtherArticlesUiState> = _otherArticlesState.asStateFlow()
-
-    // TODO test, not entirely sure if this works since each function following the one before
-    // depends on the state
     init {
         queryTrendingArticles()
     }
@@ -79,18 +69,17 @@ class HomeTabViewModel(
     fun queryTrendingArticles(limit: Double? = NUMBER_OF_TRENDING_ARTICLES) =
         viewModelScope.launch {
             try {
-                _trendingArticlesState.value = _trendingArticlesState.value.copy(
-                    articleState = ArticleState.Success(
-                        articleRepository.fetchTrendingArticles(
+                _articlesState.value = _articlesState.value.copy(
+                    trendingArticlesState = ArticleState.Success(
+                        ArticleRepository.fetchTrendingArticles(
                             limit
                         )
                     )
                 )
-
                 queryFollowingArticles()
             } catch (e: Exception) {
-                _trendingArticlesState.value = _trendingArticlesState.value.copy(
-                    articleState = ArticleState.Error
+                _articlesState.value = _articlesState.value.copy(
+                    trendingArticlesState = ArticleState.Error
                 )
             }
         }
@@ -98,104 +87,92 @@ class HomeTabViewModel(
     fun queryFollowingArticles(limit: Int = NUMBER_OF_FOLLOWING_ARTICLES) =
         viewModelScope.launch {
             try {
-                when (_trendingArticlesState.value.articleState) {
-                    ArticleState.Error -> {
-                        throw Exception()
-                    }
-                    is ArticleState.Success -> {
-                        val followedPublications =
-                            userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs
-                        val trendingArticlesIDs =
-                            (_trendingArticlesState.value.articleState as ArticleState.Success).article.map(
-                                Article::id
-                            ).toHashSet()
-                        val followingArticles = ArticleRepository.fetchArticlesByPublicationIDs(
-                            followedPublications.toMutableList()
-                        ).toMutableList()
+                val followedPublications =
+                    UserRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs
+                val trendingArticlesIDs =
+                    (_articlesState.value.trendingArticlesState as ArticleState.Success).articles.map(
+                        Article::id
+                    ).toHashSet()
+                val followingArticles = ArticleRepository.fetchArticlesByPublicationIDs(
+                    followedPublications.toMutableList()
+                ).toMutableList()
 
-                        // Filters any articles the user follows that are trending.
-                        followingArticles.removeAll { article ->
-                            trendingArticlesIDs.contains(article.id)
-                        }
-
-                        Article.sortByDate(followingArticles)
-
-                        var filteredArticles = followingArticles.take(limit)
-                        filteredArticles =
-                            filteredArticles.ifEmpty { listOf() }
-
-                        // We took the first limit articles, the remaining ones (after removing them)
-                        // can be used for the other article section
-                        followingArticles.removeAll(
-                            filteredArticles
-                        )
-
-                        _followedArticlesState.value = _followedArticlesState.value.copy(
-                            articleState = ArticleState.Success(
-                                filteredArticles
-                            ),
-                            remainingFollowingArticleState = ArticleState.Success(followingArticles)
-                        )
-
-                        queryOtherArticles()
-                    }
-                    else -> {}
+                // Filters any articles the user follows that are trending.
+                followingArticles.removeAll { article ->
+                    trendingArticlesIDs.contains(article.id)
                 }
+
+                Article.sortByDate(followingArticles)
+
+                var filteredArticles = followingArticles.take(limit)
+                filteredArticles =
+                    filteredArticles.ifEmpty { listOf() }
+
+                // We took the first limit articles, the remaining ones (after removing them)
+                // can be used for the other article section
+                followingArticles.removeAll(
+                    filteredArticles
+                )
+
+                _articlesState.value = _articlesState.value.copy(
+                    followingArticlesState = ArticleState.Success(
+                        filteredArticles
+                    ),
+                    remainingFollowing = ArticleState.Success(followingArticles)
+                )
+
+                queryOtherArticles()
             } catch (e: Exception) {
-                _followedArticlesState.value = _followedArticlesState.value.copy(
-                    articleState = ArticleState.Error
+                Log.d("HomeTabViewModel", e.stackTraceToString())
+                _articlesState.value = _articlesState.value.copy(
+                    followingArticlesState = ArticleState.Error
                 )
             }
         }
 
     fun queryOtherArticles(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
         try {
-            when (_followedArticlesState.value.articleState) {
-                ArticleState.Error -> {
-                    throw Exception()
-                }
-                is ArticleState.Success -> {
-                    val followedPublications =
-                        userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs.toHashSet()
-                    val trendingArticlesIDs =
-                        (_trendingArticlesState.value.articleState as ArticleState.Success).article.map(
-                            Article::id
-                        ).toHashSet()
-                    val remainingArticles =
-                        (_followedArticlesState.value.remainingFollowingArticleState as ArticleState.Success).article
-                    val allPublicationsExcludingFollowing =
-                        publicationRepository.fetchAllPublications().map(Publication::id)
-                            .toMutableList()
-                    allPublicationsExcludingFollowing.removeAll { id ->
-                        followedPublications.contains(id)
-                    }
-                    val otherArticles = ArticleRepository.fetchArticlesByPublicationIDs(
-                        allPublicationsExcludingFollowing
-                    ).toMutableList()
-                    otherArticles.removeAll { article ->
-                        trendingArticlesIDs.contains(article.id)
-                    }
-
-                    if (otherArticles.size < NUMBER_OF_OTHER_ARTICLES) {
-                        otherArticles.addAll(
-                            remainingArticles.take(
-                                NUMBER_OF_OTHER_ARTICLES - otherArticles.size
-                            )
-                        )
-                    }
-
-                    _otherArticlesState.value = _otherArticlesState.value.copy(
-                        articleState = ArticleState.Success(
-                            otherArticles.shuffled().take(NUMBER_OF_OTHER_ARTICLES)
-                        )
-                    )
-
-                }
-                else -> {}
+            val followedPublications =
+                UserRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs.toHashSet()
+            val trendingArticlesIDs =
+                (_articlesState.value.trendingArticlesState as ArticleState.Success).articles.map(
+                    Article::id
+                ).toHashSet()
+            val remainingArticles =
+                (_articlesState.value.remainingFollowing as ArticleState.Success).articles
+            val allPublicationsExcludingFollowing =
+                PublicationRepository.fetchAllPublications().map(Publication::id)
+                    .toMutableList()
+            allPublicationsExcludingFollowing.removeAll { id ->
+                followedPublications.contains(id)
             }
+
+            // Other articles are the articles on volume that aren't from publications
+            // that are followed by the user and the big read.
+            val otherArticles = ArticleRepository.fetchArticlesByPublicationIDs(
+                allPublicationsExcludingFollowing
+            ).toMutableList()
+            otherArticles.removeAll { article ->
+                trendingArticlesIDs.contains(article.id)
+            }
+
+            // If there isn't enough articles, we take from the remaining following articles.
+            if (otherArticles.size < limit) {
+                otherArticles.addAll(
+                    remainingArticles.take(
+                        limit - otherArticles.size
+                    )
+                )
+            }
+
+            _articlesState.value = _articlesState.value.copy(
+                otherArticlesState = ArticleState.Success(
+                    otherArticles.shuffled().take(limit)
+                )
+            )
         } catch (e: Exception) {
-            _otherArticlesState.value = _otherArticlesState.value.copy(
-                articleState = ArticleState.Error
+            _articlesState.value = _articlesState.value.copy(
+                otherArticlesState = ArticleState.Error
             )
         }
     }

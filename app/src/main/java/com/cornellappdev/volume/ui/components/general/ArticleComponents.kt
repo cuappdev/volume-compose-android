@@ -1,5 +1,6 @@
 package com.cornellappdev.volume.ui.components.general
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -26,13 +27,16 @@ import com.cornellappdev.volume.ui.theme.notoserif
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun CreateHorizontalArticleRow(article: Article) {
+fun CreateHorizontalArticleRow(article: Article, onClick: (Article) -> Unit) {
     val timeSincePublished = article.getTimeSinceArticlePublished()
     val shoutouts = article.shoutouts.toInt()
     Row(
         modifier = Modifier
             .height(100.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                onClick(article)
+            },
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(
@@ -86,6 +90,6 @@ fun CreateHorizontalArticleRow(article: Article) {
 }
 
 // TODO create
-fun CreateBigReadRow(article: Article) {
+fun CreateBigReadRow(article: Article, onClick: (Article) -> Unit) {
 
 }

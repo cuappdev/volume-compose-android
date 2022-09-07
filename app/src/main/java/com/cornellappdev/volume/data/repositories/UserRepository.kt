@@ -1,9 +1,6 @@
 package com.cornellappdev.volume.data.repositories
 
-import com.cornellappdev.volume.CreateUserMutation
-import com.cornellappdev.volume.FollowPublicationMutation
-import com.cornellappdev.volume.GetUserQuery
-import com.cornellappdev.volume.UnfollowPublicationMutation
+import com.cornellappdev.volume.*
 import com.cornellappdev.volume.data.NetworkingApi
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.User
@@ -40,6 +37,10 @@ object UserRepository {
     // Only getUser returns a User with WeeklyDebrief, can be updated in queries.graphql
     suspend fun getUser(uuid: String): User =
         NetworkingApi.getUser(uuid).dataAssertNoErrors.mapDataToUser()
+
+    suspend fun bookmarkArticle(uuid: String) {
+        NetworkingApi.bookmarkArticle(uuid)
+    }
 
     private fun GetUserQuery.Data.mapDataToUser(): User {
         return this.getUser.let { userData ->

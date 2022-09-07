@@ -11,4 +11,9 @@ message UserPreferences {
 
   // The device token for Firebase notifications
   string device_token = 3;
+
+  // The list of articles bookmarked by the user
+  repeated string bookmarked_articles = 4;
+
+  map<string, int32> shoutout = 5;
 }

@@ -28,8 +28,8 @@ object ArticleRepository {
     suspend fun fetchArticlesByIDs(ids: MutableSet<String>): List<Article> =
         NetworkingApi.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
 
-    suspend fun fetchArticleByID(id: String): List<Article> =
-        NetworkingApi.fetchArticleByID(id).dataAssertNoErrors.mapDataToArticles()
+    suspend fun fetchArticleByID(id: String): Article =
+        NetworkingApi.fetchArticleByID(id).dataAssertNoErrors.mapDataToArticles().first()
 
     suspend fun incrementShoutout(id: String, uuid: String): IncrementShoutoutMutation.Data =
         NetworkingApi.incrementShoutout(id, uuid).dataAssertNoErrors

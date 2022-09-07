@@ -33,10 +33,11 @@ import com.cornellappdev.volume.ui.viewmodels.IndividualPublicationViewModel
 //"61980a202fef10d6b7f20747"
 @Composable
 fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublicationViewModel) {
+    //navController.previousBackStackEntry?.savedStateHandle?.set("key", result)
+
     val publicationByIDState =
         individualPublicationViewModel.publicationByIDState.collectAsState().value
-    val articlesByPublicationIDState =
-        individualPublicationViewModel.articlesByPubIDState.collectAsState().value
+
     Column {
 
         when (publicationByIDState.publicationRetrievalState) {
@@ -56,7 +57,7 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
             }
         }
 
-        when (articlesByPublicationIDState.articleState) {
+        when (publicationByIDState.articlesByPublication) {
             IndividualPublicationViewModel.ArticleState.Loading -> {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -69,7 +70,7 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
 
             }
             is IndividualPublicationViewModel.ArticleState.Success -> {
-                PublicationRecent(articlesByPublicationIDState.articleState.articles)
+                PublicationRecent(publicationByIDState.articlesByPublication.articles)
             }
         }
     }
@@ -129,7 +130,7 @@ fun PublicationScreen(publication: Publication) {
 fun PublicationRecent(articles: List<Article>) {
     LazyColumn {
         items(articles) { article ->
-            CreateHorizontalArticleRow(article)
+            // CreateHorizontalArticleRow(article)
         }
     }
 }

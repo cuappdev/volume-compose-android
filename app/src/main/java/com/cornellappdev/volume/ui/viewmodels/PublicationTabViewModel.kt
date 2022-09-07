@@ -1,6 +1,7 @@
 package com.cornellappdev.volume.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.repositories.PublicationRepository
@@ -11,14 +12,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// Should also use the UserRepository to retrieve the list of publications followed
-// by the User using the UUID obtained from userPreferencesRepository
+// TODO test updating from individual publication view model onClick to publication tab
 class PublicationTabViewModel(
-    private val publicationRepository: PublicationRepository = PublicationRepository,
-    private val userRepository: UserRepository = UserRepository,
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) :
     ViewModel() {
+
+    // A factory is necessary to create a ViewModel with arguments
+    class Factory(private val userPreferencesRepository: UserPreferencesRepository) :
+        ViewModelProvider.Factory {
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            PublicationTabViewModel(userPreferencesRepository) as T
+    }
+
 
     data class AllPublicationUIState(
         val publicationsRetrievalState: PublicationsRetrievalState
@@ -36,24 +44,23 @@ class PublicationTabViewModel(
     val allPublicationsState: StateFlow<AllPublicationUIState> = _allPublicationsState.asStateFlow()
 
     init {
+        // queryFollowedPublications()
+        // queryMorePublications()
         queryAllPublications()
     }
 
     fun followPublication(id: String) = viewModelScope.launch {
         val uuid = userPreferencesRepository.fetchUuid()
-        userRepository.followPublication(id, uuid)
-    }
+        UserRepository.followPublication(id, uuid)
 
-    fun unfollowPublication(id: String) = viewModelScope.launch {
-        val uuid = userPreferencesRepository.fetchUuid()
-        userRepository.unfollowPublication(id, uuid)
+        // move from more to followed
     }
 
     private fun queryAllPublications() = viewModelScope.launch {
         try {
             _allPublicationsState.value = _allPublicationsState.value.copy(
                 publicationsRetrievalState = PublicationsRetrievalState.Success(
-                    publicationRepository.fetchAllPublications()
+                    PublicationRepository.fetchAllPublications()
                 )
             )
         } catch (e: Exception) {

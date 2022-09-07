@@ -75,4 +75,16 @@ object NetworkingApi {
         uuid: String
     ): ApolloResponse<UnfollowPublicationMutation.Data> =
         apolloClient.mutation(UnfollowPublicationMutation(pubID, uuid)).execute()
+
+    suspend fun readArticle(
+        articleId: String,
+        uuid: String
+    ): ApolloResponse<ReadArticleMutation.Data> =
+        apolloClient.mutation(ReadArticleMutation(articleId, uuid)).execute()
+
+    suspend fun bookmarkArticle(
+        uuid: String
+    ): ApolloResponse<BookmarkArticleMutation.Data> =
+        apolloClient.mutation(BookmarkArticleMutation(uuid)).execute()
+
 }

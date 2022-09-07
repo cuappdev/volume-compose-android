@@ -2,6 +2,7 @@ package com.cornellappdev.volume.ui.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.repositories.PublicationRepository
@@ -14,9 +15,16 @@ import kotlinx.coroutines.launch
 
 class OnboardingViewModel(
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val userRepository: UserRepository = UserRepository,
-    private val publicationRepository: PublicationRepository = PublicationRepository
 ) : ViewModel() {
+
+    // A factory is necessary to create a ViewModel with arguments
+    class Factory(private val userPreferencesRepository: UserPreferencesRepository) :
+        ViewModelProvider.Factory {
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            OnboardingViewModel(userPreferencesRepository) as T
+    }
 
     data class CreatingUserState(
         val createUserState: CreateUserState
@@ -64,12 +72,12 @@ class OnboardingViewModel(
 
     fun createUser() = viewModelScope.launch {
         try {
-            val user = userRepository.createUser(
+            val user = UserRepository.createUser(
                 listOfPubsFollowed,
                 userPreferencesRepository.fetchDeviceToken()
             )
             userPreferencesRepository.updateUuid(user.uuid)
-            userRepository.followPublications(listOfPubsFollowed, user.uuid)
+            UserRepository.followPublications(listOfPubsFollowed, user.uuid)
             _creatingUserState.value = _creatingUserState.value.copy(
                 createUserState = CreateUserState.Success
             )
@@ -84,7 +92,7 @@ class OnboardingViewModel(
         try {
             _allPublicationsState.value = _allPublicationsState.value.copy(
                 publicationsRetrievalState = PublicationsRetrievalState.Success(
-                    publicationRepository.fetchAllPublications()
+                    PublicationRepository.fetchAllPublications()
                 )
             )
         } catch (e: Exception) {
