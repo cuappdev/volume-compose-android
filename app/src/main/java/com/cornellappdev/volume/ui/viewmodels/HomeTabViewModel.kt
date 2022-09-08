@@ -123,7 +123,6 @@ class HomeTabViewModel(
 
                 queryOtherArticles()
             } catch (e: Exception) {
-                Log.d("HomeTabViewModel", e.stackTraceToString())
                 _articlesState.value = _articlesState.value.copy(
                     followingArticlesState = ArticleState.Error
                 )

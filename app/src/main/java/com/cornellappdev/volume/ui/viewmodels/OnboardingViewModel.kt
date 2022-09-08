@@ -1,5 +1,8 @@
 package com.cornellappdev.volume.ui.viewmodels
 
+import android.R
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,10 +11,13 @@ import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.repositories.PublicationRepository
 import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.data.repositories.UserRepository
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
 
 class OnboardingViewModel(
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -60,11 +66,17 @@ class OnboardingViewModel(
 
     val allPublicationsState: StateFlow<AllPublicationUIState> = _allPublicationsState.asStateFlow()
 
-    val listOfPubsFollowed = mutableStateListOf<String>()
+    private val _setOfPubsFollowed = mutableSetOf<String>()
+    val setOfPubsFollowed: Set<String>
+        get() = _setOfPubsFollowed
 
     init {
         queryAllPublications()
     }
+
+    fun addPublicationToFollowed(pubId: String) = _setOfPubsFollowed.add(pubId)
+
+    fun removePublicationFromFollowed(pubId: String) = _setOfPubsFollowed.remove(pubId)
 
     fun updateOnboardingCompleted() = viewModelScope.launch {
         userPreferencesRepository.updateOnboardingCompleted(completed = true)
@@ -72,6 +84,7 @@ class OnboardingViewModel(
 
     fun createUser() = viewModelScope.launch {
         try {
+            val listOfPubsFollowed = setOfPubsFollowed.toList()
             val user = UserRepository.createUser(
                 listOfPubsFollowed,
                 userPreferencesRepository.fetchDeviceToken()

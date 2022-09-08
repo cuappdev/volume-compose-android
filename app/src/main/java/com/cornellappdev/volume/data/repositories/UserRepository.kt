@@ -1,5 +1,6 @@
 package com.cornellappdev.volume.data.repositories
 
+import android.util.Log
 import com.cornellappdev.volume.*
 import com.cornellappdev.volume.data.NetworkingApi
 import com.cornellappdev.volume.data.models.Article
@@ -44,28 +45,28 @@ object UserRepository {
 
     private fun GetUserQuery.Data.mapDataToUser(): User {
         return this.getUser.let { userData ->
-            val weeklyDebrief = userData!!.weeklyDebrief!!
             User(
-                uuid = userData.uuid,
+                uuid = userData!!.uuid,
                 followedPublicationIDs = userData.followedPublications.map {
                     it.id
                 },
-                weeklyDebrief = WeeklyDebrief(
-                    uuid = weeklyDebrief.uuid,
-                    readArticlesIDs = weeklyDebrief.readArticles.map {
-                        it.id
-                    },
-                    randomArticlesIDs = weeklyDebrief.readArticles.map {
-                        it.id
-                    },
-                    creationDate = weeklyDebrief.creationDate.toString(),
-                    expirationDate = weeklyDebrief.expirationDate.toString(),
-                    numShoutouts = weeklyDebrief.numShoutouts.toInt(),
-                    numBookmarkedArticles = weeklyDebrief.numBookmarkedArticles.toInt(),
-                    numReadArticles = weeklyDebrief.numReadArticles.toInt()
-                )
+                weeklyDebrief = userData.weeklyDebrief?.let { weeklyDebrief ->
+                    WeeklyDebrief(
+                        uuid = weeklyDebrief.uuid,
+                        readArticlesIDs = weeklyDebrief.readArticles.map {
+                            it.id
+                        },
+                        randomArticlesIDs = weeklyDebrief.readArticles.map {
+                            it.id
+                        },
+                        creationDate = weeklyDebrief.creationDate.toString(),
+                        expirationDate = weeklyDebrief.expirationDate.toString(),
+                        numShoutouts = weeklyDebrief.numShoutouts.toInt(),
+                        numBookmarkedArticles = weeklyDebrief.numBookmarkedArticles.toInt(),
+                        numReadArticles = weeklyDebrief.numReadArticles.toInt()
+                    )
+                }
             )
-
         }
     }
 

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.data.models.Article
+import com.cornellappdev.volume.ui.components.general.CreateBigReadRow
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
 import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheEnd
 import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheStart
@@ -48,15 +49,13 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> 
 
     // TODO add scrollability to content
     Scaffold(topBar = {
-
+        // TODO fix positioning, little weird on my phone not sure if that's the case universally
         Image(
             painter = painterResource(R.drawable.volume_title),
             contentDescription = null,
             modifier = Modifier
                 .scale(0.7f)
         )
-
-        // TODO fix positioning
     }, content = {
         Column(
             modifier = Modifier
@@ -86,7 +85,7 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> 
                 is HomeTabViewModel.ArticleState.Success -> {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                         items(trendingArticles.articles) { article ->
-                            TrendingArticleItem(article = article)
+                            CreateBigReadRow(article, onArticleClick)
                         }
                     }
                 }
@@ -241,51 +240,4 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> 
             }
         }
     })
-}
-
-// TODO move to ArticleComponents, add onClick
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun TrendingArticleItem(article: Article) {
-    val timeSincePublished = article.getTimeSinceArticlePublished()
-    val shoutouts = article.shoutouts.toInt()
-
-    Column(modifier = Modifier.wrapContentSize()) {
-        AsyncImage(
-            model = article.imageURL, modifier = Modifier
-                .height(180.dp)
-                .width(180.dp), contentDescription = null, contentScale = ContentScale.Crop
-        )
-        Text(
-            modifier = Modifier.padding(top = 16.dp, bottom = 2.dp),
-            text = article.publication.name,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontFamily = notoserif,
-            fontWeight = FontWeight.Medium,
-            fontSize = 12.sp
-        )
-        Text(
-            text = article.title,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
-            fontFamily = lato,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
-        Spacer(modifier = Modifier.height(13.dp))
-        Text(
-            text = "$timeSincePublished · ${
-                pluralStringResource(
-                    R.plurals.shoutout_count,
-                    shoutouts,
-                    shoutouts
-                )
-            }",
-            fontFamily = lato,
-            fontWeight = FontWeight.Medium,
-            fontSize = 10.sp,
-            color = GrayOne
-        )
-    }
 }

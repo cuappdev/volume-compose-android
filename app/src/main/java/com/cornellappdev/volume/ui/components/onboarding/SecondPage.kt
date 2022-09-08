@@ -144,17 +144,17 @@ fun SecondPage(
                                 // an official user yet so they shouldn't be interacting with the articles.
                                 CreateHorizontalPublicationRow(publication = publication) { publicationFromCallback, isFollowing ->
                                     if (isFollowing) {
-                                        onboardingViewModel.listOfPubsFollowed.add(
+                                        onboardingViewModel.addPublicationToFollowed(
                                             publicationFromCallback.id
                                         )
                                     } else {
-                                        onboardingViewModel.listOfPubsFollowed.remove(
+                                        onboardingViewModel.removePublicationFromFollowed(
                                             publicationFromCallback.id
                                         )
                                     }
 
                                     proceedEnabled.value =
-                                        !onboardingViewModel.listOfPubsFollowed.isEmpty()
+                                        onboardingViewModel.setOfPubsFollowed.isNotEmpty()
                                 }
                             }
                         }
@@ -224,7 +224,9 @@ fun SecondPage(
         }
         is OnboardingViewModel.CreateUserState.Success -> {
             onboardingViewModel.updateOnboardingCompleted()
-            onProceedClicked.invoke()
+            LaunchedEffect(Unit) {
+                onProceedClicked.invoke()
+            }
         }
     }
 }

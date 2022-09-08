@@ -79,8 +79,9 @@ class NotificationService : FirebaseMessagingService() {
      * FCM registration token is initially generated so this is where you would retrieve the token.
      */
     override fun onNewToken(token: String) {
-        // TODO If a new token is received, a new user should technically be created. May be easier to have a backend route to update the device token for a User if there's a uuid in the user preferences.
-        CoroutineScope(Dispatchers.IO).launch {
+        // TODO If a new token is received outside of the app first being launched,
+        //  a new user should technically be created. May be easier to have a backend route to update the device token for a User if there's a uuid in the user preferences.
+        runBlocking {
             baseContext.userPreferencesStore.updateData { currentPreferences ->
                 currentPreferences.toBuilder().setDeviceToken(token).build()
             }

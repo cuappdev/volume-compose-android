@@ -89,7 +89,53 @@ fun CreateHorizontalArticleRow(article: Article, onClick: (Article) -> Unit) {
     }
 }
 
-// TODO create
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
 fun CreateBigReadRow(article: Article, onClick: (Article) -> Unit) {
+    val timeSincePublished = article.getTimeSinceArticlePublished()
+    val shoutouts = article.shoutouts.toInt()
 
+    Column(modifier = Modifier
+        .wrapContentHeight()
+        .width(180.dp)
+        .clickable {
+            onClick(article)
+        }) {
+        AsyncImage(
+            model = article.imageURL, modifier = Modifier
+                .height(180.dp)
+                .width(180.dp), contentDescription = null, contentScale = ContentScale.Crop
+        )
+        Text(
+            modifier = Modifier.padding(top = 16.dp, bottom = 2.dp),
+            text = article.publication.name,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontFamily = notoserif,
+            fontWeight = FontWeight.Medium,
+            fontSize = 12.sp
+        )
+        Text(
+            text = article.title,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            fontFamily = lato,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+        )
+        Spacer(modifier = Modifier.height(13.dp))
+        Text(
+            text = "$timeSincePublished · ${
+                pluralStringResource(
+                    R.plurals.shoutout_count,
+                    shoutouts,
+                    shoutouts
+                )
+            }",
+            fontFamily = lato,
+            fontWeight = FontWeight.Medium,
+            fontSize = 10.sp,
+            color = GrayOne
+        )
+    }
 }
