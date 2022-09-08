@@ -17,6 +17,8 @@ Clone this repository and import into **Android Studio**
 git clone git@github.com:cuappdev/volume-compose-android.git
 ```
 
+Download the ```secrets.properties``` and ```google-services.json``` files. Place ```secrets.properties``` in ```volume-compose-android```, and ```google-services.json``` in ```volume-compose-android/app```.
+
 ## Directory Structure
 
 ```
