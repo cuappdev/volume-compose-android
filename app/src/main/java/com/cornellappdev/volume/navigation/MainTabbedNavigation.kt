@@ -13,24 +13,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.cornellappdev.volume.AppContainer
+import com.cornellappdev.volume.analytics.EventType
+import com.cornellappdev.volume.analytics.VolumeEvent
 import com.cornellappdev.volume.ui.screens.*
 import com.cornellappdev.volume.ui.theme.DarkGray
 import com.cornellappdev.volume.ui.theme.VolumeOrange
-import com.cornellappdev.volume.ui.viewmodels.*
-import kotlinx.coroutines.runBlocking
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun TabbedNavigationSetup(appContainer: AppContainer, notificationBundle: Bundle?) {
+fun TabbedNavigationSetup(onboardingCompleted: Boolean, notificationBundle: Bundle?) {
     val navController = rememberNavController()
     val (showBottomBar, setShowBottomBar) = rememberSaveable { mutableStateOf(false) }
 
@@ -46,7 +42,7 @@ fun TabbedNavigationSetup(appContainer: AppContainer, notificationBundle: Bundle
         }
     ) {
         MainScreenNavigationConfigurations(
-            appContainer = appContainer,
+            isOnboardingCompleted = onboardingCompleted,
             navController = navController,
             setShowBottomBar = setShowBottomBar,
         )
@@ -91,86 +87,69 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
 @Composable
 private fun MainScreenNavigationConfigurations(
     navController: NavHostController,
-    appContainer: AppContainer,
     setShowBottomBar: (Boolean) -> Unit,
+    isOnboardingCompleted: Boolean,
 ) {
-    val onboardingCompleted = runBlocking {
-        return@runBlocking appContainer.userPreferencesRepository.fetchOnboardingCompleted()
-    }
-
     // The starting destination switches to onboarding if it isn't completed.
     NavHost(
         navController = navController,
-        startDestination = if (onboardingCompleted) Routes.HOME.route else Routes.ONBOARDING.route
+        startDestination = if (isOnboardingCompleted) Routes.HOME.route else Routes.ONBOARDING.route
     ) {
         composable(Routes.HOME.route) {
             setShowBottomBar(true)
             HomeScreen(
-                homeTabViewModel = viewModel(factory = HomeTabViewModel.Factory(appContainer.userPreferencesRepository))
-            ) { article ->
-                navController.navigate("${Routes.OPEN_ARTICLE}/${article.id}")
-            }
+                onArticleClick = { article, navigationSource ->
+                    navController.navigate("${Routes.OPEN_ARTICLE}/${article.id}/${navigationSource.name}")
+                })
         }
         composable(Routes.ONBOARDING.route) {
             setShowBottomBar(false)
             OnboardingScreen(
-                onboardingViewModel = viewModel(
-                    factory = OnboardingViewModel.Factory(
-                        appContainer.userPreferencesRepository
-                    )
-                )
-            ) {
-                navController.navigate(Routes.HOME.route)
-            }
+                proceedHome = { navController.navigate(Routes.HOME.route) }
+            )
         }
         // This route should be navigated with a valid publication ID, else the screen will not
         // populate.
         composable(
             "${Routes.INDIVIDUAL_PUBLICATION}/{publicationId}",
-            arguments = listOf(navArgument("publicationId") { type = NavType.StringType })
-        ) { backStackEntry ->
+        ) {
             setShowBottomBar(true)
-            val publicationId = backStackEntry.arguments?.getString("publicationId")
-            IndividualPublicationScreen(individualPublicationViewModel = viewModel(
-                factory = publicationId?.let {
-                    IndividualPublicationViewModel.Factory(
-                        publicationId = it,
-                        userPreferencesRepository = appContainer.userPreferencesRepository
-                    )
-                }
-            ))
+            IndividualPublicationScreen()
         }
         // This route should be navigated with a valid article ID.
         composable(
-            "${Routes.OPEN_ARTICLE}/{articleId}",
-            arguments = listOf(navArgument("articleId") { type = NavType.StringType })
+            "${Routes.OPEN_ARTICLE}/{articleId}/{navigationSourceName}",
         ) { backStackEntry ->
             setShowBottomBar(false)
-            val articleId = backStackEntry.arguments?.getString("articleId")
+            val navigationSourceName = backStackEntry.arguments?.getString("navigationSourceName")
             ArticleWebViewScreen(
-                articleWebViewModel = viewModel(factory = articleId?.let {
-                    ArticleWebViewModel.Factory(
-                        articleId = it,
-                        userPreferencesRepository = appContainer.userPreferencesRepository
+                navigationSourceName = navigationSourceName,
+                onArticleClose = { article, bookmarkStatus ->
+                    VolumeEvent.logEvent(
+                        EventType.ARTICLE,
+                        VolumeEvent.CLOSE_ARTICLE,
+                        id = article.id
                     )
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                        "bookmarkStatus",
+                        bookmarkStatus
+                    )
+                    navController.popBackStack()
+                },
+                seeMoreClicked = { article ->
+                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION}/${article.publication.id}")
                 }
-                )) { article ->
-                navController.navigate("${Routes.INDIVIDUAL_PUBLICATION}/${article.publication.id}")
-            }
+            )
         }
         composable(Routes.MAGAZINES.route) {}
         composable(Routes.PUBLICATIONS.route) {
             setShowBottomBar(true)
             PublicationScreen(
-                publicationTabViewModel = viewModel(
-                    factory = PublicationTabViewModel.Factory(
-                        userPreferencesRepository = appContainer.userPreferencesRepository
-                    )
-                ),
-                navController = navController
-            ) { publication ->
-                navController.navigate("${Routes.INDIVIDUAL_PUBLICATION}/${publication.id}")
-            }
+                navController = navController,
+                onPublicationClick =
+                { publication ->
+                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION}/${publication.id}")
+                })
         }
         composable(Routes.BOOKMARKS.route) {}
     }

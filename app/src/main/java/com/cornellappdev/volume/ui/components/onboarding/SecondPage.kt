@@ -31,6 +31,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.volume.R
+import com.cornellappdev.volume.analytics.EventType
+import com.cornellappdev.volume.analytics.NavigationSource
+import com.cornellappdev.volume.analytics.VolumeEvent
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalPublicationRow
 import com.cornellappdev.volume.ui.theme.GrayOne
 import com.cornellappdev.volume.ui.theme.VolumeOrange
@@ -147,8 +150,18 @@ fun SecondPage(
                                         onboardingViewModel.addPublicationToFollowed(
                                             publicationFromCallback.id
                                         )
+                                        VolumeEvent.logEvent(
+                                            EventType.PUBLICATION, VolumeEvent.FOLLOW_PUBLICATION,
+                                            NavigationSource.ONBOARDING,
+                                            publicationFromCallback.id
+                                        )
                                     } else {
                                         onboardingViewModel.removePublicationFromFollowed(
+                                            publicationFromCallback.id
+                                        )
+                                        VolumeEvent.logEvent(
+                                            EventType.PUBLICATION, VolumeEvent.UNFOLLOW_PUBLICATION,
+                                            NavigationSource.ONBOARDING,
                                             publicationFromCallback.id
                                         )
                                     }

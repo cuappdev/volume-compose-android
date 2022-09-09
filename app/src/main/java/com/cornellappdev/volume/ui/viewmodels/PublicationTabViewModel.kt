@@ -1,32 +1,26 @@
 package com.cornellappdev.volume.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.repositories.PublicationRepository
 import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.data.repositories.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 // TODO test updating from individual publication view model onClick to publication tab
-class PublicationTabViewModel(
+@HiltViewModel
+class PublicationTabViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
+    private val userRepository: UserRepository,
+    private val publicationRepository: PublicationRepository
 ) :
     ViewModel() {
-
-    // A factory is necessary to create a ViewModel with arguments
-    class Factory(private val userPreferencesRepository: UserPreferencesRepository) :
-        ViewModelProvider.Factory {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            PublicationTabViewModel(userPreferencesRepository) as T
-    }
-
 
     data class AllPublicationUIState(
         val publicationsRetrievalState: PublicationsRetrievalState
@@ -51,7 +45,7 @@ class PublicationTabViewModel(
 
     fun followPublication(id: String) = viewModelScope.launch {
         val uuid = userPreferencesRepository.fetchUuid()
-        UserRepository.followPublication(id, uuid)
+        userRepository.followPublication(id, uuid)
 
         // move from more to followed
     }
@@ -60,7 +54,7 @@ class PublicationTabViewModel(
         try {
             _allPublicationsState.value = _allPublicationsState.value.copy(
                 publicationsRetrievalState = PublicationsRetrievalState.Success(
-                    PublicationRepository.fetchAllPublications()
+                    publicationRepository.fetchAllPublications()
                 )
             )
         } catch (e: Exception) {

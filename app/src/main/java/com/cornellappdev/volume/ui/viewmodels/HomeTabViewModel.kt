@@ -1,8 +1,6 @@
 package com.cornellappdev.volume.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.Publication
@@ -10,25 +8,22 @@ import com.cornellappdev.volume.data.repositories.ArticleRepository
 import com.cornellappdev.volume.data.repositories.PublicationRepository
 import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.data.repositories.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 // TODO add refreshing if user follows new users?
 // TODO optimize loading?
-class HomeTabViewModel(
+@HiltViewModel
+class HomeTabViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
+    private val articleRepository: ArticleRepository,
+    private val userRepository: UserRepository,
+    private val publicationRepository: PublicationRepository
 ) : ViewModel() {
-
-    // A factory is necessary to create a ViewModel with arguments
-    class Factory(private val userPreferencesRepository: UserPreferencesRepository) :
-        ViewModelProvider.Factory {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            HomeTabViewModel(userPreferencesRepository) as T
-    }
 
     companion object {
         const val NUMBER_OF_TRENDING_ARTICLES = 7.0
@@ -71,7 +66,7 @@ class HomeTabViewModel(
             try {
                 _articlesState.value = _articlesState.value.copy(
                     trendingArticlesState = ArticleState.Success(
-                        ArticleRepository.fetchTrendingArticles(
+                        articleRepository.fetchTrendingArticles(
                             limit
                         )
                     )
@@ -88,12 +83,12 @@ class HomeTabViewModel(
         viewModelScope.launch {
             try {
                 val followedPublications =
-                    UserRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs
+                    userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs
                 val trendingArticlesIDs =
                     (_articlesState.value.trendingArticlesState as ArticleState.Success).articles.map(
                         Article::id
                     ).toHashSet()
-                val followingArticles = ArticleRepository.fetchArticlesByPublicationIDs(
+                val followingArticles = articleRepository.fetchArticlesByPublicationIDs(
                     followedPublications.toMutableList()
                 ).toMutableList()
 
@@ -132,7 +127,7 @@ class HomeTabViewModel(
     fun queryOtherArticles(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
         try {
             val followedPublications =
-                UserRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs.toHashSet()
+                userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs.toHashSet()
             val trendingArticlesIDs =
                 (_articlesState.value.trendingArticlesState as ArticleState.Success).articles.map(
                     Article::id
@@ -140,7 +135,7 @@ class HomeTabViewModel(
             val remainingArticles =
                 (_articlesState.value.remainingFollowing as ArticleState.Success).articles
             val allPublicationsExcludingFollowing =
-                PublicationRepository.fetchAllPublications().map(Publication::id)
+                publicationRepository.fetchAllPublications().map(Publication::id)
                     .toMutableList()
             allPublicationsExcludingFollowing.removeAll { id ->
                 followedPublications.contains(id)
@@ -148,7 +143,7 @@ class HomeTabViewModel(
 
             // Other articles are the articles on volume that aren't from publications
             // that are followed by the user and the big read.
-            val otherArticles = ArticleRepository.fetchArticlesByPublicationIDs(
+            val otherArticles = articleRepository.fetchArticlesByPublicationIDs(
                 allPublicationsExcludingFollowing
             ).toMutableList()
             otherArticles.removeAll { article ->

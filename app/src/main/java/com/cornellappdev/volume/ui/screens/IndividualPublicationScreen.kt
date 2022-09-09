@@ -22,17 +22,17 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.Publication
-import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.viewmodels.IndividualPublicationViewModel
 
 //"61980a202fef10d6b7f20747"
 @Composable
-fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublicationViewModel) {
+fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublicationViewModel = hiltViewModel()) {
     //navController.previousBackStackEntry?.savedStateHandle?.set("key", result)
 
     val publicationByIDState =

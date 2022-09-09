@@ -4,8 +4,11 @@ import androidx.datastore.core.DataStore
 import com.cornellappdev.volume.UserPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class UserPreferencesRepository(
+@Singleton
+class UserPreferencesRepository @Inject constructor(
     private val userPreferencesStore: DataStore<UserPreferences>,
 ) {
     companion object {

@@ -1,36 +1,26 @@
 package com.cornellappdev.volume.ui.viewmodels
 
-import android.R
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.volume.analytics.EventType
+import com.cornellappdev.volume.analytics.VolumeEvent
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.repositories.PublicationRepository
 import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.data.repositories.UserRepository
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
-class OnboardingViewModel(
+@HiltViewModel
+class OnboardingViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
+    private val userRepository: UserRepository,
+    private val publicationRepository: PublicationRepository
 ) : ViewModel() {
-
-    // A factory is necessary to create a ViewModel with arguments
-    class Factory(private val userPreferencesRepository: UserPreferencesRepository) :
-        ViewModelProvider.Factory {
-
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            OnboardingViewModel(userPreferencesRepository) as T
-    }
 
     data class CreatingUserState(
         val createUserState: CreateUserState
@@ -80,17 +70,18 @@ class OnboardingViewModel(
 
     fun updateOnboardingCompleted() = viewModelScope.launch {
         userPreferencesRepository.updateOnboardingCompleted(completed = true)
+        VolumeEvent.logEvent(EventType.GENERAL, VolumeEvent.COMPLETE_ONBOARDING)
     }
 
     fun createUser() = viewModelScope.launch {
         try {
             val listOfPubsFollowed = setOfPubsFollowed.toList()
-            val user = UserRepository.createUser(
+            val user = userRepository.createUser(
                 listOfPubsFollowed,
                 userPreferencesRepository.fetchDeviceToken()
             )
             userPreferencesRepository.updateUuid(user.uuid)
-            UserRepository.followPublications(listOfPubsFollowed, user.uuid)
+            userRepository.followPublications(listOfPubsFollowed, user.uuid)
             _creatingUserState.value = _creatingUserState.value.copy(
                 createUserState = CreateUserState.Success
             )
@@ -105,7 +96,7 @@ class OnboardingViewModel(
         try {
             _allPublicationsState.value = _allPublicationsState.value.copy(
                 publicationsRetrievalState = PublicationsRetrievalState.Success(
-                    PublicationRepository.fetchAllPublications()
+                    publicationRepository.fetchAllPublications()
                 )
             )
         } catch (e: Exception) {

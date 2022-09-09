@@ -17,34 +17,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.R
+import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.ui.components.general.CreateBigReadRow
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
 import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheEnd
 import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheStart
-import com.cornellappdev.volume.ui.theme.GrayOne
 import com.cornellappdev.volume.ui.theme.VolumeOrange
-import com.cornellappdev.volume.ui.theme.lato
 import com.cornellappdev.volume.ui.theme.notoserif
 import com.cornellappdev.volume.ui.viewmodels.HomeTabViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> Unit) {
+fun HomeScreen(
+    homeTabViewModel: HomeTabViewModel = hiltViewModel(),
+    onArticleClick: (Article, NavigationSource) -> Unit
+) {
     val articlesState by homeTabViewModel.articlesState.collectAsState()
 
     // TODO add scrollability to content
@@ -85,7 +83,9 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> 
                 is HomeTabViewModel.ArticleState.Success -> {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                         items(trendingArticles.articles) { article ->
-                            CreateBigReadRow(article, onArticleClick)
+                            CreateBigReadRow(article) {
+                                onArticleClick(article, NavigationSource.TRENDING_ARTICLES)
+                            }
                         }
                     }
                 }
@@ -143,7 +143,9 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> 
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
                                 items(followingArticles.articles) { article ->
-                                    CreateHorizontalArticleRow(article, onArticleClick)
+                                    CreateHorizontalArticleRow(article) {
+                                        onArticleClick(article, NavigationSource.FOLLOWING_ARTICLES)
+                                    }
                                 }
                             }
 
@@ -233,7 +235,9 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> 
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
                         items(otherArticles.articles) { article ->
-                            CreateHorizontalArticleRow(article, onArticleClick)
+                            CreateHorizontalArticleRow(article) {
+                                onArticleClick(article, NavigationSource.OTHER_ARTICLES)
+                            }
                         }
                     }
                 }
