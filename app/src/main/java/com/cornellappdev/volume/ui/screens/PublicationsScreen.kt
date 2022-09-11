@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.cornellappdev.volume.data.models.Publication
+import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.viewmodels.PublicationTabViewModel
 
@@ -27,8 +28,8 @@ fun PublicationScreen(
     LazyColumn {
         item { publicationsTitle() }
         item { morePublications() }
-        when (allPublicationState.publicationsRetrievalState) {
-            PublicationTabViewModel.PublicationsRetrievalState.Loading -> {
+        when (allPublicationState.publication) {
+            PublicationsRetrievalState.Loading -> {
                 item {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -38,11 +39,11 @@ fun PublicationScreen(
                     }
                 }
             }
-            PublicationTabViewModel.PublicationsRetrievalState.Error -> {
+            PublicationsRetrievalState.Error -> {
 
             }
-            is PublicationTabViewModel.PublicationsRetrievalState.Success -> {
-                items(allPublicationState.publicationsRetrievalState.publications) { publication ->
+            is PublicationsRetrievalState.Success -> {
+                items(allPublicationState.publication.publications) { publication ->
                     morePublicationItem(publication)
                 }
             }

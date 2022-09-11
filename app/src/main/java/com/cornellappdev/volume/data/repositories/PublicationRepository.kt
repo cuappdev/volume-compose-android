@@ -23,7 +23,7 @@ class PublicationRepository @Inject constructor() {
     suspend fun fetchAllPublications(): List<Publication> =
         NetworkingApi.fetchAllPublications().dataAssertNoErrors.mapDataToPublications()
 
-    suspend fun fetchPublicationsByIDs(pubIDs: MutableList<String>): List<Publication> =
+    suspend fun fetchPublicationsByIDs(pubIDs: List<String>): List<Publication> =
         NetworkingApi.fetchPublicationsByIDs(pubIDs).dataAssertNoErrors.mapDataToPublications()
 
     /** Throws an exception if the publication isn't found. */

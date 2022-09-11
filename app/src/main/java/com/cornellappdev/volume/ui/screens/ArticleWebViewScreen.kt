@@ -1,42 +1,51 @@
 package com.cornellappdev.volume.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import com.cornellappdev.volume.R
 import com.cornellappdev.volume.analytics.EventType
 import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.analytics.VolumeEvent
 import com.cornellappdev.volume.data.models.Article
+import com.cornellappdev.volume.ui.states.ArticleRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.lato
 import com.cornellappdev.volume.ui.theme.notoserif
 import com.cornellappdev.volume.ui.viewmodels.ArticleWebViewModel
+import com.cornellappdev.volume.util.BookmarkStatus
+import com.cornellappdev.volume.util.FinalBookmarkStatus
 import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
-
-data class BookmarkStatus(
-    val status: FinalBookmarkStatus,
-    val articleId: String
-)
-
-enum class FinalBookmarkStatus {
-    BOOKMARKED_TO_UNBOOKMARKED, UNBOOKMARKED_TO_BOOKMARKED, UNCHANGED
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -44,15 +53,14 @@ enum class FinalBookmarkStatus {
 fun ArticleWebViewScreen(
     articleWebViewModel: ArticleWebViewModel = hiltViewModel(),
     navigationSourceName: String?,
-    onArticleClose: (Article, BookmarkStatus) -> Unit,
+    onArticleClose: (Article, BookmarkStatus?) -> Unit,
     seeMoreClicked: (Article) -> Unit
 ) {
     val webState by articleWebViewModel.webState.collectAsState()
-    val initialBookmarkState = remember { mutableStateOf(false) }
-    val finalBookmarkState = remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
-    when (val articleState = webState.articleState) {
-        ArticleWebViewModel.ArticleState.Loading -> {
+    when (val articleState = webState.article) {
+        ArticleRetrievalState.Loading -> {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -61,14 +69,11 @@ fun ArticleWebViewScreen(
                 CircularProgressIndicator(color = VolumeOrange)
             }
         }
-        ArticleWebViewModel.ArticleState.Error -> {
+        ArticleRetrievalState.Error -> {
+            // TODO
         }
-        is ArticleWebViewModel.ArticleState.Success -> {
+        is ArticleRetrievalState.Success -> {
             val state = rememberWebViewState(articleState.article.articleURL)
-            val shoutoutCount = remember { articleState.article.shoutouts }
-            initialBookmarkState.value = webState.isBookmarked
-            finalBookmarkState.value = webState.isBookmarked
-
             Scaffold(
                 topBar = {
                     CenterAlignedTopAppBar(title = {
@@ -89,32 +94,106 @@ fun ArticleWebViewScreen(
                         }
                     }, modifier = Modifier.background(Color(0xFFF9F9F9)))
                 },
-                // TODO finish
                 bottomBar = {
-                    Column(
+                    Row(
                         modifier = Modifier
-                            .height(50.dp)
-                            .padding(end = 20.dp),
-                        verticalArrangement = Arrangement.SpaceBetween,
+                            .background(Color(0xFFF9F9F9))
+                            .height(55.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
                     ) {
-                        Column {
-                            // Publication logo see more button using seeMoreClicked
+                        Row(
+                            modifier = Modifier
+                                .background(Color.Transparent)
+                                .clickable
+                                { seeMoreClicked(articleState.article) },
+                        ) {
+                            AsyncImage(
+                                model = articleState.article.publication.profileImageURL,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape),
+                                contentDescription = null
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text(
+                                modifier = Modifier.align(CenterVertically),
+                                text = "See more",
+                                fontFamily = lato,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = Color.Black
+                            )
                         }
 
-                        Column {
-//                            VolumeEvent.logEvent(EventType.ARTICLE, VolumeEvent.SHARE_ARTICLE, id = article.id)
+                        Spacer(Modifier.weight(1f, true))
 
-//                            val intent = Intent()
-//                            intent.action = Intent.ACTION_SEND
-//                            intent.putExtra(
-//                                Intent.EXTRA_TEXT,
-//                                "Look at this article I found on Volume: ${article.articleURL}"
-//                            )
-//                            intent.type = "text/plain"
-//                            LocalContext.current.startActivity(Intent.createChooser(intent, "Share To:"))
+                        IconButton(onClick = { articleWebViewModel.bookmarkArticle() }) {
+                            Crossfade(targetState = articleWebViewModel.isBookmarked) { isBookmarked ->
+                                if (isBookmarked) {
+                                    Icon(
+                                        Icons.Filled.Bookmark,
+                                        contentDescription = "Bookmark article",
+                                        tint = VolumeOrange
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Outlined.BookmarkBorder,
+                                        contentDescription = "Bookmark article",
+                                        tint = Color.Black
+                                    )
+                                }
+                            }
+                        }
+                        IconButton(onClick = {
+                            VolumeEvent.logEvent(
+                                EventType.ARTICLE,
+                                VolumeEvent.SHARE_ARTICLE,
+                                id = articleState.article.id
+                            )
+                            val intent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                type = "text/plain"
+                                putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    "Look at this article I found on Volume: ${articleState.article.articleURL}"
+                                )
+                            }
 
-                            // Bookmark/Unbookmark and shoutout maintained by ViewModel
-                            // Bookmark Icon, Share Icon, Shoutout
+                            context.startActivity(Intent.createChooser(intent, "Share To:"))
+                        }) {
+                            Icon(Icons.Filled.Share, contentDescription = "Localized description")
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .padding(ButtonDefaults.ContentPadding)
+                                .clickable
+                                { articleWebViewModel.shoutoutArticle() },
+                        ) {
+                            Crossfade(targetState = articleWebViewModel.isMaxedShoutout) { isMaxShoutout ->
+                                if (isMaxShoutout) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_shoutout_filled),
+                                        contentDescription = "Shoutout article"
+                                    )
+                                } else {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_shoutout),
+                                        contentDescription = "Shoutout article"
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text(
+                                modifier = Modifier.align(CenterVertically),
+                                text = articleWebViewModel.shoutoutCount.toString(),
+                                fontFamily = lato,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = Color.Black
+                            )
                         }
                     }
                 },
@@ -135,20 +214,25 @@ fun ArticleWebViewScreen(
                     )
                 })
 
-            BackHandler(enabled = webState.articleState is ArticleWebViewModel.ArticleState.Success) {
-                val bookmarkStatus = if (initialBookmarkState.value && finalBookmarkState.value) {
-                    BookmarkStatus(FinalBookmarkStatus.UNCHANGED, articleState.article.id)
-                } else if (initialBookmarkState.value && !finalBookmarkState.value) {
-                    BookmarkStatus(
-                        FinalBookmarkStatus.BOOKMARKED_TO_UNBOOKMARKED,
-                        articleState.article.id
-                    )
+            BackHandler(enabled = true) {
+                val bookmarkStatus = if (webState.article is ArticleRetrievalState.Success) {
+                    if (articleWebViewModel.initialBookmarkState && !articleWebViewModel.isBookmarked) {
+                        BookmarkStatus(
+                            FinalBookmarkStatus.BOOKMARKED_TO_UNBOOKMARKED,
+                            articleState.article.id
+                        )
+                    } else if (!articleWebViewModel.initialBookmarkState && articleWebViewModel.isBookmarked) {
+                        BookmarkStatus(
+                            FinalBookmarkStatus.UNBOOKMARKED_TO_BOOKMARKED,
+                            articleState.article.id
+                        )
+                    } else {
+                        BookmarkStatus(FinalBookmarkStatus.UNCHANGED, articleState.article.id)
+                    }
                 } else {
-                    BookmarkStatus(
-                        FinalBookmarkStatus.BOOKMARKED_TO_UNBOOKMARKED,
-                        articleState.article.id
-                    )
+                    null
                 }
+
                 onArticleClose(
                     articleState.article,
                     bookmarkStatus

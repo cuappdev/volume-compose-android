@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.volume.analytics.EventType
 import com.cornellappdev.volume.analytics.VolumeEvent
-import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.repositories.PublicationRepository
 import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.data.repositories.UserRepository
+import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,18 +23,12 @@ class OnboardingViewModel @Inject constructor(
 ) : ViewModel() {
 
     data class CreatingUserState(
-        val createUserState: CreateUserState
+        val createUserState: CreateUserState = CreateUserState.Pending
     )
 
     data class AllPublicationUIState(
-        val publicationsRetrievalState: PublicationsRetrievalState
+        val publications: PublicationsRetrievalState = PublicationsRetrievalState.Loading
     )
-
-    sealed interface PublicationsRetrievalState {
-        data class Success(val publications: List<Publication>) : PublicationsRetrievalState
-        object Error : PublicationsRetrievalState
-        object Loading : PublicationsRetrievalState
-    }
 
     sealed interface CreateUserState {
         object Success : CreateUserState
@@ -44,7 +38,7 @@ class OnboardingViewModel @Inject constructor(
 
     // Backing property to avoid state updates from other classes
     private val _creatingUserState = MutableStateFlow(
-        CreatingUserState(CreateUserState.Pending)
+        CreatingUserState()
     )
 
     // The UI collects from this StateFlow to get its state updates
@@ -52,7 +46,7 @@ class OnboardingViewModel @Inject constructor(
         _creatingUserState.asStateFlow()
 
     private val _allPublicationsState =
-        MutableStateFlow(AllPublicationUIState(PublicationsRetrievalState.Loading))
+        MutableStateFlow(AllPublicationUIState())
 
     val allPublicationsState: StateFlow<AllPublicationUIState> = _allPublicationsState.asStateFlow()
 
@@ -95,13 +89,13 @@ class OnboardingViewModel @Inject constructor(
     fun queryAllPublications() = viewModelScope.launch {
         try {
             _allPublicationsState.value = _allPublicationsState.value.copy(
-                publicationsRetrievalState = PublicationsRetrievalState.Success(
+                publications = PublicationsRetrievalState.Success(
                     publicationRepository.fetchAllPublications()
                 )
             )
         } catch (e: Exception) {
             _allPublicationsState.value = _allPublicationsState.value.copy(
-                publicationsRetrievalState = PublicationsRetrievalState.Error
+                publications = PublicationsRetrievalState.Error
             )
         }
     }

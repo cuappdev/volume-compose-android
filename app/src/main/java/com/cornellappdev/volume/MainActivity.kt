@@ -3,8 +3,10 @@ package com.cornellappdev.volume
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material.MaterialTheme
 import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.navigation.TabbedNavigationSetup
+import com.cornellappdev.volume.ui.theme.LightColors
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -24,7 +26,10 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            TabbedNavigationSetup(onboardingCompleted, notificationBundle)
+            MaterialTheme(
+                colors = LightColors,
+                content = { TabbedNavigationSetup(onboardingCompleted, notificationBundle) }
+            )
         }
     }
 }

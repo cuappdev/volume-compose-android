@@ -2,10 +2,10 @@ package com.cornellappdev.volume.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.repositories.PublicationRepository
 import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.data.repositories.UserRepository
+import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,17 +23,11 @@ class PublicationTabViewModel @Inject constructor(
     ViewModel() {
 
     data class AllPublicationUIState(
-        val publicationsRetrievalState: PublicationsRetrievalState
+        val publication: PublicationsRetrievalState = PublicationsRetrievalState.Loading
     )
 
-    sealed interface PublicationsRetrievalState {
-        data class Success(val publications: List<Publication>) : PublicationsRetrievalState
-        object Error : PublicationsRetrievalState
-        object Loading : PublicationsRetrievalState
-    }
-
     private val _allPublicationsState =
-        MutableStateFlow(AllPublicationUIState(PublicationsRetrievalState.Loading))
+        MutableStateFlow(AllPublicationUIState())
 
     val allPublicationsState: StateFlow<AllPublicationUIState> = _allPublicationsState.asStateFlow()
 
@@ -53,13 +47,13 @@ class PublicationTabViewModel @Inject constructor(
     private fun queryAllPublications() = viewModelScope.launch {
         try {
             _allPublicationsState.value = _allPublicationsState.value.copy(
-                publicationsRetrievalState = PublicationsRetrievalState.Success(
+                publication = PublicationsRetrievalState.Success(
                     publicationRepository.fetchAllPublications()
                 )
             )
         } catch (e: Exception) {
             _allPublicationsState.value = _allPublicationsState.value.copy(
-                publicationsRetrievalState = PublicationsRetrievalState.Error
+                publication = PublicationsRetrievalState.Error
             )
         }
     }

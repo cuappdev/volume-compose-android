@@ -35,10 +35,8 @@ import com.cornellappdev.volume.analytics.EventType
 import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.analytics.VolumeEvent
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalPublicationRow
-import com.cornellappdev.volume.ui.theme.GrayOne
-import com.cornellappdev.volume.ui.theme.VolumeOrange
-import com.cornellappdev.volume.ui.theme.lato
-import com.cornellappdev.volume.ui.theme.notoserif
+import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
+import com.cornellappdev.volume.ui.theme.*
 import com.cornellappdev.volume.ui.viewmodels.OnboardingViewModel
 import kotlinx.coroutines.delay
 
@@ -48,8 +46,8 @@ fun SecondPage(
     creatingUser: MutableState<Boolean>,
     onProceedClicked: () -> Unit
 ) {
-    val allPublicationState = onboardingViewModel.allPublicationsState.collectAsState().value
-    val creatingUserState = onboardingViewModel.creatingUserState.collectAsState().value
+    val allPublicationsState by onboardingViewModel.allPublicationsState.collectAsState()
+    val creatingUserState by onboardingViewModel.creatingUserState.collectAsState()
     val lazyListState = rememberLazyListState()
     val buttonClicked = rememberSaveable { mutableStateOf(false) }
     val proceedEnabled = rememberSaveable { mutableStateOf(false) }
@@ -116,8 +114,8 @@ fun SecondPage(
                 }
             }
 
-            when (allPublicationState.publicationsRetrievalState) {
-                OnboardingViewModel.PublicationsRetrievalState.Loading -> {
+            when (val publicationsState = allPublicationsState.publications) {
+                PublicationsRetrievalState.Loading -> {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -125,11 +123,10 @@ fun SecondPage(
                         CircularProgressIndicator(color = VolumeOrange)
                     }
                 }
-                OnboardingViewModel.PublicationsRetrievalState.Error -> {
+                PublicationsRetrievalState.Error -> {
                     // TODO Prompt to try again, fetchAllPublications manually (it's public)
                 }
-                is OnboardingViewModel.PublicationsRetrievalState.Success -> {
-
+                is PublicationsRetrievalState.Success -> {
                     BoxWithConstraints {
                         LazyColumn(
                             modifier = Modifier
@@ -139,7 +136,7 @@ fun SecondPage(
                             verticalArrangement = Arrangement.spacedBy(24.dp)
                         ) {
                             items(
-                                items = allPublicationState.publicationsRetrievalState.publications,
+                                items = publicationsState.publications,
                                 key = { publication ->
                                     publication.id
                                 }) { publication ->
@@ -191,7 +188,7 @@ fun SecondPage(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
                                                 Color.Transparent,
-                                                Color.White
+                                                VolumeOffWhite
                                             )
                                         )
                                     )

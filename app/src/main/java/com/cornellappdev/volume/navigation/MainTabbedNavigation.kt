@@ -11,8 +11,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -58,7 +58,7 @@ private fun currentRoute(navController: NavHostController): String? {
 @Composable
 fun BottomNavigationBar(navController: NavHostController, tabItems: List<NavigationItem>) {
     BottomNavigation(
-        backgroundColor = Color.White
+        elevation = 0.dp
     ) {
         val currentRoute = currentRoute(navController)
         tabItems.forEach { item ->
@@ -99,7 +99,7 @@ private fun MainScreenNavigationConfigurations(
             setShowBottomBar(true)
             HomeScreen(
                 onArticleClick = { article, navigationSource ->
-                    navController.navigate("${Routes.OPEN_ARTICLE}/${article.id}/${navigationSource.name}")
+                    navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
                 })
         }
         composable(Routes.ONBOARDING.route) {
@@ -111,14 +111,14 @@ private fun MainScreenNavigationConfigurations(
         // This route should be navigated with a valid publication ID, else the screen will not
         // populate.
         composable(
-            "${Routes.INDIVIDUAL_PUBLICATION}/{publicationId}",
+            "${Routes.INDIVIDUAL_PUBLICATION.route}/{publicationId}",
         ) {
             setShowBottomBar(true)
             IndividualPublicationScreen()
         }
         // This route should be navigated with a valid article ID.
         composable(
-            "${Routes.OPEN_ARTICLE}/{articleId}/{navigationSourceName}",
+            "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}",
         ) { backStackEntry ->
             setShowBottomBar(false)
             val navigationSourceName = backStackEntry.arguments?.getString("navigationSourceName")
@@ -130,14 +130,16 @@ private fun MainScreenNavigationConfigurations(
                         VolumeEvent.CLOSE_ARTICLE,
                         id = article.id
                     )
+
                     navController.previousBackStackEntry?.savedStateHandle?.set(
                         "bookmarkStatus",
                         bookmarkStatus
                     )
+
                     navController.popBackStack()
                 },
                 seeMoreClicked = { article ->
-                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION}/${article.publication.id}")
+                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${article.publication.id}")
                 }
             )
         }
@@ -148,9 +150,27 @@ private fun MainScreenNavigationConfigurations(
                 navController = navController,
                 onPublicationClick =
                 { publication ->
-                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION}/${publication.id}")
+                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.id}")
                 })
         }
-        composable(Routes.BOOKMARKS.route) {}
+        composable(Routes.BOOKMARKS.route) {
+            setShowBottomBar(true)
+            BookmarkScreen(
+                navController = navController,
+                onArticleClick = { article, navigationSource ->
+                    navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
+                },
+                onSettingsClick = { navController.navigate(Routes.SETTINGS.route) })
+        }
+        composable(Routes.SETTINGS.route) {
+            setShowBottomBar(false)
+            SettingsScreen {
+                navController.navigate(Routes.ABOUT_US.route)
+            }
+        }
+        composable(Routes.ABOUT_US.route) {
+            setShowBottomBar(false)
+            AboutUsScreen()
+        }
     }
 }

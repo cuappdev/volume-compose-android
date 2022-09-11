@@ -25,10 +25,10 @@ class ArticleRepository @Inject constructor() {
     suspend fun fetchArticlesByPublicationID(pubID: String): List<Article> =
         NetworkingApi.fetchArticleByPublicationID(pubID).dataAssertNoErrors.mapDataToArticles()
 
-    suspend fun fetchArticlesByPublicationIDs(pubIDs: MutableList<String>): List<Article> =
+    suspend fun fetchArticlesByPublicationIDs(pubIDs: List<String>): List<Article> =
         NetworkingApi.fetchArticlesByPublicationIDs(pubIDs).dataAssertNoErrors.mapDataToArticles()
 
-    suspend fun fetchArticlesByIDs(ids: MutableSet<String>): List<Article> =
+    suspend fun fetchArticlesByIDs(ids: List<String>): List<Article> =
         NetworkingApi.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticleByID(id: String): Article =

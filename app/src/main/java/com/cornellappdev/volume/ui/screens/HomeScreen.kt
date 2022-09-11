@@ -33,7 +33,10 @@ import com.cornellappdev.volume.ui.components.general.CreateBigReadRow
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
 import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheEnd
 import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheStart
+import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
+import com.cornellappdev.volume.ui.theme.VolumeOffWhite
 import com.cornellappdev.volume.ui.theme.VolumeOrange
+import com.cornellappdev.volume.ui.theme.lato
 import com.cornellappdev.volume.ui.theme.notoserif
 import com.cornellappdev.volume.ui.viewmodels.HomeTabViewModel
 
@@ -43,7 +46,7 @@ fun HomeScreen(
     homeTabViewModel: HomeTabViewModel = hiltViewModel(),
     onArticleClick: (Article, NavigationSource) -> Unit
 ) {
-    val articlesState by homeTabViewModel.articlesState.collectAsState()
+    val articlesState by homeTabViewModel.homeState.collectAsState()
 
     // TODO add scrollability to content
     Scaffold(topBar = {
@@ -68,8 +71,8 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(22.dp))
 
-            when (val trendingArticles = articlesState.trendingArticlesState) {
-                HomeTabViewModel.ArticleState.Loading -> {
+            when (val trendingArticles = articlesState.trendingArticles) {
+                ArticlesRetrievalState.Loading -> {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -77,10 +80,10 @@ fun HomeScreen(
                         CircularProgressIndicator(color = VolumeOrange)
                     }
                 }
-                HomeTabViewModel.ArticleState.Error -> {
+                ArticlesRetrievalState.Error -> {
                     // TODO Prompt to try again, queryTrendingArticles manually (it's public). Could be that internet is down.
                 }
-                is HomeTabViewModel.ArticleState.Success -> {
+                is ArticlesRetrievalState.Success -> {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                         items(trendingArticles.articles) { article ->
                             CreateBigReadRow(article) {
@@ -102,8 +105,8 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            when (val followingArticles = articlesState.followingArticlesState) {
-                HomeTabViewModel.ArticleState.Loading -> {
+            when (val followingArticles = articlesState.followingArticles) {
+                ArticlesRetrievalState.Loading -> {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -111,10 +114,10 @@ fun HomeScreen(
                         CircularProgressIndicator(color = VolumeOrange)
                     }
                 }
-                HomeTabViewModel.ArticleState.Error -> {
+                ArticlesRetrievalState.Error -> {
                     // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
                 }
-                is HomeTabViewModel.ArticleState.Success -> {
+                is ArticlesRetrievalState.Success -> {
                     if (followingArticles.articles.isEmpty()) {
                         Column(
                             modifier = Modifier
@@ -124,11 +127,22 @@ fun HomeScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Image(
-                                painter = painterResource(id = R.drawable.ic_bar_chart_2),
+                                painter = painterResource(id = R.drawable.ic_volume_bars_orange_large),
                                 contentDescription = null,
                             )
-                            Text(text = "Nothing to see here!")
-                            Text(text = "Follow some student publications that you are interested in")
+                            Text(
+                                text = "Nothing to see here!",
+                                fontFamily = notoserif,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                            Text(
+                                text = "Follow some student publications that you are interested in.",
+                                fontFamily = lato,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
                     } else {
                         val lazyListState = rememberLazyListState()
@@ -167,7 +181,7 @@ fun HomeScreen(
                                         .background(
                                             brush = Brush.verticalGradient(
                                                 colors = listOf(
-                                                    Color.White,
+                                                    VolumeOffWhite,
                                                     Color.Transparent
                                                 )
                                             )
@@ -194,7 +208,7 @@ fun HomeScreen(
                                             brush = Brush.verticalGradient(
                                                 colors = listOf(
                                                     Color.Transparent,
-                                                    Color.White
+                                                    VolumeOffWhite
                                                 )
                                             )
                                         )
@@ -214,8 +228,8 @@ fun HomeScreen(
                 fontWeight = FontWeight.Medium
             )
 
-            when (val otherArticles = articlesState.otherArticlesState) {
-                HomeTabViewModel.ArticleState.Loading -> {
+            when (val otherArticles = articlesState.otherArticles) {
+                ArticlesRetrievalState.Loading -> {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -223,10 +237,10 @@ fun HomeScreen(
                         CircularProgressIndicator(color = VolumeOrange)
                     }
                 }
-                HomeTabViewModel.ArticleState.Error -> {
+                ArticlesRetrievalState.Error -> {
                     // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
                 }
-                is HomeTabViewModel.ArticleState.Success -> {
+                is ArticlesRetrievalState.Success -> {
                     // TODO adjust height of LazyColumn
                     LazyColumn(
                         modifier = Modifier

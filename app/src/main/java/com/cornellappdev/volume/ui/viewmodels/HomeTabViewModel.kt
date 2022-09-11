@@ -8,6 +8,7 @@ import com.cornellappdev.volume.data.repositories.ArticleRepository
 import com.cornellappdev.volume.data.repositories.PublicationRepository
 import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.data.repositories.UserRepository
+import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,30 +32,17 @@ class HomeTabViewModel @Inject constructor(
         const val NUMBER_OF_OTHER_ARTICLES = 45
     }
 
-    data class ArticlesState(
-        val trendingArticlesState: ArticleState,
-        val otherArticlesState: ArticleState,
-        val followingArticlesState: ArticleState,
-        val remainingFollowing: ArticleState
+    data class HomeState(
+        val trendingArticles: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+        val otherArticles: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+        val followingArticles: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+        val remainingFollowing: ArticlesRetrievalState = ArticlesRetrievalState.Loading
     )
 
-    sealed interface ArticleState {
-        data class Success(val articles: List<Article>) : ArticleState
-        object Error : ArticleState
-        object Loading : ArticleState
-    }
+    private val _homeState = MutableStateFlow(HomeState())
 
-    private val _articlesState = MutableStateFlow(
-        ArticlesState(
-            trendingArticlesState = ArticleState.Loading,
-            otherArticlesState = ArticleState.Loading,
-            followingArticlesState = ArticleState.Loading,
-            remainingFollowing = ArticleState.Loading
-        )
-    )
-
-    val articlesState: StateFlow<ArticlesState> =
-        _articlesState.asStateFlow()
+    val homeState: StateFlow<HomeState> =
+        _homeState.asStateFlow()
 
     init {
         queryTrendingArticles()
@@ -64,8 +52,8 @@ class HomeTabViewModel @Inject constructor(
     fun queryTrendingArticles(limit: Double? = NUMBER_OF_TRENDING_ARTICLES) =
         viewModelScope.launch {
             try {
-                _articlesState.value = _articlesState.value.copy(
-                    trendingArticlesState = ArticleState.Success(
+                _homeState.value = _homeState.value.copy(
+                    trendingArticles = ArticlesRetrievalState.Success(
                         articleRepository.fetchTrendingArticles(
                             limit
                         )
@@ -73,8 +61,8 @@ class HomeTabViewModel @Inject constructor(
                 )
                 queryFollowingArticles()
             } catch (e: Exception) {
-                _articlesState.value = _articlesState.value.copy(
-                    trendingArticlesState = ArticleState.Error
+                _homeState.value = _homeState.value.copy(
+                    trendingArticles = ArticlesRetrievalState.Error
                 )
             }
         }
@@ -85,11 +73,11 @@ class HomeTabViewModel @Inject constructor(
                 val followedPublications =
                     userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs
                 val trendingArticlesIDs =
-                    (_articlesState.value.trendingArticlesState as ArticleState.Success).articles.map(
+                    (_homeState.value.trendingArticles as ArticlesRetrievalState.Success).articles.map(
                         Article::id
                     ).toHashSet()
                 val followingArticles = articleRepository.fetchArticlesByPublicationIDs(
-                    followedPublications.toMutableList()
+                    followedPublications
                 ).toMutableList()
 
                 // Filters any articles the user follows that are trending.
@@ -109,17 +97,17 @@ class HomeTabViewModel @Inject constructor(
                     filteredArticles
                 )
 
-                _articlesState.value = _articlesState.value.copy(
-                    followingArticlesState = ArticleState.Success(
+                _homeState.value = _homeState.value.copy(
+                    followingArticles = ArticlesRetrievalState.Success(
                         filteredArticles
                     ),
-                    remainingFollowing = ArticleState.Success(followingArticles)
+                    remainingFollowing = ArticlesRetrievalState.Success(followingArticles)
                 )
 
                 queryOtherArticles()
             } catch (e: Exception) {
-                _articlesState.value = _articlesState.value.copy(
-                    followingArticlesState = ArticleState.Error
+                _homeState.value = _homeState.value.copy(
+                    followingArticles = ArticlesRetrievalState.Error
                 )
             }
         }
@@ -129,11 +117,11 @@ class HomeTabViewModel @Inject constructor(
             val followedPublications =
                 userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs.toHashSet()
             val trendingArticlesIDs =
-                (_articlesState.value.trendingArticlesState as ArticleState.Success).articles.map(
+                (_homeState.value.trendingArticles as ArticlesRetrievalState.Success).articles.map(
                     Article::id
                 ).toHashSet()
             val remainingArticles =
-                (_articlesState.value.remainingFollowing as ArticleState.Success).articles
+                (_homeState.value.remainingFollowing as ArticlesRetrievalState.Success).articles
             val allPublicationsExcludingFollowing =
                 publicationRepository.fetchAllPublications().map(Publication::id)
                     .toMutableList()
@@ -159,14 +147,14 @@ class HomeTabViewModel @Inject constructor(
                 )
             }
 
-            _articlesState.value = _articlesState.value.copy(
-                otherArticlesState = ArticleState.Success(
+            _homeState.value = _homeState.value.copy(
+                otherArticles = ArticlesRetrievalState.Success(
                     otherArticles.shuffled().take(limit)
                 )
             )
         } catch (e: Exception) {
-            _articlesState.value = _articlesState.value.copy(
-                otherArticlesState = ArticleState.Error
+            _homeState.value = _homeState.value.copy(
+                otherArticles = ArticlesRetrievalState.Error
             )
         }
     }

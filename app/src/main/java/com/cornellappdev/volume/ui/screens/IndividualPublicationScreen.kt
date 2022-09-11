@@ -27,6 +27,8 @@ import coil.compose.AsyncImage
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.Publication
+import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
+import com.cornellappdev.volume.ui.states.PublicationRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.viewmodels.IndividualPublicationViewModel
 
@@ -40,8 +42,8 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
 
     Column {
 
-        when (publicationByIDState.publicationRetrievalState) {
-            IndividualPublicationViewModel.PublicationRetrievalState.Loading -> {
+        when (publicationByIDState.publication) {
+            PublicationRetrievalState.Loading -> {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -49,16 +51,16 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
                     CircularProgressIndicator(color = VolumeOrange)
                 }
             }
-            IndividualPublicationViewModel.PublicationRetrievalState.Error -> {
+            PublicationRetrievalState.Error -> {
 
             }
-            is IndividualPublicationViewModel.PublicationRetrievalState.Success -> {
-                PublicationScreen(publicationByIDState.publicationRetrievalState.publication)
+            is PublicationRetrievalState.Success -> {
+                PublicationScreen(publicationByIDState.publication.publication)
             }
         }
 
         when (publicationByIDState.articlesByPublication) {
-            IndividualPublicationViewModel.ArticleState.Loading -> {
+            ArticlesRetrievalState.Loading -> {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -66,10 +68,10 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
                     CircularProgressIndicator(color = VolumeOrange)
                 }
             }
-            IndividualPublicationViewModel.ArticleState.Error -> {
+            ArticlesRetrievalState.Error -> {
 
             }
-            is IndividualPublicationViewModel.ArticleState.Success -> {
+            is ArticlesRetrievalState.Success -> {
                 PublicationRecent(publicationByIDState.articlesByPublication.articles)
             }
         }
