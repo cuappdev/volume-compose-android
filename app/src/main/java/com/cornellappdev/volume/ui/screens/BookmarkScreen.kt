@@ -1,6 +1,5 @@
 package com.cornellappdev.volume.ui.screens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,7 +34,6 @@ import com.cornellappdev.volume.ui.viewmodels.BookmarkViewModel
 import com.cornellappdev.volume.util.BookmarkStatus
 import com.cornellappdev.volume.util.FinalBookmarkStatus
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun BookmarkScreen(
     bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
@@ -77,65 +75,67 @@ fun BookmarkScreen(
                 )
             }
         }
-    }, content = {
-        when (val articleState = bookmarkState.articles) {
-            ArticlesRetrievalState.Loading -> {
+    }, content = { innerPadding ->
+        Box(modifier = Modifier.padding(innerPadding)) {
+            when (val articleState = bookmarkState.articles) {
+                ArticlesRetrievalState.Loading -> {
 
-            }
-            ArticlesRetrievalState.Error -> {
+                }
+                ArticlesRetrievalState.Error -> {
 
-            }
-            is ArticlesRetrievalState.Success -> {
-                if (articleState.articles.isEmpty()) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_volume_bars_orange_large),
-                            contentDescription = null
-                        )
-
-                        Text(
-                            text = "Nothing to see here!",
-                            fontFamily = notoserif,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-
-                        Text(
-                            text = "You have no saved articles.",
-                            fontFamily = lato,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp),
-                    ) {
-                        Text(
-                            text = "Saved Articles",
-                            fontFamily = notoserif,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(20.dp),
+                }
+                is ArticlesRetrievalState.Success -> {
+                    if (articleState.articles.isEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            items(articleState.articles) { article ->
-                                CreateHorizontalArticleRow(
-                                    article = article,
-                                    isABookmarkedArticle = true
-                                ) {
-                                    onArticleClick(article, NavigationSource.BOOKMARK_ARTICLES)
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_volume_bars_orange_large),
+                                contentDescription = null
+                            )
+
+                            Text(
+                                text = "Nothing to see here!",
+                                fontFamily = notoserif,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                            Text(
+                                text = "You have no saved articles.",
+                                fontFamily = lato,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp),
+                        ) {
+                            Text(
+                                text = "Saved Articles",
+                                fontFamily = notoserif,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+
+                            Spacer(modifier = Modifier.height(20.dp))
+
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(20.dp),
+                            ) {
+                                items(articleState.articles) { article ->
+                                    CreateHorizontalArticleRow(
+                                        article = article,
+                                        isABookmarkedArticle = true
+                                    ) {
+                                        onArticleClick(article, NavigationSource.BOOKMARK_ARTICLES)
+                                    }
                                 }
                             }
                         }

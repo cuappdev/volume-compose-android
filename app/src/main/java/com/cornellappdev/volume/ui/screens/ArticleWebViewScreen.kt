@@ -1,6 +1,5 @@
 package com.cornellappdev.volume.ui.screens
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
@@ -48,7 +47,6 @@ import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewState
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ArticleWebViewScreen(
     articleWebViewModel: ArticleWebViewModel = hiltViewModel(),
@@ -197,8 +195,9 @@ fun ArticleWebViewScreen(
                         }
                     }
                 },
-                content = {
+                content = { innerPadding ->
                     WebView(
+                        modifier = Modifier.padding(innerPadding),
                         state = state,
                         onCreated = { webView ->
                             webView.settings.javaScriptEnabled = true

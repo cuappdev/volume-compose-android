@@ -1,6 +1,5 @@
 package com.cornellappdev.volume.ui.screens
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -30,7 +29,6 @@ import com.cornellappdev.volume.ui.theme.lato
 import com.cornellappdev.volume.ui.theme.notoserif
 
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(onAboutUsClicked: () -> Unit) {
@@ -46,9 +44,13 @@ fun SettingsScreen(onAboutUsClicked: () -> Unit) {
                 )
             })
         },
-        content = {
+        content = { innerPadding ->
             Column(
-                modifier = Modifier.padding(horizontal = 24.dp),
+                modifier = Modifier.padding(
+                    start = 24.dp,
+                    end = 24.dp,
+                    top = innerPadding.calculateTopPadding()
+                ),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 Row(

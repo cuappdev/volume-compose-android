@@ -1,16 +1,17 @@
 package com.cornellappdev.volume.navigation
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -24,7 +25,6 @@ import com.cornellappdev.volume.ui.screens.*
 import com.cornellappdev.volume.ui.theme.DarkGray
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun TabbedNavigationSetup(onboardingCompleted: Boolean, notificationBundle: Bundle?) {
     val navController = rememberNavController()
@@ -40,8 +40,9 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean, notificationBundle: Bund
                 BottomNavigationBar(navController, NavigationItem.bottomNavTabList)
             }
         }
-    ) {
+    ) { innerPadding ->
         MainScreenNavigationConfigurations(
+            modifier = Modifier.padding(innerPadding),
             isOnboardingCompleted = onboardingCompleted,
             navController = navController,
             setShowBottomBar = setShowBottomBar,
@@ -86,12 +87,14 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
 
 @Composable
 private fun MainScreenNavigationConfigurations(
+    modifier: Modifier = Modifier,
     navController: NavHostController,
     setShowBottomBar: (Boolean) -> Unit,
     isOnboardingCompleted: Boolean,
 ) {
     // The starting destination switches to onboarding if it isn't completed.
     NavHost(
+        modifier = modifier,
         navController = navController,
         startDestination = if (isOnboardingCompleted) Routes.HOME.route else Routes.ONBOARDING.route
     ) {

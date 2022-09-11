@@ -1,5 +1,8 @@
 package com.cornellappdev.volume.ui.viewmodels
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.volume.data.models.Article
@@ -43,6 +46,12 @@ class HomeTabViewModel @Inject constructor(
 
     val homeState: StateFlow<HomeState> =
         _homeState.asStateFlow()
+
+    /**
+     * State that holds information on whether the user has any followed articles
+     */
+    var isFollowingEmpty by mutableStateOf(false)
+        private set
 
     init {
         queryTrendingArticles()
@@ -90,6 +99,8 @@ class HomeTabViewModel @Inject constructor(
                 var filteredArticles = followingArticles.take(limit)
                 filteredArticles =
                     filteredArticles.ifEmpty { listOf() }
+
+                isFollowingEmpty = filteredArticles.isEmpty()
 
                 // We took the first limit articles, the remaining ones (after removing them)
                 // can be used for the other article section
