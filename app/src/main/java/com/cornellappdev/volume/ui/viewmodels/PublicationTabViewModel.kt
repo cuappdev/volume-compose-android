@@ -13,7 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// TODO test updating from individual publication view model onClick to publication tab
+// TODO test updating from individual publication view model onClick to publication tab. Follows
+// similarly with how bookmarking works from the BookmarkScreen -> ArticleWebViewScreen
 @HiltViewModel
 class PublicationTabViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,

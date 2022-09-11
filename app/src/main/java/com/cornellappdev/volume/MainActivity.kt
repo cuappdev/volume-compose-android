@@ -18,6 +18,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // TODO notifications
         // Holds potential bundle of notification data payload
         val notificationBundle = intent.extras
 
