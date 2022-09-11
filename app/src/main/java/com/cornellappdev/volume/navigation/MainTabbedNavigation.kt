@@ -121,14 +121,15 @@ private fun MainScreenNavigationConfigurations(
             "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}",
         ) { backStackEntry ->
             setShowBottomBar(false)
+            val articleId = backStackEntry.arguments?.getString("articleId")!!
             val navigationSourceName = backStackEntry.arguments?.getString("navigationSourceName")
             ArticleWebViewScreen(
                 navigationSourceName = navigationSourceName,
-                onArticleClose = { article, bookmarkStatus ->
+                onArticleClose = { bookmarkStatus ->
                     VolumeEvent.logEvent(
                         EventType.ARTICLE,
                         VolumeEvent.CLOSE_ARTICLE,
-                        id = article.id
+                        id = articleId
                     )
 
                     navController.previousBackStackEntry?.savedStateHandle?.set(

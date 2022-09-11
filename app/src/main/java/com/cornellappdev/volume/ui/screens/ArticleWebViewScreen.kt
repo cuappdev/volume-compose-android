@@ -53,7 +53,7 @@ import com.google.accompanist.web.rememberWebViewState
 fun ArticleWebViewScreen(
     articleWebViewModel: ArticleWebViewModel = hiltViewModel(),
     navigationSourceName: String?,
-    onArticleClose: (Article, BookmarkStatus?) -> Unit,
+    onArticleClose: (BookmarkStatus?) -> Unit,
     seeMoreClicked: (Article) -> Unit
 ) {
     val webState by articleWebViewModel.webState.collectAsState()
@@ -213,31 +213,31 @@ fun ArticleWebViewScreen(
                         }
                     )
                 })
-
-            BackHandler(enabled = true) {
-                val bookmarkStatus = if (webState.article is ArticleRetrievalState.Success) {
-                    if (articleWebViewModel.initialBookmarkState && !articleWebViewModel.isBookmarked) {
-                        BookmarkStatus(
-                            FinalBookmarkStatus.BOOKMARKED_TO_UNBOOKMARKED,
-                            articleState.article.id
-                        )
-                    } else if (!articleWebViewModel.initialBookmarkState && articleWebViewModel.isBookmarked) {
-                        BookmarkStatus(
-                            FinalBookmarkStatus.UNBOOKMARKED_TO_BOOKMARKED,
-                            articleState.article.id
-                        )
-                    } else {
-                        BookmarkStatus(FinalBookmarkStatus.UNCHANGED, articleState.article.id)
-                    }
-                } else {
-                    null
-                }
-
-                onArticleClose(
-                    articleState.article,
-                    bookmarkStatus
-                )
-            }
         }
+    }
+
+    BackHandler(enabled = true) {
+        val bookmarkStatus = if (webState.article is ArticleRetrievalState.Success) {
+            val article = (webState.article as ArticleRetrievalState.Success).article
+            if (articleWebViewModel.initialBookmarkState && !articleWebViewModel.isBookmarked) {
+                BookmarkStatus(
+                    FinalBookmarkStatus.BOOKMARKED_TO_UNBOOKMARKED,
+                    article.id
+                )
+            } else if (!articleWebViewModel.initialBookmarkState && articleWebViewModel.isBookmarked) {
+                BookmarkStatus(
+                    FinalBookmarkStatus.UNBOOKMARKED_TO_BOOKMARKED,
+                    article.id
+                )
+            } else {
+                BookmarkStatus(FinalBookmarkStatus.UNCHANGED, article.id)
+            }
+        } else {
+            null
+        }
+
+        onArticleClose(
+            bookmarkStatus
+        )
     }
 }
