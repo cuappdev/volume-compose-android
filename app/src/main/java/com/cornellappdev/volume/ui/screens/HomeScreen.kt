@@ -117,7 +117,7 @@ fun HomeScreen(
                         ) {
                             CircularProgressIndicator(
                                 color = VolumeOrange,
-                                modifier = Modifier.padding(vertical = 30.dp)
+                                modifier = Modifier.padding(vertical = 50.dp)
                             )
                         }
                     }
@@ -212,9 +212,9 @@ fun HomeScreen(
                     if (homeTabViewModel.isFollowingEmpty) {
                         Column(
                             modifier = Modifier
+                                .padding(vertical = 40.dp, horizontal = 16.dp)
                                 .fillMaxWidth()
-                                .wrapContentHeight()
-                                .padding(vertical = 30.dp, horizontal = 16.dp),
+                                .wrapContentHeight(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Image(
@@ -240,9 +240,9 @@ fun HomeScreen(
                     } else {
                         Column(
                             modifier = Modifier
+                                .padding(vertical = 70.dp, horizontal = 16.dp)
                                 .fillMaxWidth()
-                                .wrapContentHeight()
-                                .padding(vertical = 70.dp, horizontal = 16.dp),
+                                .wrapContentHeight(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Image(
