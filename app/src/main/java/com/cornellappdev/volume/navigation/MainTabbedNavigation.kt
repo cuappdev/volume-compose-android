@@ -1,6 +1,5 @@
 package com.cornellappdev.volume.navigation
 
-import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -19,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
 import com.cornellappdev.volume.analytics.EventType
 import com.cornellappdev.volume.analytics.VolumeEvent
 import com.cornellappdev.volume.ui.screens.*
@@ -26,7 +26,7 @@ import com.cornellappdev.volume.ui.theme.DarkGray
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 
 @Composable
-fun TabbedNavigationSetup(onboardingCompleted: Boolean, notificationBundle: Bundle?) {
+fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
     val navController = rememberNavController()
     val (showBottomBar, setShowBottomBar) = rememberSaveable { mutableStateOf(false) }
 
@@ -105,6 +105,13 @@ private fun MainScreenNavigationConfigurations(
                     navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
                 })
         }
+        composable(route = Routes.WEEKLY_DEBRIEF.route, deepLinks = listOf(
+            navDeepLink { uriPattern = "volume://${Routes.WEEKLY_DEBRIEF.route}" }
+        )) {
+            setShowBottomBar(true)
+            // I believe WeeklyDebrief is a bottom sheet attached to the HomeScreen
+
+        }
         composable(Routes.ONBOARDING.route) {
             setShowBottomBar(false)
             OnboardingScreen(
@@ -121,7 +128,10 @@ private fun MainScreenNavigationConfigurations(
         }
         // This route should be navigated with a valid article ID.
         composable(
-            "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}",
+            route = "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "volume://${Routes.OPEN_ARTICLE.route}/{articleId}" }
+            )
         ) { backStackEntry ->
             setShowBottomBar(false)
             val articleId = backStackEntry.arguments?.getString("articleId")!!

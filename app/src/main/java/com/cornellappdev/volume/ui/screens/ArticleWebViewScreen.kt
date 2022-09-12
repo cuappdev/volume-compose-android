@@ -36,6 +36,7 @@ import com.cornellappdev.volume.analytics.EventType
 import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.analytics.VolumeEvent
 import com.cornellappdev.volume.data.models.Article
+import com.cornellappdev.volume.navigation.Routes
 import com.cornellappdev.volume.ui.states.ArticleRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.lato
@@ -155,7 +156,7 @@ fun ArticleWebViewScreen(
                                 type = "text/plain"
                                 putExtra(
                                     Intent.EXTRA_TEXT,
-                                    "Look at this article I found on Volume: ${articleState.article.articleURL}"
+                                    "Look at this article I found on Volume: volume://${Routes.OPEN_ARTICLE.route}/${articleState.article.id}"
                                 )
                             }
 

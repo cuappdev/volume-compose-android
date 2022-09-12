@@ -69,13 +69,14 @@ interface NavUnit {
  * NavHost/new routes should be added here. Routes can exist independent of tabs (like onboarding).
  */
 enum class Routes(override var route: String) : NavUnit {
-    HOME("HOME"),
-    MAGAZINES("MAGAZINE"),
-    PUBLICATIONS("PUBLICATIONS"),
-    BOOKMARKS("BOOKMARKS"),
-    ONBOARDING("ONBOARDING"),
-    INDIVIDUAL_PUBLICATION("INDIVIDUAL"),
-    OPEN_ARTICLE("OPEN_ARTICLE"),
-    SETTINGS("SETTINGS"),
-    ABOUT_US("ABOUT_US")
+    HOME("home"),
+    MAGAZINES("magazine"),
+    PUBLICATIONS("publications"),
+    BOOKMARKS("bookmarks"),
+    ONBOARDING("onboarding"),
+    INDIVIDUAL_PUBLICATION("individual"),
+    OPEN_ARTICLE("open_article"),
+    SETTINGS("settings"),
+    ABOUT_US("about_us"),
+    WEEKLY_DEBRIEF("weekly_debrief")
 }

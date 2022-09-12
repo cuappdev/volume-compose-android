@@ -18,9 +18,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // TODO notifications
-        // Holds potential bundle of notification data payload
-        val notificationBundle = intent.extras
 
         val onboardingCompleted = runBlocking {
             return@runBlocking userPreferences.fetchOnboardingCompleted()
@@ -29,7 +26,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme(
                 colors = LightColors,
-                content = { TabbedNavigationSetup(onboardingCompleted, notificationBundle) }
+                content = { TabbedNavigationSetup(onboardingCompleted) }
             )
         }
     }

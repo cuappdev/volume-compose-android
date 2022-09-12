@@ -10,15 +10,13 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.TaskStackBuilder
+import androidx.core.net.toUri
 import com.cornellappdev.volume.MainActivity
 import com.cornellappdev.volume.R
+import com.cornellappdev.volume.navigation.Routes
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -95,37 +93,58 @@ class NotificationService : FirebaseMessagingService() {
         notification: RemoteMessage.Notification,
         data: MutableMap<String, String>
     ) {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        // TODO test out notifications. It leverages Navigation Deep linking, not sure if it works
+        // https://developer.android.com/jetpack/compose/navigation#deeplinks
+//        val intent = Intent(this, MainActivity::class.java)
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        var deepLinkIntent: Intent? = null
 
         // What's sent back to the MainActivity depends on the type of the notification
         // received from Firebase. The type is embedded in the data sent for the notification.
         when (data[NotificationDataKeys.NOTIFICATION_TYPE.key]) {
             NotificationType.NEW_ARTICLE.type -> {
-                intent.putExtra(
-                    NotificationDataKeys.NOTIFICATION_TYPE.key,
-                    NotificationType.NEW_ARTICLE.type
+                deepLinkIntent = Intent(
+                    Intent.ACTION_VIEW,
+                    "volume://${Routes.OPEN_ARTICLE.route}/${data[NotificationDataKeys.ARTICLE_ID.key]}".toUri(),
+                    this,
+                    MainActivity::class.java
                 )
-                intent.putExtra(
-                    NotificationDataKeys.ARTICLE_ID.key,
-                    data[NotificationDataKeys.ARTICLE_ID.key]
-                )
-                intent.putExtra(
-                    NotificationDataKeys.ARTICLE_URL.key,
-                    data[NotificationDataKeys.ARTICLE_URL.key]
-                )
+//                )
+//                intent.putExtra(
+//                    NotificationDataKeys.NOTIFICATION_TYPE.key,
+//                    NotificationType.NEW_ARTICLE.type
+//                )
+//                intent.putExtra(
+//                    NotificationDataKeys.ARTICLE_ID.key,
+//                    data[NotificationDataKeys.ARTICLE_ID.key]
+//                )
+//                intent.putExtra(
+//                    NotificationDataKeys.ARTICLE_URL.key,
+//                    data[NotificationDataKeys.ARTICLE_URL.key]
+//                )
             }
             NotificationType.WEEKLY_DEBRIEF.type -> {
                 // We simply just need to identify the type of the notification. The
                 // WeeklyDebrief can be retrieved from the UserRepository#GetUser
-                intent.putExtra(
-                    NotificationDataKeys.NOTIFICATION_TYPE.key,
-                    NotificationType.NEW_ARTICLE.type
+                deepLinkIntent = Intent(
+                    Intent.ACTION_VIEW,
+                    "volume://${Routes.WEEKLY_DEBRIEF.route}".toUri(),
+                    this,
+                    MainActivity::class.java
                 )
+//                intent.putExtra(
+//                    NotificationDataKeys.NOTIFICATION_TYPE.key,
+//                    NotificationType.NEW_ARTICLE.type
+//                )
             }
         }
 
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent: PendingIntent? = TaskStackBuilder.create(this).run {
+            if (deepLinkIntent != null) {
+                addNextIntentWithParentStack(deepLinkIntent)
+            }
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
 
         val channelId = getString((R.string.default_notification_channel_id))
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
