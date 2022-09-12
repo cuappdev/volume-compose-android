@@ -9,8 +9,8 @@ Volume is one of the latest applications by [Cornell AppDev](http://cornellappde
 - [Google Firebase](https://firebase.google.com/docs/android/setup): analytics and Google services
 - [OkHttp](https://github.com/square/okhttp): HTTP client for networking
 - [Accompanist](https://github.com/google/accompanist): A collection of extension libraries for Jetpack Compose
-- [Apollo](https://github.com/apollographql/apollo-kotlin): A strongly-typed, caching GraphQL client for the JVM, Android, and Kotlin multiplatform.
-- [Hilt](https://dagger.dev/hilt/)
+- [Apollo](https://github.com/apollographql/apollo-kotlin): A strongly-typed, caching GraphQL client for the JVM, Android, and Kotlin multiplatform
+- [Hilt](https://dagger.dev/hilt/): Hilt provides a standard way to incorporate Dagger dependency injection into an Android application
 
 ## Installation
 Clone this repository and import into **Android Studio**
