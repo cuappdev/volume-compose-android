@@ -58,6 +58,7 @@ class BookmarkViewModel @Inject constructor(
             currentList.removeIf { article ->
                 article.id == id
             }
+            userPreferencesRepository.removeBookmarkedArticle(id)
 
             _bookmarkState.value = _bookmarkState.value.copy(
                 articles = ArticlesRetrievalState.Success(currentList)

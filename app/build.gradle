@@ -46,12 +46,13 @@ android {
     }
 
     compileOptions {
+        // Hilt uses Java 8 features so it must be enabled in our project.
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '1.8'
         freeCompilerArgs += [
                 "-Xjvm-default=all",
                 "-opt-in=kotlin.RequiresOptIn"

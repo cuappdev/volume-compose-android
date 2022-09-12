@@ -1,5 +1,6 @@
 package com.cornellappdev.volume.ui.components.general
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
@@ -19,13 +20,9 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.data.models.Article
-import com.cornellappdev.volume.ui.theme.GrayOne
-import com.cornellappdev.volume.ui.theme.VolumeOrange
-import com.cornellappdev.volume.ui.theme.lato
-import com.cornellappdev.volume.ui.theme.notoserif
+import com.cornellappdev.volume.ui.theme.*
 
 /**
- *
  * Creates a Horizontal Article Row for the article passed in.
  *
  * @param article
@@ -42,6 +39,7 @@ fun CreateHorizontalArticleRow(
     Row(
         modifier = Modifier
             .height(100.dp)
+            .background(VolumeOffWhite)
             .fillMaxWidth()
             .clickable {
                 onClick(article)

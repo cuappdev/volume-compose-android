@@ -123,6 +123,15 @@ class HomeTabViewModel @Inject constructor(
             }
         }
 
+    /**
+     * Fetches other articles.
+     *
+     * Other articles are articles excluding trending and from publications that the user follows.
+     * If there isn't enough articles to reach the limit, articles are pulled from publications
+     * that the user follows that aren't currently being used in the following section.
+     *
+     * @param limit how much other articles to fetch
+     */
     fun queryOtherArticles(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
         try {
             val followedPublications =
@@ -140,11 +149,12 @@ class HomeTabViewModel @Inject constructor(
                 followedPublications.contains(id)
             }
 
-            // Other articles are the articles on volume that aren't from publications
-            // that are followed by the user and the big read.
+            // Retrieves the articles from publications that the user doesn't follow.
             val otherArticles = articleRepository.fetchArticlesByPublicationIDs(
                 allPublicationsExcludingFollowing
             ).toMutableList()
+
+            // Removes trending articles.
             otherArticles.removeAll { article ->
                 trendingArticlesIDs.contains(article.id)
             }
@@ -158,6 +168,7 @@ class HomeTabViewModel @Inject constructor(
                 )
             }
 
+            // Lastly, we randomize the selection.
             _homeState.value = _homeState.value.copy(
                 otherArticles = ArticlesRetrievalState.Success(
                     otherArticles.shuffled().take(limit)

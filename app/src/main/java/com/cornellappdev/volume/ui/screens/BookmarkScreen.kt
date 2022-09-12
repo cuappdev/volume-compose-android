@@ -1,14 +1,15 @@
 package com.cornellappdev.volume.ui.screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,12 +30,15 @@ import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
+import com.cornellappdev.volume.ui.theme.VolumeOffWhite
+import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.lato
 import com.cornellappdev.volume.ui.theme.notoserif
 import com.cornellappdev.volume.ui.viewmodels.BookmarkViewModel
 import com.cornellappdev.volume.util.BookmarkStatus
 import com.cornellappdev.volume.util.FinalBookmarkStatus
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BookmarkScreen(
     bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
@@ -42,6 +47,10 @@ fun BookmarkScreen(
     onSettingsClick: () -> Unit
 ) {
     val bookmarkState by bookmarkViewModel.bookmarkState.collectAsState()
+
+    // The ArticleWebViewScreen sends a BookmarkStatus to the BookmarkScreen if the bookmark state
+    // of any of the articles change. Since you can open articles from the bookmark screen and change
+    // the bookmark state from there, it's important that the changes are reflected)
     val bookmarkStatus =
         navController.currentBackStackEntry?.savedStateHandle?.getLiveData<BookmarkStatus>("bookmarkStatus")
             ?.observeAsState()
@@ -79,10 +88,16 @@ fun BookmarkScreen(
         Box(modifier = Modifier.padding(innerPadding)) {
             when (val articleState = bookmarkState.articles) {
                 ArticlesRetrievalState.Loading -> {
-
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator(color = VolumeOrange)
+                    }
                 }
                 ArticlesRetrievalState.Error -> {
-
+                    // TODO
                 }
                 is ArticlesRetrievalState.Success -> {
                     if (articleState.articles.isEmpty()) {
@@ -130,12 +145,60 @@ fun BookmarkScreen(
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
                                 items(articleState.articles) { article ->
-                                    CreateHorizontalArticleRow(
-                                        article = article,
-                                        isABookmarkedArticle = true
-                                    ) {
-                                        onArticleClick(article, NavigationSource.BOOKMARK_ARTICLES)
+                                    val dismissState = rememberDismissState()
+                                    if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+                                        bookmarkViewModel.removeArticle(article.id)
                                     }
+
+                                    SwipeToDismiss(
+                                        state = dismissState,
+                                        directions = setOf(
+                                            DismissDirection.EndToStart
+                                        ),
+
+                                        background = {
+                                            val backgroundColor by animateColorAsState(
+                                                when (dismissState.targetValue) {
+                                                    DismissValue.Default -> VolumeOffWhite
+                                                    else -> VolumeOrange
+                                                }
+                                            )
+
+                                            val iconColor by animateColorAsState(
+                                                when (dismissState.targetValue) {
+                                                    DismissValue.Default -> VolumeOrange
+                                                    else -> VolumeOffWhite
+                                                }
+                                            )
+
+                                            val size by animateDpAsState(targetValue = if (dismissState.targetValue == DismissValue.Default) 24.dp else 48.dp)
+
+                                            Box(
+                                                Modifier
+                                                    .fillMaxSize()
+                                                    .background(backgroundColor)
+                                                    .padding(horizontal = Dp(20f)),
+                                                contentAlignment = Alignment.CenterEnd
+                                            ) {
+                                                Icon(
+                                                    Icons.Filled.Bookmark,
+                                                    contentDescription = "Unbookmark",
+                                                    modifier = Modifier.size(size),
+                                                    tint = iconColor
+                                                )
+                                            }
+                                        },
+                                        dismissContent = {
+                                            CreateHorizontalArticleRow(
+                                                article = article,
+                                                isABookmarkedArticle = true
+                                            ) {
+                                                onArticleClick(
+                                                    article,
+                                                    NavigationSource.BOOKMARK_ARTICLES
+                                                )
+                                            }
+                                        })
                                 }
                             }
                         }
