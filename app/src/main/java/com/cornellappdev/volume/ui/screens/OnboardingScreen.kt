@@ -11,6 +11,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.volume.analytics.EventType
+import com.cornellappdev.volume.analytics.VolumeEvent
 import com.cornellappdev.volume.ui.components.onboarding.FirstPage
 import com.cornellappdev.volume.ui.components.onboarding.SecondPage
 import com.cornellappdev.volume.ui.viewmodels.OnboardingViewModel
@@ -23,7 +26,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun OnboardingScreen(onboardingViewModel: OnboardingViewModel, proceedHome: () -> Unit) {
+fun OnboardingScreen(
+    onboardingViewModel: OnboardingViewModel = hiltViewModel(),
+    proceedHome: () -> Unit
+) {
+    VolumeEvent.logEvent(EventType.GENERAL, VolumeEvent.START_ONBOARDING)
+
     val pagerState = rememberPagerState(0)
     val creatingUser = rememberSaveable { mutableStateOf(false) }
 

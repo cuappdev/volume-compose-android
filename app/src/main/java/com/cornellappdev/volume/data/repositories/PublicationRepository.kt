@@ -7,6 +7,8 @@ import com.cornellappdev.volume.data.NetworkingApi
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.models.Social
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Publication Repository. Encapsulate the logic required to access data sources, particularly
@@ -14,13 +16,14 @@ import com.cornellappdev.volume.data.models.Social
  *
  * @see Article
  */
-object PublicationRepository {
+@Singleton
+class PublicationRepository @Inject constructor() {
     class PublicationNotFound : Exception()
 
     suspend fun fetchAllPublications(): List<Publication> =
         NetworkingApi.fetchAllPublications().dataAssertNoErrors.mapDataToPublications()
 
-    suspend fun fetchPublicationsByIDs(pubIDs: MutableList<String>): List<Publication> =
+    suspend fun fetchPublicationsByIDs(pubIDs: List<String>): List<Publication> =
         NetworkingApi.fetchPublicationsByIDs(pubIDs).dataAssertNoErrors.mapDataToPublications()
 
     /** Throws an exception if the publication isn't found. */

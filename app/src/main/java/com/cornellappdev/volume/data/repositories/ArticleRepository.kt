@@ -5,6 +5,8 @@ import com.cornellappdev.volume.data.NetworkingApi
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.models.Social
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Article Repository. Encapsulate the logic required to access data sources, particularly
@@ -12,7 +14,8 @@ import com.cornellappdev.volume.data.models.Social
  *
  * @see Article
  */
-object ArticleRepository {
+@Singleton
+class ArticleRepository @Inject constructor() {
     suspend fun fetchAllArticles(limit: Double? = null): List<Article> =
         NetworkingApi.fetchAllArticles(limit).dataAssertNoErrors.mapDataToArticles()
 
@@ -22,10 +25,10 @@ object ArticleRepository {
     suspend fun fetchArticlesByPublicationID(pubID: String): List<Article> =
         NetworkingApi.fetchArticleByPublicationID(pubID).dataAssertNoErrors.mapDataToArticles()
 
-    suspend fun fetchArticlesByPublicationIDs(pubIDs: MutableList<String>): List<Article> =
+    suspend fun fetchArticlesByPublicationIDs(pubIDs: List<String>): List<Article> =
         NetworkingApi.fetchArticlesByPublicationIDs(pubIDs).dataAssertNoErrors.mapDataToArticles()
 
-    suspend fun fetchArticlesByIDs(ids: MutableSet<String>): List<Article> =
+    suspend fun fetchArticlesByIDs(ids: List<String>): List<Article> =
         NetworkingApi.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticleByID(id: String): Article =

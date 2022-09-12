@@ -1,11 +1,15 @@
 package com.cornellappdev.volume.data.repositories
 
-import android.util.Log
-import com.cornellappdev.volume.*
+import com.cornellappdev.volume.CreateUserMutation
+import com.cornellappdev.volume.FollowPublicationMutation
+import com.cornellappdev.volume.GetUserQuery
+import com.cornellappdev.volume.UnfollowPublicationMutation
 import com.cornellappdev.volume.data.NetworkingApi
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.User
 import com.cornellappdev.volume.data.models.WeeklyDebrief
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * User Repository. Encapsulate the logic required to access data sources, particularly
@@ -13,7 +17,8 @@ import com.cornellappdev.volume.data.models.WeeklyDebrief
  *
  * @see Article
  */
-object UserRepository {
+@Singleton
+class UserRepository @Inject constructor() {
 
     suspend fun createUser(
         followPublications: List<String>,

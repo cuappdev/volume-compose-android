@@ -1,6 +1,6 @@
 package com.cornellappdev.volume.ui.screens
 
-import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
@@ -13,41 +13,40 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.R
+import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.ui.components.general.CreateBigReadRow
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
 import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheEnd
 import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheStart
-import com.cornellappdev.volume.ui.theme.GrayOne
+import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
+import com.cornellappdev.volume.ui.theme.VolumeOffWhite
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.lato
 import com.cornellappdev.volume.ui.theme.notoserif
 import com.cornellappdev.volume.ui.viewmodels.HomeTabViewModel
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> Unit) {
-    val articlesState by homeTabViewModel.articlesState.collectAsState()
+fun HomeScreen(
+    homeTabViewModel: HomeTabViewModel = hiltViewModel(),
+    onArticleClick: (Article, NavigationSource) -> Unit
+) {
+    val articlesState by homeTabViewModel.homeState.collectAsState()
+    var showPageBreak by remember { mutableStateOf(false) }
 
-    // TODO add scrollability to content
     Scaffold(topBar = {
         // TODO fix positioning, little weird on my phone not sure if that's the case universally
         Image(
@@ -56,99 +55,98 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> 
             modifier = Modifier
                 .scale(0.7f)
         )
-    }, content = {
-        Column(
+    }, content = { innerPadding ->
+        LazyColumn(
             modifier = Modifier
-                .padding(start = 12.dp, top = 16.dp),
+                .fillMaxSize()
+                .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
         ) {
-            Text(
-                text = "The Big Read",
-                fontFamily = notoserif,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium
-            )
+            item {
+                Text(
+                    text = "The Big Read",
+                    fontFamily = notoserif,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
+                )
 
-            Spacer(modifier = Modifier.height(22.dp))
-
-            when (val trendingArticles = articlesState.trendingArticlesState) {
-                HomeTabViewModel.ArticleState.Loading -> {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(color = VolumeOrange)
-                    }
-                }
-                HomeTabViewModel.ArticleState.Error -> {
-                    // TODO Prompt to try again, queryTrendingArticles manually (it's public). Could be that internet is down.
-                }
-                is HomeTabViewModel.ArticleState.Success -> {
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                        items(trendingArticles.articles) { article ->
-                            CreateBigReadRow(article, onArticleClick)
-                        }
-                    }
-                }
+                Spacer(modifier = Modifier.height(22.dp))
             }
 
-            Spacer(modifier = Modifier.height(36.dp))
-
-            Text(
-                text = "Following",
-                fontFamily = notoserif,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            when (val followingArticles = articlesState.followingArticlesState) {
-                HomeTabViewModel.ArticleState.Loading -> {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(color = VolumeOrange)
-                    }
-                }
-                HomeTabViewModel.ArticleState.Error -> {
-                    // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
-                }
-                is HomeTabViewModel.ArticleState.Success -> {
-                    if (followingArticles.articles.isEmpty()) {
+            item {
+                when (val trendingArticles = articlesState.trendingArticles) {
+                    ArticlesRetrievalState.Loading -> {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                                .padding(vertical = 10.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_bar_chart_2),
-                                contentDescription = null,
-                            )
-                            Text(text = "Nothing to see here!")
-                            Text(text = "Follow some student publications that you are interested in")
+                            CircularProgressIndicator(color = VolumeOrange)
                         }
-                    } else {
+                    }
+                    ArticlesRetrievalState.Error -> {
+                        // TODO Prompt to try again, queryTrendingArticles manually (it's public). Could be that internet is down.
+                    }
+                    is ArticlesRetrievalState.Success -> {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                            items(trendingArticles.articles) { article ->
+                                CreateBigReadRow(article) {
+                                    onArticleClick(article, NavigationSource.TRENDING_ARTICLES)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(36.dp))
+            }
+
+            item {
+                Text(
+                    text = "Following",
+                    fontFamily = notoserif,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            item {
+                when (val followingArticles = articlesState.followingArticles) {
+                    ArticlesRetrievalState.Loading -> {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator(
+                                color = VolumeOrange,
+                                modifier = Modifier.padding(vertical = 50.dp)
+                            )
+                        }
+                    }
+                    ArticlesRetrievalState.Error -> {
+                        // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
+                    }
+                    is ArticlesRetrievalState.Success -> {
                         val lazyListState = rememberLazyListState()
 
-                        // TODO adjust height of LazyColumn
-                        Box {
+                        Box(modifier = Modifier.padding(top = 10.dp)) {
                             LazyColumn(
                                 modifier = Modifier
-                                    .height(300.dp)
+                                    .height(480.dp)
                                     .padding(end = 12.dp),
                                 state = lazyListState,
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
                                 items(followingArticles.articles) { article ->
-                                    CreateHorizontalArticleRow(article, onArticleClick)
+                                    CreateHorizontalArticleRow(article) {
+                                        onArticleClick(
+                                            article,
+                                            NavigationSource.FOLLOWING_ARTICLES
+                                        )
+                                    }
                                 }
                             }
 
                             // Gradient overlay to the top of the following articles LazyColumn
-                            androidx.compose.animation.AnimatedVisibility(
+                            AnimatedVisibility(
                                 modifier = Modifier
                                     .align(Alignment.TopStart)
                                     .height(30.dp)
@@ -165,7 +163,7 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> 
                                         .background(
                                             brush = Brush.verticalGradient(
                                                 colors = listOf(
-                                                    Color.White,
+                                                    VolumeOffWhite,
                                                     Color.Transparent
                                                 )
                                             )
@@ -174,7 +172,7 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> 
                             }
 
                             // Gradient overlay to the bottom of the following articles LazyColumn
-                            androidx.compose.animation.AnimatedVisibility(
+                            AnimatedVisibility(
                                 modifier = Modifier
                                     .align(Alignment.BottomStart)
                                     .height(30.dp)
@@ -192,48 +190,117 @@ fun HomeScreen(homeTabViewModel: HomeTabViewModel, onArticleClick: (Article) -> 
                                             brush = Brush.verticalGradient(
                                                 colors = listOf(
                                                     Color.Transparent,
-                                                    Color.White
+                                                    VolumeOffWhite
                                                 )
                                             )
                                         )
                                 )
                             }
+
+                            showPageBreak = true
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            item {
+                AnimatedVisibility(
+                    visible = showPageBreak,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    if (homeTabViewModel.isFollowingEmpty) {
+                        Column(
+                            modifier = Modifier
+                                .padding(vertical = 40.dp, horizontal = 16.dp)
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_volume_bars_orange_large),
+                                contentDescription = null,
+                            )
+                            Text(
+                                text = "Nothing to see here!",
+                                fontFamily = notoserif,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center
+                            )
 
-            Text(
-                text = "Other Articles",
-                fontFamily = notoserif,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium
-            )
-
-            when (val otherArticles = articlesState.otherArticlesState) {
-                HomeTabViewModel.ArticleState.Loading -> {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(color = VolumeOrange)
+                            Text(
+                                text = "Follow some student publications that you are interested in.",
+                                fontFamily = lato,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .padding(vertical = 70.dp, horizontal = 16.dp)
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_volume_bars_orange),
+                                contentDescription = null,
+                            )
+                            Text(
+                                text = "You're up to date!",
+                                fontFamily = notoserif,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "You've seen all new articles from the publications you are following.",
+                                fontFamily = lato,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
-                HomeTabViewModel.ArticleState.Error -> {
-                    // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
-                }
-                is HomeTabViewModel.ArticleState.Success -> {
-                    // TODO adjust height of LazyColumn
-                    LazyColumn(
-                        modifier = Modifier
-                            .height(200.dp)
-                            .padding(end = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
-                    ) {
-                        items(otherArticles.articles) { article ->
-                            CreateHorizontalArticleRow(article, onArticleClick)
+            }
+
+            item {
+                Text(
+                    text = "Other Articles",
+                    fontFamily = notoserif,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            item {
+                when (val otherArticles = articlesState.otherArticles) {
+                    ArticlesRetrievalState.Loading -> {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator(color = VolumeOrange)
+                        }
+                    }
+                    ArticlesRetrievalState.Error -> {
+                        // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
+                    }
+                    is ArticlesRetrievalState.Success -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .height(480.dp)
+                                .padding(end = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(20.dp),
+                        ) {
+                            items(otherArticles.articles) { article ->
+                                CreateHorizontalArticleRow(article) {
+                                    onArticleClick(article, NavigationSource.OTHER_ARTICLES)
+                                }
+                            }
                         }
                     }
                 }

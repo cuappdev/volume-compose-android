@@ -29,17 +29,17 @@ object NetworkingApi {
     suspend fun fetchArticleByPublicationID(pubID: String): ApolloResponse<ArticlesByPublicationIDQuery.Data> =
         apolloClient.query(ArticlesByPublicationIDQuery(pubID)).execute()
 
-    suspend fun fetchArticlesByPublicationIDs(pubIDs: MutableList<String>): ApolloResponse<ArticlesByPublicationIDsQuery.Data> =
-        apolloClient.query(ArticlesByPublicationIDsQuery(pubIDs.toList())).execute()
+    suspend fun fetchArticlesByPublicationIDs(pubIDs: List<String>): ApolloResponse<ArticlesByPublicationIDsQuery.Data> =
+        apolloClient.query(ArticlesByPublicationIDsQuery(pubIDs)).execute()
 
-    suspend fun fetchPublicationsByIDs(pubIDs: MutableList<String>): ApolloResponse<PublicationsByIDsQuery.Data> =
-        apolloClient.query(PublicationsByIDsQuery(pubIDs.toList())).execute()
+    suspend fun fetchPublicationsByIDs(pubIDs: List<String>): ApolloResponse<PublicationsByIDsQuery.Data> =
+        apolloClient.query(PublicationsByIDsQuery(pubIDs)).execute()
 
     suspend fun fetchPublicationByID(pubID: String): ApolloResponse<PublicationByIDQuery.Data> =
         apolloClient.query(PublicationByIDQuery(pubID)).execute()
 
-    suspend fun fetchArticlesByIDs(ids: MutableSet<String>): ApolloResponse<ArticlesByIDsQuery.Data> =
-        apolloClient.query(ArticlesByIDsQuery(ids.toList())).execute()
+    suspend fun fetchArticlesByIDs(ids: List<String>): ApolloResponse<ArticlesByIDsQuery.Data> =
+        apolloClient.query(ArticlesByIDsQuery(ids)).execute()
 
     suspend fun fetchArticleByID(id: String): ApolloResponse<ArticleByIDQuery.Data> =
         apolloClient.query(ArticleByIDQuery(id)).execute()
