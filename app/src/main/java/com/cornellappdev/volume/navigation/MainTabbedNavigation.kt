@@ -20,6 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import com.cornellappdev.volume.analytics.EventType
+import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.analytics.VolumeEvent
 import com.cornellappdev.volume.ui.screens.*
 import com.cornellappdev.volume.ui.theme.DarkGray
@@ -136,6 +137,7 @@ private fun MainScreenNavigationConfigurations(
             setShowBottomBar(false)
             val articleId = backStackEntry.arguments?.getString("articleId")!!
             val navigationSourceName = backStackEntry.arguments?.getString("navigationSourceName")
+                ?: NavigationSource.UNSPECIFIED.name
             ArticleWebViewScreen(
                 navigationSourceName = navigationSourceName,
                 onArticleClose = { bookmarkStatus ->

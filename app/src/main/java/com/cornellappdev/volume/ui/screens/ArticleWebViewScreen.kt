@@ -51,7 +51,7 @@ import com.google.accompanist.web.rememberWebViewState
 @Composable
 fun ArticleWebViewScreen(
     articleWebViewModel: ArticleWebViewModel = hiltViewModel(),
-    navigationSourceName: String?,
+    navigationSourceName: String,
     onArticleClose: (BookmarkStatus?) -> Unit,
     seeMoreClicked: (Article) -> Unit
 ) {
@@ -202,14 +202,12 @@ fun ArticleWebViewScreen(
                         state = state,
                         onCreated = { webView ->
                             webView.settings.javaScriptEnabled = true
-                            navigationSourceName?.let {
-                                VolumeEvent.logEvent(
-                                    EventType.ARTICLE,
-                                    VolumeEvent.OPEN_ARTICLE,
-                                    NavigationSource.valueOf(it),
-                                    articleState.article.id
-                                )
-                            }
+                            VolumeEvent.logEvent(
+                                EventType.ARTICLE,
+                                VolumeEvent.OPEN_ARTICLE,
+                                NavigationSource.valueOf(navigationSourceName),
+                                articleState.article.id
+                            )
                         }
                     )
                 })
