@@ -10,6 +10,7 @@ Volume is one of the latest applications by [Cornell AppDev](http://cornellappde
 - [OkHttp](https://github.com/square/okhttp): HTTP client for networking
 - [Accompanist](https://github.com/google/accompanist): A collection of extension libraries for Jetpack Compose
 - [Apollo](https://github.com/apollographql/apollo-kotlin): A strongly-typed, caching GraphQL client for the JVM, Android, and Kotlin multiplatform.
+- [Hilt](https://dagger.dev/hilt/)
 
 ## Installation
 Clone this repository and import into **Android Studio**
