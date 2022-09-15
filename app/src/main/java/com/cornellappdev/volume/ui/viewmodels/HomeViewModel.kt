@@ -13,16 +13,13 @@ import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.data.repositories.UserRepository
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// TODO add refreshing if user follows new users?
+// TODO add refreshing if user follows new publications?
 // TODO optimize loading?
 @HiltViewModel
-class HomeTabViewModel @Inject constructor(
+class HomeViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val articleRepository: ArticleRepository,
     private val userRepository: UserRepository,
@@ -35,23 +32,21 @@ class HomeTabViewModel @Inject constructor(
         const val NUMBER_OF_OTHER_ARTICLES = 45
     }
 
-    data class HomeState(
-        val trendingArticles: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
-        val otherArticles: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
-        val followingArticles: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
-        val remainingFollowing: ArticlesRetrievalState = ArticlesRetrievalState.Loading
+    data class HomeUiState(
+        val trendingArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+        val otherArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+        val followingArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+
+        /**
+         * State that holds information on whether the user has any followed articles
+         */
+        val isFollowingEmpty: Boolean = false
     )
 
-    private val _homeState = MutableStateFlow(HomeState())
-
-    val homeState: StateFlow<HomeState> =
-        _homeState.asStateFlow()
-
-    /**
-     * State that holds information on whether the user has any followed articles
-     */
-    var isFollowingEmpty by mutableStateOf(false)
+    var homeUiState by mutableStateOf(HomeUiState())
         private set
+
+    private var remainingFollowing: ArticlesRetrievalState = ArticlesRetrievalState.Loading
 
     init {
         queryTrendingArticles()
@@ -61,8 +56,8 @@ class HomeTabViewModel @Inject constructor(
     fun queryTrendingArticles(limit: Double? = NUMBER_OF_TRENDING_ARTICLES) =
         viewModelScope.launch {
             try {
-                _homeState.value = _homeState.value.copy(
-                    trendingArticles = ArticlesRetrievalState.Success(
+                homeUiState = homeUiState.copy(
+                    trendingArticlesState = ArticlesRetrievalState.Success(
                         articleRepository.fetchTrendingArticles(
                             limit
                         )
@@ -70,8 +65,8 @@ class HomeTabViewModel @Inject constructor(
                 )
                 queryFollowingArticles()
             } catch (e: Exception) {
-                _homeState.value = _homeState.value.copy(
-                    trendingArticles = ArticlesRetrievalState.Error
+                homeUiState = homeUiState.copy(
+                    trendingArticlesState = ArticlesRetrievalState.Error
                 )
             }
         }
@@ -82,7 +77,7 @@ class HomeTabViewModel @Inject constructor(
                 val followedPublications =
                     userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs
                 val trendingArticlesIDs =
-                    (_homeState.value.trendingArticles as ArticlesRetrievalState.Success).articles.map(
+                    (homeUiState.trendingArticlesState as ArticlesRetrievalState.Success).articles.map(
                         Article::id
                     ).toHashSet()
                 val followingArticles = articleRepository.fetchArticlesByPublicationIDs(
@@ -100,7 +95,9 @@ class HomeTabViewModel @Inject constructor(
                 filteredArticles =
                     filteredArticles.ifEmpty { listOf() }
 
-                isFollowingEmpty = filteredArticles.isEmpty()
+                homeUiState = homeUiState.copy(
+                    isFollowingEmpty = filteredArticles.isEmpty()
+                )
 
                 // We took the first limit articles, the remaining ones (after removing them)
                 // can be used for the other article section
@@ -108,17 +105,19 @@ class HomeTabViewModel @Inject constructor(
                     filteredArticles
                 )
 
-                _homeState.value = _homeState.value.copy(
-                    followingArticles = ArticlesRetrievalState.Success(
+                homeUiState = homeUiState.copy(
+                    followingArticlesState = ArticlesRetrievalState.Success(
                         filteredArticles
-                    ),
-                    remainingFollowing = ArticlesRetrievalState.Success(followingArticles)
+                    )
                 )
+
+                remainingFollowing = ArticlesRetrievalState.Success(followingArticles)
+
 
                 queryOtherArticles()
             } catch (e: Exception) {
-                _homeState.value = _homeState.value.copy(
-                    followingArticles = ArticlesRetrievalState.Error
+                homeUiState = homeUiState.copy(
+                    followingArticlesState = ArticlesRetrievalState.Error
                 )
             }
         }
@@ -137,11 +136,11 @@ class HomeTabViewModel @Inject constructor(
             val followedPublications =
                 userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs.toHashSet()
             val trendingArticlesIDs =
-                (_homeState.value.trendingArticles as ArticlesRetrievalState.Success).articles.map(
+                (homeUiState.trendingArticlesState as ArticlesRetrievalState.Success).articles.map(
                     Article::id
                 ).toHashSet()
             val remainingArticles =
-                (_homeState.value.remainingFollowing as ArticlesRetrievalState.Success).articles
+                (remainingFollowing as ArticlesRetrievalState.Success).articles
             val allPublicationsExcludingFollowing =
                 publicationRepository.fetchAllPublications().map(Publication::id)
                     .toMutableList()
@@ -169,14 +168,14 @@ class HomeTabViewModel @Inject constructor(
             }
 
             // Lastly, we randomize the selection.
-            _homeState.value = _homeState.value.copy(
-                otherArticles = ArticlesRetrievalState.Success(
+            homeUiState = homeUiState.copy(
+                otherArticlesState = ArticlesRetrievalState.Success(
                     otherArticles.shuffled().take(limit)
                 )
             )
         } catch (e: Exception) {
-            _homeState.value = _homeState.value.copy(
-                otherArticles = ArticlesRetrievalState.Error
+            homeUiState = homeUiState.copy(
+                otherArticlesState = ArticlesRetrievalState.Error
             )
         }
     }

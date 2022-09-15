@@ -16,8 +16,6 @@ import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -55,10 +53,10 @@ fun ArticleWebViewScreen(
     onArticleClose: (BookmarkStatus?) -> Unit,
     seeMoreClicked: (Article) -> Unit
 ) {
-    val webState by articleWebViewModel.webState.collectAsState()
     val context = LocalContext.current
+    val webViewUiState = articleWebViewModel.webViewUiState
 
-    when (val articleState = webState.article) {
+    when (val articleState = webViewUiState.articleState) {
         ArticleRetrievalState.Loading -> {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -129,7 +127,7 @@ fun ArticleWebViewScreen(
                         Spacer(Modifier.weight(1f, true))
 
                         IconButton(onClick = { articleWebViewModel.bookmarkArticle() }) {
-                            Crossfade(targetState = articleWebViewModel.isBookmarked) { isBookmarked ->
+                            Crossfade(targetState = webViewUiState.isBookmarked) { isBookmarked ->
                                 if (isBookmarked) {
                                     Icon(
                                         Icons.Filled.Bookmark,
@@ -171,7 +169,7 @@ fun ArticleWebViewScreen(
                                 .clickable
                                 { articleWebViewModel.shoutoutArticle() },
                         ) {
-                            Crossfade(targetState = articleWebViewModel.isMaxedShoutout) { isMaxShoutout ->
+                            Crossfade(targetState = webViewUiState.isMaxedShoutout) { isMaxShoutout ->
                                 if (isMaxShoutout) {
                                     Image(
                                         painter = painterResource(id = R.drawable.ic_shoutout_filled),
@@ -187,7 +185,7 @@ fun ArticleWebViewScreen(
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                             Text(
                                 modifier = Modifier.align(CenterVertically),
-                                text = articleWebViewModel.shoutoutCount.toString(),
+                                text = webViewUiState.shoutoutCount.toString(),
                                 fontFamily = lato,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 12.sp,
@@ -215,14 +213,14 @@ fun ArticleWebViewScreen(
     }
 
     BackHandler(enabled = true) {
-        val bookmarkStatus = if (webState.article is ArticleRetrievalState.Success) {
-            val article = (webState.article as ArticleRetrievalState.Success).article
-            if (articleWebViewModel.initialBookmarkState && !articleWebViewModel.isBookmarked) {
+        val bookmarkStatus = if (webViewUiState.articleState is ArticleRetrievalState.Success) {
+            val article = webViewUiState.articleState.article
+            if (webViewUiState.initialBookmarkState && !webViewUiState.isBookmarked) {
                 BookmarkStatus(
                     FinalBookmarkStatus.BOOKMARKED_TO_UNBOOKMARKED,
                     article.id
                 )
-            } else if (!articleWebViewModel.initialBookmarkState && articleWebViewModel.isBookmarked) {
+            } else if (!webViewUiState.initialBookmarkState && webViewUiState.isBookmarked) {
                 BookmarkStatus(
                     FinalBookmarkStatus.UNBOOKMARKED_TO_BOOKMARKED,
                     article.id

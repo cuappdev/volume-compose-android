@@ -162,7 +162,7 @@ private fun MainScreenNavigationConfigurations(
         composable(Routes.MAGAZINES.route) {}
         composable(Routes.PUBLICATIONS.route) {
             setShowBottomBar(true)
-            PublicationScreen(
+            PublicationsScreen(
                 navController = navController,
                 onPublicationClick =
                 { publication ->
@@ -172,7 +172,7 @@ private fun MainScreenNavigationConfigurations(
         composable(Routes.BOOKMARKS.route) {
             setShowBottomBar(true)
             BookmarkScreen(
-                navController = navController,
+                savedStateHandle = it.savedStateHandle,
                 onArticleClick = { article, navigationSource ->
                     navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
                 },

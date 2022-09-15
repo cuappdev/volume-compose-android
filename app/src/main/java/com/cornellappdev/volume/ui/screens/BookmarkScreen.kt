@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -24,7 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.lifecycle.SavedStateHandle
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Article
@@ -42,20 +41,19 @@ import com.cornellappdev.volume.util.FinalBookmarkStatus
 @Composable
 fun BookmarkScreen(
     bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
-    navController: NavController,
+    savedStateHandle: SavedStateHandle,
     onArticleClick: (Article, NavigationSource) -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    val bookmarkState by bookmarkViewModel.bookmarkState.collectAsState()
+    val bookmarkUiState = bookmarkViewModel.bookmarkUiState
 
     // The ArticleWebViewScreen sends a BookmarkStatus to the BookmarkScreen if the bookmark state
     // of any of the articles change. Since you can open articles from the bookmark screen and change
     // the bookmark state from there, it's important that the changes are reflected)
-    val bookmarkStatus =
-        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<BookmarkStatus>("bookmarkStatus")
-            ?.observeAsState()
+    val bookmarkStatus = savedStateHandle.getLiveData<BookmarkStatus>("bookmarkStatus")
+        .observeAsState()
 
-    if (bookmarkStatus?.value?.status == FinalBookmarkStatus.BOOKMARKED_TO_UNBOOKMARKED) {
+    if (bookmarkStatus.value?.status == FinalBookmarkStatus.BOOKMARKED_TO_UNBOOKMARKED) {
         bookmarkStatus.value?.articleId?.let { bookmarkViewModel.removeArticle(it) }
     }
 
@@ -86,7 +84,7 @@ fun BookmarkScreen(
         }
     }, content = { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            when (val articleState = bookmarkState.articles) {
+            when (val articleState = bookmarkUiState.articlesState) {
                 ArticlesRetrievalState.Loading -> {
                     Column(
                         modifier = Modifier.fillMaxSize(),

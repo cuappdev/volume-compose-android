@@ -61,6 +61,7 @@ enum class NavigationSource(val source: String) : Parcelable {
     OTHER_ARTICLES("other_articles"),
     PUBLICATION_DETAIL("publication_detail"),
     TRENDING_ARTICLES("trending_articles"),
+    NOTIFICATION("notification"),
 
     // Publication Entry Points
     ARTICLE_DETAIL("article_detail"),
