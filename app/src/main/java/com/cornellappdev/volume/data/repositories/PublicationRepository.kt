@@ -3,7 +3,7 @@ package com.cornellappdev.volume.data.repositories
 import com.cornellappdev.volume.AllPublicationsQuery
 import com.cornellappdev.volume.PublicationByIDQuery
 import com.cornellappdev.volume.PublicationsByIDsQuery
-import com.cornellappdev.volume.data.NetworkingApi
+import com.cornellappdev.volume.data.NetworkApi
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.models.Social
@@ -17,18 +17,18 @@ import javax.inject.Singleton
  * @see Article
  */
 @Singleton
-class PublicationRepository @Inject constructor() {
+class PublicationRepository @Inject constructor(private val networkApi: NetworkApi) {
     class PublicationNotFound : Exception()
 
     suspend fun fetchAllPublications(): List<Publication> =
-        NetworkingApi.fetchAllPublications().dataAssertNoErrors.mapDataToPublications()
+        networkApi.fetchAllPublications().dataAssertNoErrors.mapDataToPublications()
 
     suspend fun fetchPublicationsByIDs(pubIDs: List<String>): List<Publication> =
-        NetworkingApi.fetchPublicationsByIDs(pubIDs).dataAssertNoErrors.mapDataToPublications()
+        networkApi.fetchPublicationsByIDs(pubIDs).dataAssertNoErrors.mapDataToPublications()
 
     /** Throws an exception if the publication isn't found. */
     suspend fun fetchPublicationByID(pubID: String): List<Publication> =
-        NetworkingApi.fetchPublicationByID(pubID).dataAssertNoErrors.mapDataToPublications()
+        networkApi.fetchPublicationByID(pubID).dataAssertNoErrors.mapDataToPublications()
 
     private fun AllPublicationsQuery.Data.mapDataToPublications(): List<Publication> {
         return this.getAllPublications.map { publicationData ->

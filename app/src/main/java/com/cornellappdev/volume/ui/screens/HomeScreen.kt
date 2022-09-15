@@ -37,14 +37,14 @@ import com.cornellappdev.volume.ui.theme.VolumeOffWhite
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.lato
 import com.cornellappdev.volume.ui.theme.notoserif
-import com.cornellappdev.volume.ui.viewmodels.HomeTabViewModel
+import com.cornellappdev.volume.ui.viewmodels.HomeViewModel
 
 @Composable
 fun HomeScreen(
-    homeTabViewModel: HomeTabViewModel = hiltViewModel(),
+    homeViewModel: HomeViewModel = hiltViewModel(),
     onArticleClick: (Article, NavigationSource) -> Unit
 ) {
-    val articlesState by homeTabViewModel.homeState.collectAsState()
+    val homeUiState = homeViewModel.homeUiState
     var showPageBreak by remember { mutableStateOf(false) }
 
     Scaffold(topBar = {
@@ -73,7 +73,7 @@ fun HomeScreen(
             }
 
             item {
-                when (val trendingArticles = articlesState.trendingArticles) {
+                when (val trendingArticlesState = homeUiState.trendingArticlesState) {
                     ArticlesRetrievalState.Loading -> {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -87,7 +87,7 @@ fun HomeScreen(
                     }
                     is ArticlesRetrievalState.Success -> {
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                            items(trendingArticles.articles) { article ->
+                            items(trendingArticlesState.articles) { article ->
                                 CreateBigReadRow(article) {
                                     onArticleClick(article, NavigationSource.TRENDING_ARTICLES)
                                 }
@@ -109,7 +109,7 @@ fun HomeScreen(
             }
 
             item {
-                when (val followingArticles = articlesState.followingArticles) {
+                when (val followingArticlesState = homeUiState.followingArticlesState) {
                     ArticlesRetrievalState.Loading -> {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -135,7 +135,7 @@ fun HomeScreen(
                                 state = lazyListState,
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
-                                items(followingArticles.articles) { article ->
+                                items(followingArticlesState.articles) { article ->
                                     CreateHorizontalArticleRow(article) {
                                         onArticleClick(
                                             article,
@@ -209,7 +209,7 @@ fun HomeScreen(
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
-                    if (homeTabViewModel.isFollowingEmpty) {
+                    if (homeUiState.isFollowingEmpty) {
                         Column(
                             modifier = Modifier
                                 .padding(vertical = 40.dp, horizontal = 16.dp)
@@ -277,7 +277,7 @@ fun HomeScreen(
             }
 
             item {
-                when (val otherArticles = articlesState.otherArticles) {
+                when (val otherArticlesState = homeUiState.otherArticlesState) {
                     ArticlesRetrievalState.Loading -> {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -296,7 +296,7 @@ fun HomeScreen(
                                 .padding(end = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(20.dp),
                         ) {
-                            items(otherArticles.articles) { article ->
+                            items(otherArticlesState.articles) { article ->
                                 CreateHorizontalArticleRow(article) {
                                     onArticleClick(article, NavigationSource.OTHER_ARTICLES)
                                 }

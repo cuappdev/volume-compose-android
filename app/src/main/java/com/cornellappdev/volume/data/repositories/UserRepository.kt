@@ -4,7 +4,7 @@ import com.cornellappdev.volume.CreateUserMutation
 import com.cornellappdev.volume.FollowPublicationMutation
 import com.cornellappdev.volume.GetUserQuery
 import com.cornellappdev.volume.UnfollowPublicationMutation
-import com.cornellappdev.volume.data.NetworkingApi
+import com.cornellappdev.volume.data.NetworkApi
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.User
 import com.cornellappdev.volume.data.models.WeeklyDebrief
@@ -18,13 +18,13 @@ import javax.inject.Singleton
  * @see Article
  */
 @Singleton
-class UserRepository @Inject constructor() {
+class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
 
     suspend fun createUser(
         followPublications: List<String>,
         deviceToken: String
     ): User =
-        NetworkingApi.createUser(followPublications, deviceToken).dataAssertNoErrors.mapDataToUser()
+        networkApi.createUser(followPublications, deviceToken).dataAssertNoErrors.mapDataToUser()
 
     suspend fun followPublications(pubIDs: List<String>, uuid: String) =
         pubIDs.map {
@@ -32,20 +32,20 @@ class UserRepository @Inject constructor() {
         }
 
     suspend fun followPublication(pubID: String, uuid: String): User =
-        NetworkingApi.followPublication(pubID, uuid).dataAssertNoErrors.mapDataToUser()
+        networkApi.followPublication(pubID, uuid).dataAssertNoErrors.mapDataToUser()
 
     suspend fun unfollowPublication(
         pubID: String,
         uuid: String
     ): User =
-        NetworkingApi.unfollowPublication(pubID, uuid).dataAssertNoErrors.mapDataToUser()
+        networkApi.unfollowPublication(pubID, uuid).dataAssertNoErrors.mapDataToUser()
 
     // Only getUser returns a User with WeeklyDebrief, can be updated in queries.graphql
     suspend fun getUser(uuid: String): User =
-        NetworkingApi.getUser(uuid).dataAssertNoErrors.mapDataToUser()
+        networkApi.getUser(uuid).dataAssertNoErrors.mapDataToUser()
 
     suspend fun bookmarkArticle(uuid: String) {
-        NetworkingApi.bookmarkArticle(uuid)
+        networkApi.bookmarkArticle(uuid)
     }
 
     private fun GetUserQuery.Data.mapDataToUser(): User {

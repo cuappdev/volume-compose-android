@@ -9,7 +9,6 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,12 +36,11 @@ import com.cornellappdev.volume.ui.viewmodels.IndividualPublicationViewModel
 fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublicationViewModel = hiltViewModel()) {
     //navController.previousBackStackEntry?.savedStateHandle?.set("key", result)
 
-    val publicationByIDState =
-        individualPublicationViewModel.publicationByIDState.collectAsState().value
+    val publicationUiState = individualPublicationViewModel.publicationUiState
 
     Column {
 
-        when (publicationByIDState.publication) {
+        when (publicationUiState.publicationState) {
             PublicationRetrievalState.Loading -> {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -55,11 +53,11 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
 
             }
             is PublicationRetrievalState.Success -> {
-                PublicationScreen(publicationByIDState.publication.publication)
+                PublicationScreen(publicationUiState.publicationState.publication)
             }
         }
 
-        when (publicationByIDState.articlesByPublication) {
+        when (publicationUiState.articlesByPublicationState) {
             ArticlesRetrievalState.Loading -> {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -72,7 +70,7 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
 
             }
             is ArticlesRetrievalState.Success -> {
-                PublicationRecent(publicationByIDState.articlesByPublication.articles)
+                PublicationRecent(publicationUiState.articlesByPublicationState.articles)
             }
         }
     }

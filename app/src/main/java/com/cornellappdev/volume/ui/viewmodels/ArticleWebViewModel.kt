@@ -14,9 +14,6 @@ import com.cornellappdev.volume.data.repositories.UserPreferencesRepository.Comp
 import com.cornellappdev.volume.data.repositories.UserRepository
 import com.cornellappdev.volume.ui.states.ArticleRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,39 +28,34 @@ class ArticleWebViewModel @Inject constructor(
     // Navigation arguments can be retrieved through the SavedStateHandle
     private val articleId: String = checkNotNull(savedStateHandle["articleId"])
 
-    data class WebState(
-        val article: ArticleRetrievalState = ArticleRetrievalState.Loading,
+    data class WebViewUiState(
+        val articleState: ArticleRetrievalState = ArticleRetrievalState.Loading,
+
+        /**
+         * The initial state of the article being bookmarked while the article is open.
+         * If false, the article hasn't been bookmarked prior.
+         */
+        val initialBookmarkState: Boolean = false,
+
+        /**
+         * The state of shoutout. If isMaxedShoutout is true, shoutouts are maxed for the
+         * given article.
+         */
+        val isMaxedShoutout: Boolean = false,
+
+        /**
+         * Represents the current bookmark state of the article. If true, the article
+         * is currently bookmarked.
+         */
+        val isBookmarked: Boolean = false,
+
+        /**
+         * Represents the current shoutout count of the article.
+         */
+        val shoutoutCount: Int = 0
     )
 
-    private val _webState = MutableStateFlow(WebState())
-    val webState: StateFlow<WebState> =
-        _webState.asStateFlow()
-
-    /**
-     * The initial state of the article being bookmarked while the article is open.
-     * If false, the article hasn't been bookmarked prior.
-     */
-    var initialBookmarkState by mutableStateOf(false)
-        private set
-
-    /**
-     * The state of shoutout. If isMaxedShoutout is true, shoutouts are maxed for the
-     * given article.
-     */
-    var isMaxedShoutout by mutableStateOf(false)
-        private set
-
-    /**
-     * Represents the current bookmark state of the article. If true, the article
-     * is currently bookmarked.
-     */
-    var isBookmarked by mutableStateOf(false)
-        private set
-
-    /**
-     * Represents the current shoutout count of the article.
-     */
-    var shoutoutCount by mutableStateOf(0)
+    var webViewUiState by mutableStateOf(WebViewUiState())
         private set
 
     init {
@@ -74,39 +66,46 @@ class ArticleWebViewModel @Inject constructor(
         try {
             val article = articleRepository.fetchArticleByID(articleId)
             userPreferencesRepository.fetchBookmarkedArticleIds().contains(articleId).let {
-                initialBookmarkState = it
-                isBookmarked = it
+                webViewUiState = webViewUiState.copy(
+                    initialBookmarkState = it,
+                    isBookmarked = it
+                )
             }
             userPreferencesRepository.fetchShoutoutCount(articleId).let { count ->
-                shoutoutCount = count
-                isMaxedShoutout = count == MAX_SHOUTOUT
+                webViewUiState = webViewUiState.copy(
+                    shoutoutCount = count,
+                    isMaxedShoutout = count == MAX_SHOUTOUT
+                )
             }
-            _webState.value = _webState.value.copy(
-                article = ArticleRetrievalState.Success(article)
+            webViewUiState = webViewUiState.copy(
+                articleState = ArticleRetrievalState.Success(article)
             )
         } catch (e: Exception) {
-            _webState.value = _webState.value.copy(
-                article = ArticleRetrievalState.Error
+            webViewUiState = webViewUiState.copy(
+                articleState = ArticleRetrievalState.Error
             )
         }
     }
 
     fun shoutoutArticle() = viewModelScope.launch {
-        if (shoutoutCount < MAX_SHOUTOUT) {
+        if (webViewUiState.shoutoutCount < MAX_SHOUTOUT) {
             VolumeEvent.logEvent(EventType.ARTICLE, VolumeEvent.SHOUTOUT_ARTICLE, id = articleId)
             userPreferencesRepository.increaseShoutoutCount(articleId)
             articleRepository.incrementShoutout(articleId, userPreferencesRepository.fetchUuid())
-            shoutoutCount++
+            webViewUiState = webViewUiState.copy(
+                shoutoutCount = webViewUiState.shoutoutCount + 1
+            )
         }
-
-        isMaxedShoutout = shoutoutCount == MAX_SHOUTOUT
+        webViewUiState = webViewUiState.copy(
+            isMaxedShoutout = webViewUiState.shoutoutCount == MAX_SHOUTOUT
+        )
     }
 
     /**
      * Bookmarks an article if it isn't already bookmarked. If it is, unboomarks for the user.
      */
     fun bookmarkArticle() = viewModelScope.launch {
-        if (isBookmarked) {
+        if (webViewUiState.isBookmarked) {
             userPreferencesRepository.removeBookmarkedArticle(articleId)
             VolumeEvent.logEvent(
                 EventType.ARTICLE,
@@ -123,6 +122,8 @@ class ArticleWebViewModel @Inject constructor(
             )
         }
 
-        isBookmarked = !isBookmarked
+        webViewUiState = webViewUiState.copy(
+            isBookmarked = !webViewUiState.isBookmarked
+        )
     }
 }

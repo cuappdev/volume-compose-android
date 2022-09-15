@@ -18,7 +18,10 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.analytics.EventType
 import com.cornellappdev.volume.analytics.NavigationSource
@@ -42,12 +46,11 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SecondPage(
-    onboardingViewModel: OnboardingViewModel,
+    onboardingViewModel: OnboardingViewModel = hiltViewModel(),
     creatingUser: MutableState<Boolean>,
     onProceedClicked: () -> Unit
 ) {
-    val allPublicationsState by onboardingViewModel.allPublicationsState.collectAsState()
-    val creatingUserState by onboardingViewModel.creatingUserState.collectAsState()
+    val onboardingUiState = onboardingViewModel.onboardingUiState
     val lazyListState = rememberLazyListState()
     val buttonClicked = rememberSaveable { mutableStateOf(false) }
     val proceedEnabled = rememberSaveable { mutableStateOf(false) }
@@ -114,7 +117,7 @@ fun SecondPage(
                 }
             }
 
-            when (val publicationsState = allPublicationsState.publications) {
+            when (val publicationsState = onboardingUiState.publicationsState) {
                 PublicationsRetrievalState.Loading -> {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -224,7 +227,7 @@ fun SecondPage(
         }
     }
 
-    when (creatingUserState.createUserState) {
+    when (onboardingUiState.createUserState) {
         OnboardingViewModel.CreateUserState.Error -> {
             buttonClicked.value = false
             creatingUser.value = true

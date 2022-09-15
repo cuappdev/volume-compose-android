@@ -3,19 +3,14 @@ package com.cornellappdev.volume.data
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
-import com.apollographql.apollo3.network.okHttpClient
 import com.cornellappdev.volume.*
-import okhttp3.OkHttpClient
+import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val DEVICE_TYPE: String = "ANDROID"
-private const val ENDPOINT = BuildConfig.DEV_ENDPOINT
 
-object NetworkingApi {
-
-    private val apolloClient = ApolloClient.Builder()
-        .serverUrl(ENDPOINT)
-        .okHttpClient(OkHttpClient.Builder().build())
-        .build()
+@Singleton
+class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
 
     suspend fun fetchAllArticles(limit: Double? = null): ApolloResponse<AllArticlesQuery.Data> =
         apolloClient.query(AllArticlesQuery(Optional.presentIfNotNull(limit))).execute()
