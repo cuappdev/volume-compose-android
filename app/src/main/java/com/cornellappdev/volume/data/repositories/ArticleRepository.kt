@@ -1,7 +1,7 @@
 package com.cornellappdev.volume.data.repositories
 
 import com.cornellappdev.volume.*
-import com.cornellappdev.volume.data.NetworkingApi
+import com.cornellappdev.volume.data.NetworkApi
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.models.Social
@@ -15,27 +15,27 @@ import javax.inject.Singleton
  * @see Article
  */
 @Singleton
-class ArticleRepository @Inject constructor() {
+class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun fetchAllArticles(limit: Double? = null): List<Article> =
-        NetworkingApi.fetchAllArticles(limit).dataAssertNoErrors.mapDataToArticles()
+        networkApi.fetchAllArticles(limit).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchTrendingArticles(limit: Double? = null): List<Article> =
-        NetworkingApi.fetchTrendingArticles(limit).dataAssertNoErrors.mapDataToArticles()
+        networkApi.fetchTrendingArticles(limit).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByPublicationID(pubID: String): List<Article> =
-        NetworkingApi.fetchArticleByPublicationID(pubID).dataAssertNoErrors.mapDataToArticles()
+        networkApi.fetchArticleByPublicationID(pubID).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByPublicationIDs(pubIDs: List<String>): List<Article> =
-        NetworkingApi.fetchArticlesByPublicationIDs(pubIDs).dataAssertNoErrors.mapDataToArticles()
+        networkApi.fetchArticlesByPublicationIDs(pubIDs).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByIDs(ids: List<String>): List<Article> =
-        NetworkingApi.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
+        networkApi.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticleByID(id: String): Article =
-        NetworkingApi.fetchArticleByID(id).dataAssertNoErrors.mapDataToArticles().first()
+        networkApi.fetchArticleByID(id).dataAssertNoErrors.mapDataToArticles().first()
 
     suspend fun incrementShoutout(id: String, uuid: String): IncrementShoutoutMutation.Data =
-        NetworkingApi.incrementShoutout(id, uuid).dataAssertNoErrors
+        networkApi.incrementShoutout(id, uuid).dataAssertNoErrors
 
     private fun AllArticlesQuery.Data.mapDataToArticles(): List<Article> {
         return this.getAllArticles.map { articleData ->

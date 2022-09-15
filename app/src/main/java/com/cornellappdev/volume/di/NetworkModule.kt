@@ -15,6 +15,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    private const val ENDPOINT = BuildConfig.DEV_ENDPOINT
+
     @Singleton
     @Provides
     fun provideHttpClient(): OkHttpClient {
@@ -31,7 +33,7 @@ object NetworkModule {
         okHttpClient: OkHttpClient,
     ): ApolloClient {
         return ApolloClient.Builder()
-            .serverUrl(BuildConfig.DEV_ENDPOINT)
+            .serverUrl(ENDPOINT)
             .okHttpClient(OkHttpClient.Builder().build())
             .build()
     }
