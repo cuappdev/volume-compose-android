@@ -128,9 +128,10 @@ fun HomeScreen(
                         val lazyListState = rememberLazyListState()
 
                         Box(modifier = Modifier.padding(top = 10.dp)) {
+                            val followingArticlesSize = followingArticlesState.articles.size;
                             LazyColumn(
                                 modifier = Modifier
-                                    .height(480.dp)
+                                    .height((120 * followingArticlesSize).dp)
                                     .padding(end = 12.dp),
                                 state = lazyListState,
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -290,9 +291,10 @@ fun HomeScreen(
                         // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
                     }
                     is ArticlesRetrievalState.Success -> {
+                        val otherArticlesSize = otherArticlesState.articles.size;
                         LazyColumn(
                             modifier = Modifier
-                                .height(480.dp)
+                                .height((120 * otherArticlesSize).dp)
                                 .padding(end = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(20.dp),
                         ) {
