@@ -67,7 +67,7 @@ fun FirstPage(onProceedClicked: () -> Unit) {
                 maxLines = 1,
                 fontFamily = notoserif,
                 fontWeight = FontWeight.Medium,
-                fontSize = 18.sp
+                fontSize = 16.sp
             )
 
             BoxWithConstraints {
@@ -137,7 +137,7 @@ fun FirstPage(onProceedClicked: () -> Unit) {
                 Row {
                     Image(
                         modifier = Modifier.size(40.dp),
-                        painter = painterResource(R.drawable.ic_shoutout),
+                        painter = painterResource(R.drawable.ic_shoutout_orange),
                         contentDescription = null
                     )
                     Text(

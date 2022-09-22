@@ -163,7 +163,6 @@ private fun MainScreenNavigationConfigurations(
         composable(Routes.PUBLICATIONS.route) {
             setShowBottomBar(true)
             PublicationsScreen(
-                navController = navController,
                 onPublicationClick =
                 { publication ->
                     navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.id}")

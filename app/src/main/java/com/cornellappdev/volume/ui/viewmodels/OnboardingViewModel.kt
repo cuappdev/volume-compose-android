@@ -72,15 +72,15 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    fun queryAllPublications() = viewModelScope.launch {
-        try {
-            onboardingUiState = onboardingUiState.copy(
+    private fun queryAllPublications() = viewModelScope.launch {
+        onboardingUiState = try {
+            onboardingUiState.copy(
                 publicationsState = PublicationsRetrievalState.Success(
                     publicationRepository.fetchAllPublications()
                 )
             )
         } catch (e: Exception) {
-            onboardingUiState = onboardingUiState.copy(
+            onboardingUiState.copy(
                 publicationsState = PublicationsRetrievalState.Error
             )
         }

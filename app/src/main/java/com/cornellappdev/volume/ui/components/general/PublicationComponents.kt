@@ -1,6 +1,7 @@
 package com.cornellappdev.volume.ui.components.general
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,16 +12,22 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Publication
+import com.cornellappdev.volume.ui.components.onboarding.FirstPage
 import com.cornellappdev.volume.ui.theme.*
 
 /**
@@ -32,10 +39,14 @@ import com.cornellappdev.volume.ui.theme.*
  * @param publication
  * @param followButtonClicked
  */
+
+
 @Composable
 fun CreateHorizontalPublicationRow(
     publication: Publication,
-    followButtonClicked: (Publication, Boolean) -> Unit
+    //isAFollowingPublication: Boolean = false,
+    followButtonClicked: (Publication, Boolean) -> Unit,
+    //onPublicationClick: (Publication) -> Unit
 ) {
     val hasBeenClicked = rememberSaveable { mutableStateOf(false) }
 
@@ -145,3 +156,53 @@ fun CreateHorizontalPublicationRow(
         }
     }
 }
+
+@Composable
+fun CreateFollowPublicationRow (
+    publication: Publication,
+    onPublicationClick: (Publication) -> Unit
+){
+    val title= publication.name
+    Column(modifier = Modifier
+        .wrapContentHeight()
+        .width(100.dp)
+        .clickable {
+            onPublicationClick(publication)
+        }){
+        AsyncImage(
+            model = publication.profileImageURL, modifier = Modifier
+                .height(100.dp)
+                .width(100.dp)
+                .clip(CircleShape), contentDescription = null, contentScale = ContentScale.Crop
+        )
+        Text(
+            modifier = Modifier.padding(bottom = 2.dp, top = 2.dp),
+            text = title,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            fontFamily = notoserif,
+            fontWeight = FontWeight.Medium,
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center
+        )
+
+    }
+}
+
+@Composable
+fun createMorePublicationsRow(
+    publication: Publication,
+    onPublicationClick: (Publication) -> Unit,
+    followButtonClicked: (Publication, Boolean) -> Unit
+    ){
+    val hasBeenClicked = rememberSaveable { mutableStateOf(false) }
+    Row(
+        modifier = Modifier
+            .height(100.dp)
+            .fillMaxWidth(),
+    ){
+
+    }
+
+}
+
