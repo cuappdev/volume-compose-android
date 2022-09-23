@@ -51,13 +51,11 @@ fun AboutUsScreen() {
                         fontSize = 20.sp,
                         color = Color.Black
                     )
-                }
-//                Image(
-//                    painter = painterResource(id = R.drawable.ic_long_underline),
-//                    contentDescription = null
-//                )
-                item {
-
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_long_underline),
+                        contentDescription = null,
+                        modifier = Modifier.offset(y = (-7).dp)
+                    )
                     Text(
                         text = "Created by Cornell AppDev, Volume aims to better connect student "
                                 + "publications with student readers by making it easy and accessible "
@@ -75,7 +73,6 @@ fun AboutUsScreen() {
                     )
                 }
                 item {
-
                     Text(
                         text = "The Team",
                         fontFamily = notoserif,
@@ -83,6 +80,11 @@ fun AboutUsScreen() {
                         fontSize = 20.sp,
                         color = Color.Black,
                         modifier = Modifier.padding(top = 30.dp)
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_medium_underline),
+                        contentDescription = null,
+                        modifier = Modifier.offset(y = (-7).dp)
                     )
                     Text(
                         text = "The founding members that together made Volume a reality ✨",
