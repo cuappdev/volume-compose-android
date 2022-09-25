@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -96,7 +96,8 @@ fun PublicationsScreen(
                    Spacer(modifier = Modifier.height(22.dp))
                }
                item {
-                   when (val unfollowingPublicationsState = publicationsUiState.unfollowedPublicationsState) {
+                   when (val unfollowingPublicationsState =
+                       publicationsUiState.morePublicationsState) {
                        PublicationsRetrievalState.Loading -> {
                            Column(
                                modifier = Modifier.fillMaxWidth(),
