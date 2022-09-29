@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -71,7 +72,7 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
                         contentDescription = item.title
                     )
                 },
-                label = { Text(text = item.title) },
+                label = { Text(text = item.title, overflow = TextOverflow.Ellipsis, maxLines = 1) },
                 selectedContentColor = VolumeOrange,
                 unselectedContentColor = DarkGray,
                 alwaysShowLabel = true,
