@@ -25,15 +25,15 @@ sealed class NavigationItem(
 
     object Magazines : NavigationItem(
         Routes.MAGAZINES.route,
-        R.drawable.ic_magazine_icon_sel,
-        R.drawable.ic_magazine_icon_un,
+        R.drawable.ic_magazine_icon_selected,
+        R.drawable.ic_magazine_icon_unselected,
         "Magazines"
     )
 
     object Publications : NavigationItem(
         Routes.PUBLICATIONS.route,
-        R.drawable.ic_publications_icon_sel,
-        R.drawable.ic_publications_icon_un,
+        R.drawable.ic_publications_icon_selected,
+        R.drawable.ic_publications_icon_unselected,
         "Publications"
     )
 
