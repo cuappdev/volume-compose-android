@@ -16,7 +16,6 @@ sealed class NavigationItem(
     val selectedIconId: Int,
     val title: String
 ) {
-    // TODO not sure if tabs have titles, double check
     object Home : NavigationItem(
         Routes.HOME.route,
         R.drawable.ic_volume_bars_gray,
@@ -26,15 +25,15 @@ sealed class NavigationItem(
 
     object Magazines : NavigationItem(
         Routes.MAGAZINES.route,
-        R.drawable.ic_magazines_gray,
-        R.drawable.ic_magazines_orange,
+        R.drawable.ic_magazine_icon_selected,
+        R.drawable.ic_magazine_icon_unselected,
         "Magazines"
     )
 
     object Publications : NavigationItem(
         Routes.PUBLICATIONS.route,
-        R.drawable.ic_book_gray,
-        R.drawable.ic_book_orange,
+        R.drawable.ic_publications_icon_selected,
+        R.drawable.ic_publications_icon_unselected,
         "Publications"
     )
 
