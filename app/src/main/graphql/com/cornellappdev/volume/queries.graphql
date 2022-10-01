@@ -3,7 +3,6 @@ query AllArticles ($limit: Float) {
         id
         title
         publication {
-            id
             backgroundImageURL
             bio
             name
@@ -38,7 +37,6 @@ query AllArticles ($limit: Float) {
 
 query AllPublications {
     getAllPublications {
-        id
         backgroundImageURL
         bio
         name
@@ -64,9 +62,8 @@ query AllPublications {
     }
 }
 
-query PublicationByID($id: String!) {
-    getPublicationByID(id: $id) {
-        id
+query PublicationBySlug($slug: String!) {
+    getPublicationBySlug(slug: $slug) {
         backgroundImageURL
         bio
         name
@@ -92,40 +89,39 @@ query PublicationByID($id: String!) {
     }
 }
 
-query PublicationsByIDs($ids: [String!]!) {
-    getPublicationsByIDs(ids: $ids) {
-        id
-        backgroundImageURL
-        bio
-        name
-        profileImageURL
-        rssName
-        rssURL
-        slug
-        shoutouts
-        websiteURL
-        socials {
-            social
-            url:URL
-        }
-        mostRecentArticle {
-            id
-            articleURL
-            imageURL
-            date
-            title
-            shoutouts
-            nsfw
-        }
-    }
-}
+#query PublicationsByIDs($ids: [String!]!) {
+#    getPublicationsByIDs(ids: $ids) {
+#        id
+#        backgroundImageURL
+#        bio
+#        name
+#        profileImageURL
+#        rssName
+#        rssURL
+#        slug
+#        shoutouts
+#        websiteURL
+#        socials {
+#            social
+#            url:URL
+#        }
+#        mostRecentArticle {
+#            id
+#            articleURL
+#            imageURL
+#            date
+#            title
+#            shoutouts
+#            nsfw
+#        }
+#    }
+#}
 
 query TrendingArticles ($limit: Float) {
     getTrendingArticles(limit: $limit) {
         id
         title
         publication {
-            id
             backgroundImageURL
             bio
             name
@@ -157,14 +153,13 @@ query TrendingArticles ($limit: Float) {
     }
 }
 
-query ArticlesByPublicationID($publicationID: String!) {
-    getArticlesByPublicationID(publicationID: $publicationID) {
+query ArticlesByPublicationSlug($slug: String!) {
+    getArticlesByPublicationSlug(slug: $slug) {
         id
         articleURL
         date
         imageURL
         publication {
-            id
             backgroundImageURL
             bio
             name
@@ -200,7 +195,6 @@ query ArticlesByIDs($ids:[String!]!) {
         id
         title
         publication {
-            id
             backgroundImageURL
             bio
             name
@@ -237,7 +231,6 @@ query ArticleByID($id: String!) {
         id
         title
         publication {
-            id
             backgroundImageURL
             bio
             name
@@ -269,14 +262,13 @@ query ArticleByID($id: String!) {
     }
 }
 
-query ArticlesByPublicationIDs($publicationIDs: [String!]!) {
-    getArticlesByPublicationIDs(publicationIDs: $publicationIDs) {
+query ArticlesByPublicationSlugs($slugs: [String!]!) {
+    getArticlesByPublicationSlugs(slugs: $slugs) {
         id
         articleURL
         date
         imageURL
         publication {
-            id
             backgroundImageURL
             bio
             name
@@ -316,7 +308,6 @@ query ArticlesAfterDate($since: String!) {
         shoutouts
         title
         publication {
-            id
             backgroundImageURL
             bio
             name
@@ -356,7 +347,7 @@ query GetUser($uuid: String!) {
             id
         }
         followedPublications {
-            id
+            slug
         }
         weeklyDebrief {
             uuid
@@ -379,25 +370,25 @@ mutation CreateUser($deviceType: String!, $followedPublications: [String!]!, $de
     createUser(deviceType: $deviceType, followedPublications: $followedPublications, deviceToken: $deviceToken) {
         uuid
         followedPublications {
-            id
+            slug
         }
     }
 }
 
-mutation FollowPublication($pubID: String!, $uuid: String!) {
-    followPublication(pubID: $pubID, uuid: $uuid) {
+mutation FollowPublication($slug: String!, $uuid: String!) {
+    followPublication(slug: $slug, uuid: $uuid) {
         uuid
         followedPublications {
-            id
+            slug
         }
     }
 }
 
-mutation UnfollowPublication($pubID: String!, $uuid: String!) {
-    unfollowPublication(pubID: $pubID, uuid: $uuid) {
+mutation UnfollowPublication($slug: String!, $uuid: String!) {
+    unfollowPublication(slug: $slug, uuid: $uuid) {
         uuid
         followedPublications {
-            id
+            slug
         }
     }
 }

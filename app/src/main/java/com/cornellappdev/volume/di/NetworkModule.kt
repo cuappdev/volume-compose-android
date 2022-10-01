@@ -1,5 +1,6 @@
 package com.cornellappdev.volume.di
 
+import android.util.Log
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.network.okHttpClient
 import com.cornellappdev.volume.BuildConfig
@@ -8,6 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -20,10 +22,18 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideHttpClient(): OkHttpClient {
+        val logging = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
+            override fun log(message: String) {
+                Log.d("NetworkRequest", message)
+            }
+        })
+        logging.level = (HttpLoggingInterceptor.Level.BODY)
+
         return OkHttpClient
             .Builder()
             .readTimeout(15, TimeUnit.SECONDS)
             .connectTimeout(15, TimeUnit.SECONDS)
+            .addInterceptor(logging)
             .build()
     }
 
@@ -34,7 +44,7 @@ object NetworkModule {
     ): ApolloClient {
         return ApolloClient.Builder()
             .serverUrl(ENDPOINT)
-            .okHttpClient(OkHttpClient.Builder().build())
+            .okHttpClient(okHttpClient)
             .build()
     }
 }

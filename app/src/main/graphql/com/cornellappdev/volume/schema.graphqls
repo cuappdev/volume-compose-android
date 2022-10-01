@@ -1,9 +1,4 @@
-# Exposes a URL that specifies the behaviour of this scalar.
-directive @specifiedBy(
-  # The URL that specifies the behaviour of this scalar.
-  url: String!
-) on SCALAR
-# The Article Model
+directive @specifiedBy(url: String!) on SCALAR
 type Article {
   id: ID!
   articleURL: String!
@@ -16,37 +11,25 @@ type Article {
   nsfw: Boolean!
   isTrending: Boolean!
   isFiltered: Boolean!
-  # The trendiness score of an <Article>
   trendiness: Float!
 }
 
-# The javascript `Date` as string. Type represents date and time as the ISO Date string.
 scalar DateTime
 
 type Mutation {
-  # Increments the shoutouts of an <Article> with the given <id>.
-  #   Increments the numShoutouts given of the user with the given [uuid].
   incrementShoutouts(id: String!, uuid: String!): Article
-  # Creates a single <User> via given <deviceToken>, <followedPublications>,
-  #    and <deviceType>. Given <deviceToken> must be unique for a new user to be created, otherwise does nothing.
   createUser(
     deviceType: String!
     followedPublications: [String!]!
     deviceToken: String!
   ): User!
-  # Lets the user from a given <uuid> follow the <Publication> given by <pubID>
-  followPublication(pubID: String!, uuid: String!): User
-  # Lets the user from a given <uuid> unfollow the <Publication> given by <pubID>
-  unfollowPublication(pubID: String!, uuid: String!): User
-  # Adds the <Article> given by the <articleID> to the <User's> read articles
+  followPublication(slug: String!, uuid: String!): User
+  unfollowPublication(slug: String!, uuid: String!): User
   readArticle(articleID: String!, uuid: String!): User
-  # Increments the number of bookmarks for the <User> given by <uuid>
   bookmarkArticle(uuid: String!): User
-  # Creates Weekly Debriefs for all users
   getWeeklyDebrief: [User!]!
 }
 
-# The Publication Model
 type Publication {
   id: ID!
   backgroundImageURL: String!
@@ -59,64 +42,57 @@ type Publication {
   slug: String!
   shoutouts: Float!
   websiteURL: String!
-  # The most recent <Article> of a <Publication>
   mostRecentArticle: Article
-  # The total number of <Articles> from a <Publication>
   numArticles: Float!
-  # The information about a <Publication's> social platforms.
   socials: [Social!]!
 }
 
-# ID of a Publication
-type PublicationID {
-  id: String!
+type PublicationSlug {
+  slug: String!
 }
 
 type Query {
-  # Returns a single <Article> via the given <id>
   getArticleByID(id: String!): Article
-  # Returns a list of <Articles> via the given list of <ids>
   getArticlesByIDs(ids: [String!]!): [Article!]!
-  # Returns a list of <Articles> of size <limit>. Default <limit> is 25
-  getAllArticles(limit: Float = 25): [Article!]!
-  # Returns a list of <Articles> via the given <publicationID>
-  getArticlesByPublicationID(publicationID: String!): [Article!]!
-  # Returns a list of <Articles> via the given list of <publicationIDs>
-  getArticlesByPublicationIDs(publicationIDs: [String!]!): [Article!]!
-  # Returns a list of <Articles> via the given <slug>
-  getArticlesByPublicationSlug(slug: String!): [Article!]!
-  # Returns a list of <Articles> via the given list of <slugs>
-  getArticlesByPublicationSlugs(slugs: [String!]!): [Article!]!
-  # Returns a list of <Articles> <since> a given date, limited by <limit>.
-  #   <since> is formatted as an compliant RFC 2822 timestamp. Valid examples
-  # include: "2019-01-31", "Aug 9, 1995", "Wed, 09 Aug 1995 00:00:00", etc.
-  # Default <limit> is 25
+  getAllArticles(offset: Float = 0, limit: Float = 25): [Article!]!
+  getArticlesByPublicationID(
+    offset: Float = 0
+    limit: Float = 25
+    publicationID: String!
+  ): [Article!]!
+  getArticlesByPublicationIDs(
+    offset: Float = 0
+    limit: Float = 25
+    publicationIDs: [String!]!
+  ): [Article!]!
+  getArticlesByPublicationSlug(
+    offset: Float = 0
+    limit: Float = 25
+    slug: String!
+  ): [Article!]!
+  getArticlesByPublicationSlugs(
+    offset: Float = 0
+    limit: Float = 25
+    slugs: [String!]!
+  ): [Article!]!
   getArticlesAfterDate(limit: Float = 25, since: String!): [Article!]!
-  # Returns a list of trending <Articles> of size <limit>. Default <limit> is 25
   getTrendingArticles(limit: Float = 25): [Article!]!
-  # Returns a list of all <Publications>
   getAllPublications: [Publication!]!
-  # Returns a single <Publication> via a given <id>
   getPublicationByID(id: String!): Publication
-  # Returns a single <Publication> via a given <slug>
   getPublicationBySlug(slug: String!): Publication
-  # Returns a list of <Publications> via a given list of <ids>
   getPublicationsByIDs(ids: [String!]!): [Publication!]!
-  # Returns a single [User] via a given [uuid]
   getUser(uuid: String!): User
 }
 
-# Holds information about social
 type Social {
   social: String!
   URL: String!
 }
 
-# The User Model
 type User {
   id: ID!
   uuid: String!
-  followedPublications: [PublicationID!]!
+  followedPublications: [PublicationSlug!]!
   deviceToken: String!
   deviceType: String!
   numShoutouts: Float!
@@ -125,7 +101,6 @@ type User {
   weeklyDebrief: WeeklyDebrief
 }
 
-# The Weekly Debrief Model
 type WeeklyDebrief {
   id: ID!
   uuid: String!
@@ -137,4 +112,3 @@ type WeeklyDebrief {
   readArticles: [Article!]!
   randomArticles: [Article!]!
 }
-

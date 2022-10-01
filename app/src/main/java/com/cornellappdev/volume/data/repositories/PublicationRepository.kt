@@ -1,8 +1,7 @@
 package com.cornellappdev.volume.data.repositories
 
 import com.cornellappdev.volume.AllPublicationsQuery
-import com.cornellappdev.volume.PublicationByIDQuery
-import com.cornellappdev.volume.PublicationsByIDsQuery
+import com.cornellappdev.volume.PublicationBySlugQuery
 import com.cornellappdev.volume.data.NetworkApi
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.data.models.Publication
@@ -23,17 +22,18 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
     suspend fun fetchAllPublications(): List<Publication> =
         networkApi.fetchAllPublications().dataAssertNoErrors.mapDataToPublications()
 
-    suspend fun fetchPublicationsByIDs(pubIDs: List<String>): List<Publication> =
-        networkApi.fetchPublicationsByIDs(pubIDs).dataAssertNoErrors.mapDataToPublications()
+    suspend fun fetchPublicationsByIDs(slugs: List<String>): List<Publication> =
+        slugs.map { slug ->
+            fetchPublicationBySlug(slug).first()
+        }
 
     /** Throws an exception if the publication isn't found. */
-    suspend fun fetchPublicationByID(pubID: String): List<Publication> =
-        networkApi.fetchPublicationByID(pubID).dataAssertNoErrors.mapDataToPublications()
+    suspend fun fetchPublicationBySlug(slug: String): List<Publication> =
+        networkApi.fetchPublicationBySlug(slug).dataAssertNoErrors.mapDataToPublications()
 
     private fun AllPublicationsQuery.Data.mapDataToPublications(): List<Publication> {
         return this.getAllPublications.map { publicationData ->
             Publication(
-                id = publicationData.id,
                 backgroundImageURL = publicationData.backgroundImageURL,
                 bio = publicationData.bio,
                 name = publicationData.name,
@@ -50,7 +50,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                         publicationData.mostRecentArticle.articleURL,
                         publicationData.mostRecentArticle.imageURL,
                         Publication(
-                            id = publicationData.id,
+
                             backgroundImageURL = publicationData.backgroundImageURL,
                             bio = publicationData.bio,
                             name = publicationData.name,
@@ -72,53 +72,51 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
         }
     }
 
-    private fun PublicationsByIDsQuery.Data.mapDataToPublications(): List<Publication> {
-        return this.getPublicationsByIDs.map { publicationData ->
-            Publication(
-                id = publicationData.id,
-                backgroundImageURL = publicationData.backgroundImageURL,
-                bio = publicationData.bio,
-                name = publicationData.name,
-                profileImageURL = publicationData.profileImageURL,
-                rssName = publicationData.rssName,
-                rssURL = publicationData.rssURL,
-                slug = publicationData.slug,
-                shoutouts = publicationData.shoutouts,
-                websiteURL = publicationData.websiteURL,
-                mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
-                    Article(
-                        publicationData.mostRecentArticle.id,
-                        publicationData.mostRecentArticle.title,
-                        publicationData.mostRecentArticle.articleURL,
-                        publicationData.mostRecentArticle.imageURL,
-                        Publication(
-                            id = publicationData.id,
-                            backgroundImageURL = publicationData.backgroundImageURL,
-                            bio = publicationData.bio,
-                            name = publicationData.name,
-                            profileImageURL = publicationData.profileImageURL,
-                            rssName = publicationData.rssName,
-                            rssURL = publicationData.rssURL,
-                            slug = publicationData.slug,
-                            shoutouts = publicationData.shoutouts,
-                            websiteURL = publicationData.websiteURL,
-                            socials = publicationData.socials
-                                .map { Social(it.social, it.url) }),
-                        publicationData.mostRecentArticle.date.toString(),
-                        publicationData.mostRecentArticle.shoutouts,
-                        isNSFW,
-                    )
-                },
-                socials = publicationData.socials
-                    .map { Social(it.social, it.url) })
-        }
-    }
+//    private fun PublicationsByIDsQuery.Data.mapDataToPublications(): List<Publication> {
+//        return this.getPublicationsByIDs.map { publicationData ->
+//            Publication(
+//                backgroundImageURL = publicationData.backgroundImageURL,
+//                bio = publicationData.bio,
+//                name = publicationData.name,
+//                profileImageURL = publicationData.profileImageURL,
+//                rssName = publicationData.rssName,
+//                rssURL = publicationData.rssURL,
+//                slug = publicationData.slug,
+//                shoutouts = publicationData.shoutouts,
+//                websiteURL = publicationData.websiteURL,
+//                mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
+//                    Article(
+//                        publicationData.mostRecentArticle.id,
+//                        publicationData.mostRecentArticle.title,
+//                        publicationData.mostRecentArticle.articleURL,
+//                        publicationData.mostRecentArticle.imageURL,
+//                        Publication(
+//
+//                            backgroundImageURL = publicationData.backgroundImageURL,
+//                            bio = publicationData.bio,
+//                            name = publicationData.name,
+//                            profileImageURL = publicationData.profileImageURL,
+//                            rssName = publicationData.rssName,
+//                            rssURL = publicationData.rssURL,
+//                            slug = publicationData.slug,
+//                            shoutouts = publicationData.shoutouts,
+//                            websiteURL = publicationData.websiteURL,
+//                            socials = publicationData.socials
+//                                .map { Social(it.social, it.url) }),
+//                        publicationData.mostRecentArticle.date.toString(),
+//                        publicationData.mostRecentArticle.shoutouts,
+//                        isNSFW,
+//                    )
+//                },
+//                socials = publicationData.socials
+//                    .map { Social(it.social, it.url) })
+//        }
+//    }
 
-    private fun PublicationByIDQuery.Data.mapDataToPublications(): List<Publication> {
-        return this.getPublicationByID?.let { publicationData ->
+    private fun PublicationBySlugQuery.Data.mapDataToPublications(): List<Publication> {
+        return this.getPublicationBySlug?.let { publicationData ->
             listOf(
                 Publication(
-                    id = publicationData.id,
                     backgroundImageURL = publicationData.backgroundImageURL,
                     bio = publicationData.bio,
                     name = publicationData.name,
@@ -135,7 +133,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                             publicationData.mostRecentArticle.articleURL,
                             publicationData.mostRecentArticle.imageURL,
                             Publication(
-                                id = publicationData.id,
+
                                 backgroundImageURL = publicationData.backgroundImageURL,
                                 bio = publicationData.bio,
                                 name = publicationData.name,

@@ -26,8 +26,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
     ): User =
         networkApi.createUser(followPublications, deviceToken).dataAssertNoErrors.mapDataToUser()
 
-    suspend fun followPublications(pubIDs: List<String>, uuid: String) =
-        pubIDs.map {
+    suspend fun followPublications(slugs: List<String>, uuid: String) =
+        slugs.map {
             followPublication(it, uuid)
         }
 
@@ -52,8 +52,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         return this.getUser.let { userData ->
             User(
                 uuid = userData!!.uuid,
-                followedPublicationIDs = userData.followedPublications.map {
-                    it.id
+                followedPublicationSlugs = userData.followedPublications.map {
+                    it.slug
                 },
                 weeklyDebrief = userData.weeklyDebrief?.let { weeklyDebrief ->
                     WeeklyDebrief(
@@ -79,8 +79,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         return this.createUser.let { userData ->
             User(
                 uuid = userData.uuid,
-                followedPublicationIDs = userData.followedPublications.map {
-                    it.id
+                followedPublicationSlugs = userData.followedPublications.map {
+                    it.slug
                 }
             )
         }
@@ -90,8 +90,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         return this.followPublication.let { userData ->
             User(
                 uuid = userData!!.uuid,
-                followedPublicationIDs = userData.followedPublications.map {
-                    it.id
+                followedPublicationSlugs = userData.followedPublications.map {
+                    it.slug
                 }
             )
         }
@@ -101,8 +101,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         return this.unfollowPublication.let { userData ->
             User(
                 uuid = userData!!.uuid,
-                followedPublicationIDs = userData.followedPublications.map {
-                    it.id
+                followedPublicationSlugs = userData.followedPublications.map {
+                    it.slug
                 }
             )
         }

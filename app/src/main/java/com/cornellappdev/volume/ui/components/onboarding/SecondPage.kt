@@ -139,30 +139,28 @@ fun SecondPage(
                             verticalArrangement = Arrangement.spacedBy(24.dp)
                         ) {
                             items(
-                                items = publicationsState.publications,
-                                key = { publication ->
-                                    publication.id
-                                }) { publication ->
+                                items = publicationsState.publications
+                            ) { publication ->
                                 // Clicking on row IN onboarding should not lead to IndividualPublicationScreen. They are not
                                 // an official user yet so they shouldn't be interacting with the articles.
                                 CreateHorizontalPublicationRow(publication = publication) { publicationFromCallback, isFollowing ->
                                     if (isFollowing) {
                                         onboardingViewModel.addPublicationToFollowed(
-                                            publicationFromCallback.id
+                                            publicationFromCallback.slug
                                         )
                                         VolumeEvent.logEvent(
                                             EventType.PUBLICATION, VolumeEvent.FOLLOW_PUBLICATION,
                                             NavigationSource.ONBOARDING,
-                                            publicationFromCallback.id
+                                            publicationFromCallback.slug
                                         )
                                     } else {
                                         onboardingViewModel.removePublicationFromFollowed(
-                                            publicationFromCallback.id
+                                            publicationFromCallback.slug
                                         )
                                         VolumeEvent.logEvent(
                                             EventType.PUBLICATION, VolumeEvent.UNFOLLOW_PUBLICATION,
                                             NavigationSource.ONBOARDING,
-                                            publicationFromCallback.id
+                                            publicationFromCallback.slug
                                         )
                                     }
 

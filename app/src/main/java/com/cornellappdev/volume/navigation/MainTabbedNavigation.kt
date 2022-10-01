@@ -122,7 +122,7 @@ private fun MainScreenNavigationConfigurations(
         // This route should be navigated with a valid publication ID, else the screen will not
         // populate.
         composable(
-            "${Routes.INDIVIDUAL_PUBLICATION.route}/{publicationId}",
+            "${Routes.INDIVIDUAL_PUBLICATION.route}/{publicationSlug}",
         ) {
             setShowBottomBar(true)
             IndividualPublicationScreen()
@@ -155,7 +155,7 @@ private fun MainScreenNavigationConfigurations(
                     navController.popBackStack()
                 },
                 seeMoreClicked = { article ->
-                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${article.publication.id}")
+                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${article.publication.slug}")
                 }
             )
         }
@@ -166,7 +166,7 @@ private fun MainScreenNavigationConfigurations(
                 navController = navController,
                 onPublicationClick =
                 { publication ->
-                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.id}")
+                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")
                 })
         }
         composable(Routes.BOOKMARKS.route) {

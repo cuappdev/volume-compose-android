@@ -124,6 +124,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.2.1'
+
     // Hilt
     // Implementation and kapt must be in-sync version number
     implementation "com.google.dagger:hilt-android:2.42"
