@@ -34,9 +34,9 @@ class PublicationsViewModel @Inject constructor(
         queryAllPublications()
     }
 
-    fun followPublication(id: String) = viewModelScope.launch {
+    fun followPublication(publicationSlug: String) = viewModelScope.launch {
         val uuid = userPreferencesRepository.fetchUuid()
-        userRepository.followPublication(id, uuid)
+        userRepository.followPublication(publicationSlug, uuid)
 
         // move from more to followed
     }

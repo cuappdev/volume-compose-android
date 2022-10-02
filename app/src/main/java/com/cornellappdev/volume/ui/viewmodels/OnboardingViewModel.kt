@@ -1,6 +1,5 @@
 package com.cornellappdev.volume.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -45,9 +44,9 @@ class OnboardingViewModel @Inject constructor(
         queryAllPublications()
     }
 
-    fun addPublicationToFollowed(pubId: String) = _setOfPubsFollowed.add(pubId)
+    fun addPublicationToFollowed(slug: String) = _setOfPubsFollowed.add(slug)
 
-    fun removePublicationFromFollowed(pubId: String) = _setOfPubsFollowed.remove(pubId)
+    fun removePublicationFromFollowed(slug: String) = _setOfPubsFollowed.remove(slug)
 
     fun updateOnboardingCompleted() = viewModelScope.launch {
         userPreferencesRepository.updateOnboardingCompleted(completed = true)
@@ -56,7 +55,6 @@ class OnboardingViewModel @Inject constructor(
 
     fun createUser() = viewModelScope.launch {
         try {
-            Log.d("GoingHome", "CreatingUser")
             val listOfPubsFollowed = setOfPubsFollowed.toList()
             val user = userRepository.createUser(
                 listOfPubsFollowed,
@@ -68,8 +66,6 @@ class OnboardingViewModel @Inject constructor(
                 createUserState = CreateUserState.Success
             )
         } catch (e: Exception) {
-            Log.d("GoingHome", "Error")
-            Log.d("GoingHome", e.stackTraceToString())
             onboardingUiState = onboardingUiState.copy(
                 createUserState = CreateUserState.Error
             )

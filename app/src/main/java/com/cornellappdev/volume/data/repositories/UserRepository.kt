@@ -31,14 +31,14 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
             followPublication(it, uuid)
         }
 
-    suspend fun followPublication(pubID: String, uuid: String): User =
-        networkApi.followPublication(pubID, uuid).dataAssertNoErrors.mapDataToUser()
+    suspend fun followPublication(slug: String, uuid: String): User =
+        networkApi.followPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
 
     suspend fun unfollowPublication(
-        pubID: String,
+        slug: String,
         uuid: String
     ): User =
-        networkApi.unfollowPublication(pubID, uuid).dataAssertNoErrors.mapDataToUser()
+        networkApi.unfollowPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
 
     // Only getUser returns a User with WeeklyDebrief, can be updated in queries.graphql
     suspend fun getUser(uuid: String): User =
@@ -46,6 +46,10 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
 
     suspend fun bookmarkArticle(uuid: String) {
         networkApi.bookmarkArticle(uuid)
+    }
+
+    suspend fun readArticle(articleId: String, uuid: String) {
+        networkApi.readArticle(articleId, uuid)
     }
 
     private fun GetUserQuery.Data.mapDataToUser(): User {

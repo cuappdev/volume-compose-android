@@ -1,5 +1,6 @@
 package com.cornellappdev.volume.ui.components.general
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -81,15 +82,30 @@ fun CreateHorizontalPublicationRow(
                     colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked.value) VolumeOrange else Color.White),
                     border = if (hasBeenClicked.value) null else BorderStroke(2.dp, Color.Black)
                 ) {
-                    if (!hasBeenClicked.value) {
-                        Icon(Icons.Default.Add, contentDescription = "Follow", tint = Color.Black)
-                    } else {
-                        Icon(
-                            Icons.Default.Done,
-                            contentDescription = "Followed",
-                            tint = Color.White
-                        )
+                    Crossfade(targetState = hasBeenClicked.value) { hasBeenClicked ->
+                        if (hasBeenClicked) {
+                            Icon(
+                                Icons.Default.Done,
+                                contentDescription = "Followed",
+                                tint = Color.White
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = "Follow",
+                                tint = Color.Black
+                            )
+                        }
                     }
+//                    if (!hasBeenClicked.value) {
+//                        Icon(Icons.Default.Add, contentDescription = "Follow", tint = Color.Black)
+//                    } else {
+//                        Icon(
+//                            Icons.Default.Done,
+//                            contentDescription = "Followed",
+//                            tint = Color.White
+//                        )
+//                    }
                 }
             }
 

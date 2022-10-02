@@ -26,7 +26,7 @@ class IndividualPublicationViewModel @Inject constructor(
 ) : ViewModel() {
 
     // Navigation arguments can be retrieved through the SavedStateHandle
-    private val publicationId: String = checkNotNull(savedStateHandle["publicationId"])
+    private val publicationSlug: String = checkNotNull(savedStateHandle["publicationSlug"])
 
     data class PublicationUiState(
         val publicationState: PublicationRetrievalState = PublicationRetrievalState.Loading,
@@ -44,7 +44,7 @@ class IndividualPublicationViewModel @Inject constructor(
 
     fun followPublication() = viewModelScope.launch {
         val uuid = userPreferencesRepository.fetchUuid()
-        userRepository.followPublication(publicationId, uuid)
+        userRepository.followPublication(publicationSlug, uuid)
         publicationUiState = publicationUiState.copy(
             isFollowed = true
         )
@@ -52,7 +52,7 @@ class IndividualPublicationViewModel @Inject constructor(
 
     fun unfollowPublication() = viewModelScope.launch {
         val uuid = userPreferencesRepository.fetchUuid()
-        userRepository.unfollowPublication(publicationId, uuid)
+        userRepository.unfollowPublication(publicationSlug, uuid)
         publicationUiState = publicationUiState.copy(
             isFollowed = false
         )
@@ -62,12 +62,12 @@ class IndividualPublicationViewModel @Inject constructor(
         try {
             publicationUiState = publicationUiState.copy(
                 publicationState = PublicationRetrievalState.Success(
-                    publicationRepository.fetchPublicationByID(
-                        publicationId
+                    publicationRepository.fetchPublicationBySlug(
+                        publicationSlug
                     ).first()
                 ),
-                isFollowed = userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs.contains(
-                    publicationId
+                isFollowed = userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.contains(
+                    publicationSlug
                 )
             )
         } catch (e: Exception) {
@@ -81,7 +81,7 @@ class IndividualPublicationViewModel @Inject constructor(
         try {
             publicationUiState = publicationUiState.copy(
                 articlesByPublicationState = ArticlesRetrievalState.Success(
-                    articleRepository.fetchArticlesByPublicationID(publicationId)
+                    articleRepository.fetchArticlesByPublicationSlug(publicationSlug)
                 )
             )
         } catch (e: Exception) {
