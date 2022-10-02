@@ -89,34 +89,6 @@ query PublicationBySlug($slug: String!) {
     }
 }
 
-#query PublicationsByIDs($ids: [String!]!) {
-#    getPublicationsByIDs(ids: $ids) {
-#        id
-#        backgroundImageURL
-#        bio
-#        name
-#        profileImageURL
-#        rssName
-#        rssURL
-#        slug
-#        shoutouts
-#        websiteURL
-#        socials {
-#            social
-#            url:URL
-#        }
-#        mostRecentArticle {
-#            id
-#            articleURL
-#            imageURL
-#            date
-#            title
-#            shoutouts
-#            nsfw
-#        }
-#    }
-#}
-
 query TrendingArticles ($limit: Float) {
     getTrendingArticles(limit: $limit) {
         id
