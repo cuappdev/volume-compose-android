@@ -1,7 +1,10 @@
 package com.cornellappdev.volume.ui.components.onboarding
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -38,7 +41,6 @@ import com.cornellappdev.volume.ui.theme.*
 import com.cornellappdev.volume.ui.viewmodels.OnboardingViewModel
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SecondPage(
     onboardingViewModel: OnboardingViewModel = hiltViewModel(),

@@ -1,8 +1,7 @@
 package com.cornellappdev.volume.navigation
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -15,10 +14,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import com.cornellappdev.volume.analytics.EventType
 import com.cornellappdev.volume.analytics.NavigationSource
@@ -26,20 +22,63 @@ import com.cornellappdev.volume.analytics.VolumeEvent
 import com.cornellappdev.volume.ui.screens.*
 import com.cornellappdev.volume.ui.theme.DarkGray
 import com.cornellappdev.volume.ui.theme.VolumeOrange
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
-    val navController = rememberNavController()
-    val (showBottomBar, setShowBottomBar) = rememberSaveable { mutableStateOf(false) }
+    val navController = rememberAnimatedNavController()
+    val showBottomBar = rememberSaveable { mutableStateOf(false) }
+
+    // Subscribe to navBackStackEntry, required to get current route
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    when (navBackStackEntry?.destination?.route) {
+        Routes.HOME.route -> {
+            showBottomBar.value = true
+        }
+        Routes.WEEKLY_DEBRIEF.route -> {
+            showBottomBar.value = true
+        }
+        Routes.ONBOARDING.route -> {
+            showBottomBar.value = false
+        }
+        Routes.PUBLICATIONS.route -> {
+            showBottomBar.value = true
+        }
+        Routes.BOOKMARKS.route -> {
+            showBottomBar.value = true
+        }
+        Routes.ABOUT_US.route -> {
+            showBottomBar.value = false
+        }
+        "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}" -> {
+            showBottomBar.value = false
+        }
+        "${Routes.INDIVIDUAL_PUBLICATION.route}/{publicationSlug}" -> {
+            showBottomBar.value = true
+        }
+        "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}" -> {
+            showBottomBar.value = false
+        }
+    }
 
     Scaffold(
         bottomBar = {
-            AnimatedVisibility(
-                visible = showBottomBar,
-                enter = expandVertically(expandFrom = Alignment.Bottom),
-                exit = shrinkVertically()
-            ) {
-                BottomNavigationBar(navController, NavigationItem.bottomNavTabList)
+            AnimatedContent(
+                targetState = showBottomBar.value,
+                transitionSpec = {
+                    expandVertically(
+                        animationSpec = tween(durationMillis = 2500),
+                        expandFrom = Alignment.Bottom
+                    ) with shrinkVertically(animationSpec = tween(durationMillis = 2500))
+                }
+            ) { state ->
+                if (state) {
+                    BottomNavigationBar(navController, NavigationItem.bottomNavTabList)
+                }
             }
         }
     ) { innerPadding ->
@@ -47,7 +86,6 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
             modifier = Modifier.padding(innerPadding),
             isOnboardingCompleted = onboardingCompleted,
             navController = navController,
-            setShowBottomBar = setShowBottomBar,
         )
     }
 }
@@ -87,21 +125,31 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun MainScreenNavigationConfigurations(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    setShowBottomBar: (Boolean) -> Unit,
     isOnboardingCompleted: Boolean,
 ) {
     // The starting destination switches to onboarding if it isn't completed.
-    NavHost(
+    AnimatedNavHost(
         modifier = modifier,
         navController = navController,
         startDestination = if (isOnboardingCompleted) Routes.HOME.route else Routes.ONBOARDING.route
     ) {
-        composable(Routes.HOME.route) {
-            setShowBottomBar(true)
+        composable(Routes.HOME.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            }) {
             HomeScreen(
                 onArticleClick = { article, navigationSource ->
                     navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
@@ -110,12 +158,10 @@ private fun MainScreenNavigationConfigurations(
         composable(route = Routes.WEEKLY_DEBRIEF.route, deepLinks = listOf(
             navDeepLink { uriPattern = "volume://${Routes.WEEKLY_DEBRIEF.route}" }
         )) {
-            setShowBottomBar(true)
             // I believe WeeklyDebrief is a bottom sheet attached to the HomeScreen
 
         }
         composable(Routes.ONBOARDING.route) {
-            setShowBottomBar(false)
             OnboardingScreen(
                 proceedHome = { navController.navigate(Routes.HOME.route) }
             )
@@ -125,7 +171,6 @@ private fun MainScreenNavigationConfigurations(
         composable(
             "${Routes.INDIVIDUAL_PUBLICATION.route}/{publicationSlug}",
         ) {
-            setShowBottomBar(true)
             IndividualPublicationScreen()
         }
         // This route should be navigated with a valid article ID.
@@ -133,9 +178,19 @@ private fun MainScreenNavigationConfigurations(
             route = "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}",
             deepLinks = listOf(
                 navDeepLink { uriPattern = "volume://${Routes.OPEN_ARTICLE.route}/{articleId}" }
-            )
+            ),
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 1500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 1500)
+                )
+            }
         ) { backStackEntry ->
-            setShowBottomBar(false)
             val articleId = backStackEntry.arguments?.getString("articleId")!!
             val navigationSourceName = backStackEntry.arguments?.getString("navigationSourceName")
                 ?: NavigationSource.UNSPECIFIED.name
@@ -162,7 +217,6 @@ private fun MainScreenNavigationConfigurations(
         }
         composable(Routes.MAGAZINES.route) {}
         composable(Routes.PUBLICATIONS.route) {
-            setShowBottomBar(true)
             PublicationsScreen(
                 navController = navController,
                 onPublicationClick =
@@ -170,8 +224,18 @@ private fun MainScreenNavigationConfigurations(
                     navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")
                 })
         }
-        composable(Routes.BOOKMARKS.route) {
-            setShowBottomBar(true)
+        composable(Routes.BOOKMARKS.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            }) {
             BookmarkScreen(
                 savedStateHandle = it.savedStateHandle,
                 onArticleClick = { article, navigationSource ->
@@ -179,14 +243,34 @@ private fun MainScreenNavigationConfigurations(
                 },
                 onSettingsClick = { navController.navigate(Routes.SETTINGS.route) })
         }
-        composable(Routes.SETTINGS.route) {
-            setShowBottomBar(false)
+        composable(Routes.SETTINGS.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            }) {
             SettingsScreen {
                 navController.navigate(Routes.ABOUT_US.route)
             }
         }
-        composable(Routes.ABOUT_US.route) {
-            setShowBottomBar(false)
+        composable(Routes.ABOUT_US.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            }) {
             AboutUsScreen()
         }
     }
