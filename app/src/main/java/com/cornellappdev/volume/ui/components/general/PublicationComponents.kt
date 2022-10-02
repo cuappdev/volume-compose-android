@@ -97,15 +97,6 @@ fun CreateHorizontalPublicationRow(
                             )
                         }
                     }
-//                    if (!hasBeenClicked.value) {
-//                        Icon(Icons.Default.Add, contentDescription = "Follow", tint = Color.Black)
-//                    } else {
-//                        Icon(
-//                            Icons.Default.Done,
-//                            contentDescription = "Followed",
-//                            tint = Color.White
-//                        )
-//                    }
                 }
             }
 

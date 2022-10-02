@@ -72,47 +72,6 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
         }
     }
 
-//    private fun PublicationsByIDsQuery.Data.mapDataToPublications(): List<Publication> {
-//        return this.getPublicationsByIDs.map { publicationData ->
-//            Publication(
-//                backgroundImageURL = publicationData.backgroundImageURL,
-//                bio = publicationData.bio,
-//                name = publicationData.name,
-//                profileImageURL = publicationData.profileImageURL,
-//                rssName = publicationData.rssName,
-//                rssURL = publicationData.rssURL,
-//                slug = publicationData.slug,
-//                shoutouts = publicationData.shoutouts,
-//                websiteURL = publicationData.websiteURL,
-//                mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
-//                    Article(
-//                        publicationData.mostRecentArticle.id,
-//                        publicationData.mostRecentArticle.title,
-//                        publicationData.mostRecentArticle.articleURL,
-//                        publicationData.mostRecentArticle.imageURL,
-//                        Publication(
-//
-//                            backgroundImageURL = publicationData.backgroundImageURL,
-//                            bio = publicationData.bio,
-//                            name = publicationData.name,
-//                            profileImageURL = publicationData.profileImageURL,
-//                            rssName = publicationData.rssName,
-//                            rssURL = publicationData.rssURL,
-//                            slug = publicationData.slug,
-//                            shoutouts = publicationData.shoutouts,
-//                            websiteURL = publicationData.websiteURL,
-//                            socials = publicationData.socials
-//                                .map { Social(it.social, it.url) }),
-//                        publicationData.mostRecentArticle.date.toString(),
-//                        publicationData.mostRecentArticle.shoutouts,
-//                        isNSFW,
-//                    )
-//                },
-//                socials = publicationData.socials
-//                    .map { Social(it.social, it.url) })
-//        }
-//    }
-
     private fun PublicationBySlugQuery.Data.mapDataToPublications(): List<Publication> {
         return this.getPublicationBySlug?.let { publicationData ->
             listOf(
