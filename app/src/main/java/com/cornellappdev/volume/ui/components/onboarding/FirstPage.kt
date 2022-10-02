@@ -93,7 +93,7 @@ fun FirstPage(onProceedClicked: () -> Unit) {
                 Row {
                     Image(
                         modifier = Modifier.size(40.dp),
-                        painter = painterResource(R.drawable.ic_book_orange),
+                        painter = painterResource(R.drawable.ic_publications_icon_selected),
                         contentDescription = null
                     )
                     Text(
@@ -137,7 +137,7 @@ fun FirstPage(onProceedClicked: () -> Unit) {
                 Row {
                     Image(
                         modifier = Modifier.size(40.dp),
-                        painter = painterResource(R.drawable.ic_shoutout),
+                        painter = painterResource(R.drawable.ic_shoutout_orange),
                         contentDescription = null
                     )
                     Text(
