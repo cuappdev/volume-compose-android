@@ -166,14 +166,14 @@ private fun MainScreenNavigationConfigurations(
                 proceedHome = { navController.navigate(Routes.HOME.route) }
             )
         }
-        // This route should be navigated with a valid publication ID, else the screen will not
+        // This route should be navigated with a valid publication slug, else the screen will not
         // populate.
         composable(
             "${Routes.INDIVIDUAL_PUBLICATION.route}/{publicationSlug}",
         ) {
             IndividualPublicationScreen()
         }
-        // This route should be navigated with a valid article ID.
+        // This route should be navigated with a valid article id.
         composable(
             route = "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}",
             deepLinks = listOf(

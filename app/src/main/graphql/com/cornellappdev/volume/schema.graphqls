@@ -48,7 +48,6 @@ type Mutation {
 
 # The Publication Model
 type Publication {
-  id: ID!
   backgroundImageURL: String!
   bio: String!
   bioShort: String!
@@ -79,18 +78,6 @@ type Query {
   getArticlesByIDs(ids: [String!]!): [Article!]!
   # Returns a list of <Articles> of size <limit> with offset <offset>. Default <limit> is 25 and default <offset> is 0
   getAllArticles(offset: Float = 0, limit: Float = 25): [Article!]!
-  # Returns a list of <Articles> of size <limit> via the given <publicationID>. Results can offsetted by <offset> >= 0.
-  getArticlesByPublicationID(
-    offset: Float = 0
-    limit: Float = 25
-    publicationID: String!
-  ): [Article!]!
-  # Returns a list of <Articles> of size <limit> via the given list of <publicationIDs>. Results offsetted by <offset> >= 0.
-  getArticlesByPublicationIDs(
-    offset: Float = 0
-    limit: Float = 25
-    publicationIDs: [String!]!
-  ): [Article!]!
   # Returns a list of <Articles> of size <limit> via the given <slug>. Results can be offsetted by <offset> >= 0.
   getArticlesByPublicationSlug(
     offset: Float = 0
@@ -112,12 +99,8 @@ type Query {
   getTrendingArticles(limit: Float = 25): [Article!]!
   # Returns a list of all <Publications>
   getAllPublications: [Publication!]!
-  # Returns a single <Publication> via a given <id>
-  getPublicationByID(id: String!): Publication
   # Returns a single <Publication> via a given <slug>
   getPublicationBySlug(slug: String!): Publication
-  # Returns a list of <Publications> via a given list of <ids>
-  getPublicationsByIDs(ids: [String!]!): [Publication!]!
   # Returns a single [User] via a given [uuid]
   getUser(uuid: String!): User
 }

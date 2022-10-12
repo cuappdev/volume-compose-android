@@ -22,7 +22,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
     suspend fun fetchAllPublications(): List<Publication> =
         networkApi.fetchAllPublications().dataAssertNoErrors.mapDataToPublications()
 
-    suspend fun fetchPublicationsByIDs(slugs: List<String>): List<Publication> =
+    suspend fun fetchPublicationsBySlugs(slugs: List<String>): List<Publication> =
         slugs.map { slug ->
             fetchPublicationBySlug(slug).first()
         }
