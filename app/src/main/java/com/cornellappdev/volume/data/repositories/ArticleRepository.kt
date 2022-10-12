@@ -22,11 +22,11 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
     suspend fun fetchTrendingArticles(limit: Double? = null): List<Article> =
         networkApi.fetchTrendingArticles(limit).dataAssertNoErrors.mapDataToArticles()
 
-    suspend fun fetchArticlesByPublicationID(pubID: String): List<Article> =
-        networkApi.fetchArticleByPublicationID(pubID).dataAssertNoErrors.mapDataToArticles()
+    suspend fun fetchArticlesByPublicationSlug(slug: String): List<Article> =
+        networkApi.fetchArticleByPublicationSlug(slug).dataAssertNoErrors.mapDataToArticles()
 
-    suspend fun fetchArticlesByPublicationIDs(pubIDs: List<String>): List<Article> =
-        networkApi.fetchArticlesByPublicationIDs(pubIDs).dataAssertNoErrors.mapDataToArticles()
+    suspend fun fetchArticlesByPublicationSlugs(slugs: List<String>): List<Article> =
+        networkApi.fetchArticlesByPublicationSlugs(slugs).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByIDs(ids: List<String>): List<Article> =
         networkApi.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
@@ -47,7 +47,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                 id = articleData.id,
                 imageURL = articleData.imageURL,
                 publication = Publication(
-                    id = publication.id,
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
                     name = publication.name,
@@ -76,7 +75,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                 id = articleData.id,
                 imageURL = articleData.imageURL,
                 publication = Publication(
-                    id = publication.id,
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
                     name = publication.name,
@@ -95,8 +93,8 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
         }
     }
 
-    private fun ArticlesByPublicationIDQuery.Data.mapDataToArticles(): List<Article> {
-        return this.getArticlesByPublicationID.map { articleData ->
+    private fun ArticlesByPublicationSlugQuery.Data.mapDataToArticles(): List<Article> {
+        return this.getArticlesByPublicationSlug.map { articleData ->
             val publication = articleData.publication
             Article(
                 title = articleData.title,
@@ -105,7 +103,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                 id = articleData.id,
                 imageURL = articleData.imageURL,
                 publication = Publication(
-                    id = publication.id,
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
                     name = publication.name,
@@ -124,8 +121,8 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
         }
     }
 
-    private fun ArticlesByPublicationIDsQuery.Data.mapDataToArticles(): List<Article> {
-        return this.getArticlesByPublicationIDs.map { articleData ->
+    private fun ArticlesByPublicationSlugsQuery.Data.mapDataToArticles(): List<Article> {
+        return this.getArticlesByPublicationSlugs.map { articleData ->
             val publication = articleData.publication
             Article(
                 title = articleData.title,
@@ -134,7 +131,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                 id = articleData.id,
                 imageURL = articleData.imageURL,
                 publication = Publication(
-                    id = publication.id,
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
                     name = publication.name,
@@ -163,7 +159,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                 id = articleData.id,
                 imageURL = articleData.imageURL,
                 publication = Publication(
-                    id = publication.id,
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
                     name = publication.name,
@@ -192,7 +187,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                 id = articleData.id,
                 imageURL = articleData.imageURL,
                 publication = Publication(
-                    id = publication.id,
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
                     name = publication.name,

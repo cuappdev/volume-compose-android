@@ -4,11 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.cornellappdev.volume.analytics.EventType
@@ -30,7 +26,7 @@ fun OnboardingScreen(
     VolumeEvent.logEvent(EventType.GENERAL, VolumeEvent.START_ONBOARDING)
 
     val pagerState = rememberPagerState(0)
-    val creatingUser = rememberSaveable { mutableStateOf(false) }
+    var fadePage = remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
     HorizontalPager(
@@ -48,10 +44,10 @@ fun OnboardingScreen(
                             coroutineScope,
                             page + 1,
                             pagerState,
-                            creatingUser
+                            fadePage
                         ).invoke()
                     }
-                1 -> SecondPage(creatingUser = creatingUser) {
+                1 -> SecondPage(fadePage = fadePage) {
                     proceedHome()
                 }
             }
@@ -71,12 +67,12 @@ fun proceedToPageIndex(
     coroutineScope: CoroutineScope,
     pageIndex: Int,
     pagerState: PagerState,
-    creatingUser: MutableState<Boolean>
+    fadePage: MutableState<Boolean>
 ): () -> Unit {
     return {
         coroutineScope.launch {
             pagerState.scrollToPage(pageIndex)
-            creatingUser.value = true
+            fadePage.value = true
         }
     }
 }

@@ -26,19 +26,19 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
     ): User =
         networkApi.createUser(followPublications, deviceToken).dataAssertNoErrors.mapDataToUser()
 
-    suspend fun followPublications(pubIDs: List<String>, uuid: String) =
-        pubIDs.map {
+    suspend fun followPublications(slugs: List<String>, uuid: String) =
+        slugs.map {
             followPublication(it, uuid)
         }
 
-    suspend fun followPublication(pubID: String, uuid: String): User =
-        networkApi.followPublication(pubID, uuid).dataAssertNoErrors.mapDataToUser()
+    suspend fun followPublication(slug: String, uuid: String): User =
+        networkApi.followPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
 
     suspend fun unfollowPublication(
-        pubID: String,
+        slug: String,
         uuid: String
     ): User =
-        networkApi.unfollowPublication(pubID, uuid).dataAssertNoErrors.mapDataToUser()
+        networkApi.unfollowPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
 
     // Only getUser returns a User with WeeklyDebrief, can be updated in queries.graphql
     suspend fun getUser(uuid: String): User =
@@ -48,12 +48,16 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         networkApi.bookmarkArticle(uuid)
     }
 
+    suspend fun readArticle(articleId: String, uuid: String) {
+        networkApi.readArticle(articleId, uuid)
+    }
+
     private fun GetUserQuery.Data.mapDataToUser(): User {
         return this.getUser.let { userData ->
             User(
                 uuid = userData!!.uuid,
-                followedPublicationIDs = userData.followedPublications.map {
-                    it.id
+                followedPublicationSlugs = userData.followedPublications.map {
+                    it.slug
                 },
                 weeklyDebrief = userData.weeklyDebrief?.let { weeklyDebrief ->
                     WeeklyDebrief(
@@ -79,8 +83,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         return this.createUser.let { userData ->
             User(
                 uuid = userData.uuid,
-                followedPublicationIDs = userData.followedPublications.map {
-                    it.id
+                followedPublicationSlugs = userData.followedPublications.map {
+                    it.slug
                 }
             )
         }
@@ -90,8 +94,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         return this.followPublication.let { userData ->
             User(
                 uuid = userData!!.uuid,
-                followedPublicationIDs = userData.followedPublications.map {
-                    it.id
+                followedPublicationSlugs = userData.followedPublications.map {
+                    it.slug
                 }
             )
         }
@@ -101,8 +105,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         return this.unfollowPublication.let { userData ->
             User(
                 uuid = userData!!.uuid,
-                followedPublicationIDs = userData.followedPublications.map {
-                    it.id
+                followedPublicationSlugs = userData.followedPublications.map {
+                    it.slug
                 }
             )
         }

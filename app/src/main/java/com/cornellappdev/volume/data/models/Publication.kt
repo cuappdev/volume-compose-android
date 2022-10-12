@@ -3,7 +3,6 @@ package com.cornellappdev.volume.data.models
 /**
  * Model class for Publications on Volume
  *
- * @property id
  * @property backgroundImageURL
  * @property bio
  * @property name
@@ -17,7 +16,6 @@ package com.cornellappdev.volume.data.models
  * @property socials
  */
 data class Publication(
-    val id: String,
     val backgroundImageURL: String,
     val bio: String,
     val name: String,

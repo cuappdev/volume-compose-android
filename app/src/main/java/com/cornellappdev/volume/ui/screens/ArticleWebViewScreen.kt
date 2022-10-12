@@ -25,6 +25,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -79,7 +80,8 @@ fun ArticleWebViewScreen(
                                 fontSize = 15.sp,
                                 fontFamily = notoserif,
                                 fontWeight = FontWeight.Medium,
-                                text = articleState.article.publication.name
+                                text = articleState.article.publication.name,
+                                textAlign = TextAlign.Center
                             )
                             Text(
                                 color = Color(0xFF979797),
