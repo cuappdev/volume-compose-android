@@ -28,6 +28,12 @@ class ArticleWebViewModel @Inject constructor(
     // Navigation arguments can be retrieved through the SavedStateHandle
     private val articleId: String = checkNotNull(savedStateHandle["articleId"])
 
+    init {
+        viewModelScope.launch {
+            userRepository.readArticle(articleId, userPreferencesRepository.fetchUuid())
+        }
+    }
+
     data class WebViewUiState(
         val articleState: ArticleRetrievalState = ArticleRetrievalState.Loading,
 

@@ -35,27 +35,48 @@ class PublicationsViewModel @Inject constructor(
         queryAllPublications()
     }
 
-    fun followPublication(id: String) = viewModelScope.launch {
+    fun followPublication(publicationSlug: String) = viewModelScope.launch {
         val uuid = userPreferencesRepository.fetchUuid()
-        userRepository.followPublication(id, uuid)
-
-        // move from more to followed
+        userRepository.followPublication(publicationSlug, uuid)
+        createUiState()
     }
     fun unfollowPublication(id: String)=viewModelScope.launch {
         val uuid=userPreferencesRepository.fetchUuid()
         userRepository.unfollowPublication(id, uuid)
+        createUiState()
+    }
+
+    private fun createUiState()=viewModelScope.launch{
+        val allPublications= publicationRepository.fetchAllPublications()
+        val followedPublicationsSlugs =
+            userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs
+        val followedPublications = allPublications.filter {
+            followedPublicationsSlugs.contains(it.slug)
+        }
+        val morePublicationsState = allPublications.filter {
+            !followedPublicationsSlugs.contains(it.slug)
+        }
+        publicationsUiState = publicationsUiState.copy(
+            followedPublicationsState = PublicationsRetrievalState.Success(
+                followedPublications
+            ),
+            morePublicationsState = PublicationsRetrievalState.Success(
+                morePublicationsState
+            )
+        )
     }
 
     private fun queryAllPublications() = viewModelScope.launch {
         try {
             val allPublications= publicationRepository.fetchAllPublications()
             val followedPublicationsId =
-                userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs
+                userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs
+
             val followedPublications = allPublications.filter {
-                followedPublicationsId.contains(it.id)
+                followedPublicationsId.contains(it.slug)
             }
             val morePublicationsState = allPublications.filter {
-                !followedPublicationsId.contains(it.id)
+                !followedPublicationsId.contains(it.slug)
             }
             publicationsUiState = publicationsUiState.copy(
                 followedPublicationsState = PublicationsRetrievalState.Success(

@@ -19,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.ui.components.general.CreateFollowPublicationRow
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalPublicationRow
+import com.cornellappdev.volume.ui.components.general.CreateHorizontalPublicationRowFollowing
 import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.notoserif
@@ -96,7 +97,7 @@ fun PublicationsScreen(
                    Spacer(modifier = Modifier.height(22.dp))
                }
                item {
-                   when (val unfollowingPublicationsState =
+                   when (val morePublicationsState =
                        publicationsUiState.morePublicationsState) {
                        PublicationsRetrievalState.Loading -> {
                            Column(
@@ -110,28 +111,25 @@ fun PublicationsScreen(
                            // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
                        }
                        is PublicationsRetrievalState.Success -> {
-                           LazyColumn(verticalArrangement = Arrangement.spacedBy(24.dp), modifier = Modifier
-                               .height(500.dp)
-                               .padding(end = 12.dp),
-                               state = lazyListState) {
-
-                               items(
-                                   items = unfollowingPublicationsState.publications,
-                                   key = { publication ->
-                                       publication.id
-                                   }) { publication ->
-                                   CreateHorizontalPublicationRow(publication = publication) { publicationFromCallback, isFollowing ->
+                           Column(verticalArrangement = Arrangement.spacedBy(24.dp),
+                               modifier = Modifier
+                               .wrapContentHeight()
+                               .padding(end = 12.dp)
+                           ) {
+                               morePublicationsState.publications.forEach { publication->
+                                   CreateHorizontalPublicationRowFollowing(publication = publication) { publicationFromCallback, isFollowing ->
                                        if (isFollowing) {
                                            publicationsViewModel.followPublication(
-                                               publicationFromCallback.id
+                                               publicationFromCallback.slug
                                            )
                                        } else {
                                            publicationsViewModel.unfollowPublication(
-                                               publicationFromCallback.id
+                                               publicationFromCallback.slug
                                            )
                                        }
                                    }
                                }
+
                            }
                        }
                    }

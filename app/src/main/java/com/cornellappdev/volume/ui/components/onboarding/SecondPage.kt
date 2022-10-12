@@ -1,6 +1,7 @@
 package com.cornellappdev.volume.ui.components.onboarding
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,11 +19,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -47,25 +44,15 @@ import kotlinx.coroutines.delay
 @Composable
 fun SecondPage(
     onboardingViewModel: OnboardingViewModel = hiltViewModel(),
-    creatingUser: MutableState<Boolean>,
+    fadePage: MutableState<Boolean>,
     onProceedClicked: () -> Unit
 ) {
     val onboardingUiState = onboardingViewModel.onboardingUiState
     val lazyListState = rememberLazyListState()
-    val buttonClicked = rememberSaveable { mutableStateOf(false) }
-    val proceedEnabled = rememberSaveable { mutableStateOf(false) }
-
-    // Responsible for fading out the second page
-    if (buttonClicked.value) {
-        LaunchedEffect(key1 = Unit, block = {
-            creatingUser.value = false
-            delay(2500L)
-            onboardingViewModel.createUser()
-        })
-    }
+    var proceedEnabled by remember { mutableStateOf(false) }
 
     AnimatedVisibility(
-        visible = creatingUser.value,
+        visible = fadePage.value,
         enter = fadeIn(
             initialAlpha = 0f,
             animationSpec = tween(durationMillis = 2500)
@@ -139,34 +126,32 @@ fun SecondPage(
                             verticalArrangement = Arrangement.spacedBy(24.dp)
                         ) {
                             items(
-                                items = publicationsState.publications,
-                                key = { publication ->
-                                    publication.id
-                                }) { publication ->
+                                items = publicationsState.publications
+                            ) { publication ->
                                 // Clicking on row IN onboarding should not lead to IndividualPublicationScreen. They are not
                                 // an official user yet so they shouldn't be interacting with the articles.
                                 CreateHorizontalPublicationRow(publication = publication) { publicationFromCallback, isFollowing ->
                                     if (isFollowing) {
                                         onboardingViewModel.addPublicationToFollowed(
-                                            publicationFromCallback.id
+                                            publicationFromCallback.slug
                                         )
                                         VolumeEvent.logEvent(
                                             EventType.PUBLICATION, VolumeEvent.FOLLOW_PUBLICATION,
                                             NavigationSource.ONBOARDING,
-                                            publicationFromCallback.id
+                                            publicationFromCallback.slug
                                         )
                                     } else {
                                         onboardingViewModel.removePublicationFromFollowed(
-                                            publicationFromCallback.id
+                                            publicationFromCallback.slug
                                         )
                                         VolumeEvent.logEvent(
                                             EventType.PUBLICATION, VolumeEvent.UNFOLLOW_PUBLICATION,
                                             NavigationSource.ONBOARDING,
-                                            publicationFromCallback.id
+                                            publicationFromCallback.slug
                                         )
                                     }
 
-                                    proceedEnabled.value =
+                                    proceedEnabled =
                                         onboardingViewModel.setOfPubsFollowed.isNotEmpty()
                                 }
                             }
@@ -201,23 +186,26 @@ fun SecondPage(
                 }
             }
 
-            val proceedColor = if (proceedEnabled.value) VolumeOrange else GrayOne
+
+            val proceedColor by animateColorAsState(
+                targetValue = if (proceedEnabled) VolumeOrange else GrayOne,
+                animationSpec = tween(durationMillis = 500)
+            )
+
             OutlinedButton(
                 modifier = Modifier.padding(top = 40.dp),
-                enabled = proceedEnabled.value,
+                enabled = proceedEnabled,
                 onClick = {
-                    buttonClicked.value = true
+                    onboardingViewModel.createUser()
                 },
-                border = if (proceedEnabled.value) BorderStroke(
-                    2.dp,
-                    VolumeOrange
-                ) else BorderStroke(2.dp, GrayOne),
+                border = BorderStroke(2.dp, proceedColor),
                 contentPadding = PaddingValues(horizontal = 32.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = proceedColor),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    text = "Start reading", color = proceedColor,
+                    text = "Start reading",
+                    color = proceedColor,
                     fontFamily = lato,
                     letterSpacing = (-1).sp,
                     fontWeight = FontWeight.Bold,
@@ -229,15 +217,17 @@ fun SecondPage(
 
     when (onboardingUiState.createUserState) {
         OnboardingViewModel.CreateUserState.Error -> {
-            buttonClicked.value = false
-            creatingUser.value = true
+            // TODO Page should still be showing. User can retry. Display message
         }
         OnboardingViewModel.CreateUserState.Pending -> {
             // Wait to be finished
         }
         is OnboardingViewModel.CreateUserState.Success -> {
+            // Fades the page out
+            fadePage.value = false
             onboardingViewModel.updateOnboardingCompleted()
             LaunchedEffect(Unit) {
+                delay(2500L)
                 onProceedClicked.invoke()
             }
         }

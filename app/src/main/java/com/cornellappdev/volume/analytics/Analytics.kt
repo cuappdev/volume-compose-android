@@ -43,7 +43,7 @@ enum class VolumeEvent(val event: String) {
                 }
                 EventType.PUBLICATION -> {
                     Firebase.analytics.logEvent(volumeEvent.event) {
-                        param("publicationID", id)
+                        param("publicationSlug", id)
                         param("navigationSource", navigationSource.source)
                     }
                 }

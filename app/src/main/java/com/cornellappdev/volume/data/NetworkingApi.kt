@@ -21,17 +21,14 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     suspend fun fetchAllPublications(): ApolloResponse<AllPublicationsQuery.Data> =
         apolloClient.query(AllPublicationsQuery()).execute()
 
-    suspend fun fetchArticleByPublicationID(pubID: String): ApolloResponse<ArticlesByPublicationIDQuery.Data> =
-        apolloClient.query(ArticlesByPublicationIDQuery(pubID)).execute()
+    suspend fun fetchArticleByPublicationSlug(slug: String): ApolloResponse<ArticlesByPublicationSlugQuery.Data> =
+        apolloClient.query(ArticlesByPublicationSlugQuery(slug)).execute()
 
-    suspend fun fetchArticlesByPublicationIDs(pubIDs: List<String>): ApolloResponse<ArticlesByPublicationIDsQuery.Data> =
-        apolloClient.query(ArticlesByPublicationIDsQuery(pubIDs)).execute()
+    suspend fun fetchArticlesByPublicationSlugs(slugs: List<String>): ApolloResponse<ArticlesByPublicationSlugsQuery.Data> =
+        apolloClient.query(ArticlesByPublicationSlugsQuery(slugs)).execute()
 
-    suspend fun fetchPublicationsByIDs(pubIDs: List<String>): ApolloResponse<PublicationsByIDsQuery.Data> =
-        apolloClient.query(PublicationsByIDsQuery(pubIDs)).execute()
-
-    suspend fun fetchPublicationByID(pubID: String): ApolloResponse<PublicationByIDQuery.Data> =
-        apolloClient.query(PublicationByIDQuery(pubID)).execute()
+    suspend fun fetchPublicationBySlug(slug: String): ApolloResponse<PublicationBySlugQuery.Data> =
+        apolloClient.query(PublicationBySlugQuery(slug)).execute()
 
     suspend fun fetchArticlesByIDs(ids: List<String>): ApolloResponse<ArticlesByIDsQuery.Data> =
         apolloClient.query(ArticlesByIDsQuery(ids)).execute()
@@ -60,16 +57,16 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         apolloClient.query(GetUserQuery(uuid)).execute()
 
     suspend fun followPublication(
-        pubID: String,
+        slug: String,
         uuid: String
     ): ApolloResponse<FollowPublicationMutation.Data> =
-        apolloClient.mutation(FollowPublicationMutation(pubID, uuid)).execute()
+        apolloClient.mutation(FollowPublicationMutation(slug, uuid)).execute()
 
     suspend fun unfollowPublication(
-        pubID: String,
+        slug: String,
         uuid: String
     ): ApolloResponse<UnfollowPublicationMutation.Data> =
-        apolloClient.mutation(UnfollowPublicationMutation(pubID, uuid)).execute()
+        apolloClient.mutation(UnfollowPublicationMutation(slug, uuid)).execute()
 
     suspend fun readArticle(
         articleId: String,
@@ -81,5 +78,4 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         uuid: String
     ): ApolloResponse<BookmarkArticleMutation.Data> =
         apolloClient.mutation(BookmarkArticleMutation(uuid)).execute()
-
 }

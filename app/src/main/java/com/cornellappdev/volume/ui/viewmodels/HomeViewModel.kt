@@ -75,12 +75,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val followedPublications =
-                    userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs
+                    userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs
                 val trendingArticlesIDs =
                     (homeUiState.trendingArticlesState as ArticlesRetrievalState.Success).articles.map(
                         Article::id
                     ).toHashSet()
-                val followingArticles = articleRepository.fetchArticlesByPublicationIDs(
+                val followingArticles = articleRepository.fetchArticlesByPublicationSlugs(
                     followedPublications
                 ).toMutableList()
 
@@ -113,7 +113,6 @@ class HomeViewModel @Inject constructor(
 
                 remainingFollowing = ArticlesRetrievalState.Success(followingArticles)
 
-
                 queryOtherArticles()
             } catch (e: Exception) {
                 homeUiState = homeUiState.copy(
@@ -134,7 +133,7 @@ class HomeViewModel @Inject constructor(
     fun queryOtherArticles(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
         try {
             val followedPublications =
-                userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationIDs.toHashSet()
+                userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.toHashSet()
             val trendingArticlesIDs =
                 (homeUiState.trendingArticlesState as ArticlesRetrievalState.Success).articles.map(
                     Article::id
@@ -142,14 +141,14 @@ class HomeViewModel @Inject constructor(
             val remainingArticles =
                 (remainingFollowing as ArticlesRetrievalState.Success).articles
             val allPublicationsExcludingFollowing =
-                publicationRepository.fetchAllPublications().map(Publication::id)
+                publicationRepository.fetchAllPublications().map(Publication::slug)
                     .toMutableList()
-            allPublicationsExcludingFollowing.removeAll { id ->
-                followedPublications.contains(id)
+            allPublicationsExcludingFollowing.removeAll { slug ->
+                followedPublications.contains(slug)
             }
 
             // Retrieves the articles from publications that the user doesn't follow.
-            val otherArticles = articleRepository.fetchArticlesByPublicationIDs(
+            val otherArticles = articleRepository.fetchArticlesByPublicationSlugs(
                 allPublicationsExcludingFollowing
             ).toMutableList()
 

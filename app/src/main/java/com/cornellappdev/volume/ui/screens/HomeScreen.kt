@@ -125,18 +125,17 @@ fun HomeScreen(
                         // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
                     }
                     is ArticlesRetrievalState.Success -> {
-                        val lazyListState = rememberLazyListState()
-
                         Box(modifier = Modifier.padding(top = 10.dp)) {
-                            LazyColumn(
+                            Column(
                                 modifier = Modifier
-                                    .height(480.dp)
+                                    .wrapContentHeight()
                                     .padding(end = 12.dp),
-                                state = lazyListState,
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
-                                items(followingArticlesState.articles) { article ->
-                                    CreateHorizontalArticleRow(article) {
+                                followingArticlesState.articles.forEach { article ->
+                                    CreateHorizontalArticleRow(
+                                        article
+                                    ) {
                                         onArticleClick(
                                             article,
                                             NavigationSource.FOLLOWING_ARTICLES
@@ -144,59 +143,6 @@ fun HomeScreen(
                                     }
                                 }
                             }
-
-                            // Gradient overlay to the top of the following articles LazyColumn
-                            AnimatedVisibility(
-                                modifier = Modifier
-                                    .align(Alignment.TopStart)
-                                    .height(30.dp)
-                                    .fillMaxWidth(),
-                                enter = fadeIn(),
-                                exit = fadeOut(),
-                                // The gradient overlay is only visible when the user is scrolled past the start
-                                // so the gradient isn't blocking the first article
-                                visible = !lazyListState.isScrolledToTheStart()
-                            ) {
-                                Spacer(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .background(
-                                            brush = Brush.verticalGradient(
-                                                colors = listOf(
-                                                    VolumeOffWhite,
-                                                    Color.Transparent
-                                                )
-                                            )
-                                        )
-                                )
-                            }
-
-                            // Gradient overlay to the bottom of the following articles LazyColumn
-                            AnimatedVisibility(
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .height(30.dp)
-                                    .fillMaxWidth(),
-                                enter = fadeIn(),
-                                exit = fadeOut(),
-                                // The gradient overlay is only visible when the user hasn't scrolled to the end
-                                // so the gradient isn't blocking the final article
-                                visible = !lazyListState.isScrolledToTheEnd()
-                            ) {
-                                Spacer(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .background(
-                                            brush = Brush.verticalGradient(
-                                                colors = listOf(
-                                                    Color.Transparent,
-                                                    VolumeOffWhite
-                                                )
-                                            )
-                                        )
-                                )
-                            }
-
                             showPageBreak = true
                         }
                     }
@@ -290,15 +236,20 @@ fun HomeScreen(
                         // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
                     }
                     is ArticlesRetrievalState.Success -> {
-                        LazyColumn(
+                        Column(
                             modifier = Modifier
-                                .height(480.dp)
+                                .wrapContentHeight()
                                 .padding(end = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(20.dp),
                         ) {
-                            items(otherArticlesState.articles) { article ->
-                                CreateHorizontalArticleRow(article) {
-                                    onArticleClick(article, NavigationSource.OTHER_ARTICLES)
+                            otherArticlesState.articles.forEach { article ->
+                                CreateHorizontalArticleRow(
+                                    article
+                                ) {
+                                    onArticleClick(
+                                        article,
+                                        NavigationSource.OTHER_ARTICLES
+                                    )
                                 }
                             }
                         }

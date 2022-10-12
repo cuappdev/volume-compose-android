@@ -44,9 +44,9 @@ class OnboardingViewModel @Inject constructor(
         queryAllPublications()
     }
 
-    fun addPublicationToFollowed(pubId: String) = _setOfPubsFollowed.add(pubId)
+    fun addPublicationToFollowed(slug: String) = _setOfPubsFollowed.add(slug)
 
-    fun removePublicationFromFollowed(pubId: String) = _setOfPubsFollowed.remove(pubId)
+    fun removePublicationFromFollowed(slug: String) = _setOfPubsFollowed.remove(slug)
 
     fun updateOnboardingCompleted() = viewModelScope.launch {
         userPreferencesRepository.updateOnboardingCompleted(completed = true)
