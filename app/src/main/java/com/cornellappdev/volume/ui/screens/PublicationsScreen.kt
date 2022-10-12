@@ -31,7 +31,6 @@ fun PublicationsScreen(
     onPublicationClick: (Publication) -> Unit
 ) {
     val publicationsUiState = publicationsViewModel.publicationsUiState
-    val lazyListState = rememberLazyListState()
 
        Scaffold (topBar = {
            Text(
