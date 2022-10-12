@@ -40,9 +40,10 @@ class PublicationsViewModel @Inject constructor(
         userRepository.followPublication(publicationSlug, uuid)
         createUiState()
     }
-    fun unfollowPublication(id: String)=viewModelScope.launch {
+    
+    fun unfollowPublication(publicationSlug: String)=viewModelScope.launch {
         val uuid=userPreferencesRepository.fetchUuid()
-        userRepository.unfollowPublication(id, uuid)
+        userRepository.unfollowPublication(publicationSlug, uuid)
         createUiState()
     }
 
