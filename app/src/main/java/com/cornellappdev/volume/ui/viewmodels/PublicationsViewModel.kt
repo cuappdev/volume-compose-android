@@ -38,13 +38,33 @@ class PublicationsViewModel @Inject constructor(
     fun followPublication(publicationSlug: String) = viewModelScope.launch {
         val uuid = userPreferencesRepository.fetchUuid()
         userRepository.followPublication(publicationSlug, uuid)
-        queryAllPublications()
+        createUiState()
     }
     
     fun unfollowPublication(publicationSlug: String)=viewModelScope.launch {
         val uuid=userPreferencesRepository.fetchUuid()
         userRepository.unfollowPublication(publicationSlug, uuid)
         queryAllPublications()
+    }
+
+    private fun createUiState()=viewModelScope.launch{
+        val allPublications= publicationRepository.fetchAllPublications()
+        val followedPublicationsSlugs =
+            userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs
+        val followedPublications = allPublications.filter {
+            followedPublicationsSlugs.contains(it.slug)
+        }
+        val morePublicationsState = allPublications.filter {
+            !followedPublicationsSlugs.contains(it.slug)
+        }
+        publicationsUiState = publicationsUiState.copy(
+            followedPublicationsState = PublicationsRetrievalState.Success(
+                followedPublications
+            ),
+            morePublicationsState = PublicationsRetrievalState.Success(
+                morePublicationsState
+            )
+        )
     }
 
     private fun queryAllPublications() = viewModelScope.launch {

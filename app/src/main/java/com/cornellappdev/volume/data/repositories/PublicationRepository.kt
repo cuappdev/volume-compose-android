@@ -50,7 +50,6 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                         publicationData.mostRecentArticle.articleURL,
                         publicationData.mostRecentArticle.imageURL,
                         Publication(
-
                             backgroundImageURL = publicationData.backgroundImageURL,
                             bio = publicationData.bio,
                             name = publicationData.name,

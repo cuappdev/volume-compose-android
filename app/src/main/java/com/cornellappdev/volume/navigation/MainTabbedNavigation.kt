@@ -171,7 +171,9 @@ private fun MainScreenNavigationConfigurations(
         composable(
             "${Routes.INDIVIDUAL_PUBLICATION.route}/{publicationSlug}",
         ) {
-            IndividualPublicationScreen()
+            IndividualPublicationScreen(onArticleClick = { article, navigationSource ->
+                navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
+            })
         }
         // This route should be navigated with a valid article id.
         composable(

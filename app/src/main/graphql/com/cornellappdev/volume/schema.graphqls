@@ -57,11 +57,10 @@ type Publication {
   rssURL: String!
   slug: String!
   shoutouts: Float!
+  numArticles: Float!
   websiteURL: String!
   # The most recent <Article> of a <Publication>
   mostRecentArticle: Article
-  # The total number of <Articles> from a <Publication>
-  numArticles: Float!
   # The information about a <Publication's> social platforms.
   socials: [Social!]!
 }
