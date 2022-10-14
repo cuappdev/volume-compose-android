@@ -53,7 +53,7 @@ fun HomeScreen(
             painter = painterResource(R.drawable.volume_title),
             contentDescription = null,
             modifier = Modifier
-                .scale(0.7f)
+                .scale(0.8f)
         )
     }, content = { innerPadding ->
         LazyColumn(

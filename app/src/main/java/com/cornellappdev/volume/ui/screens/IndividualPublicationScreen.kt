@@ -53,7 +53,7 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
 
             }
             is PublicationRetrievalState.Success -> {
-                PublicationScreen(publicationUiState.publicationState.publication)
+                IndividualPublicationScreen(publicationUiState.publicationState.publication)
             }
         }
 
@@ -78,7 +78,7 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
 
 //data: PublicationByIDQuery.GetPublicationByID
 @Composable
-fun PublicationScreen(publication: Publication) {
+fun IndividualPublicationScreen(publication: Publication) {
     //val data= PublicationByIDQuery.GetPublicationByID(data1)
 
     Box(modifier = Modifier.height(400.dp)) {
