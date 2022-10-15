@@ -35,11 +35,11 @@ import com.cornellappdev.volume.ui.states.PublicationRetrievalState
 import com.cornellappdev.volume.ui.theme.GrayFour
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.viewmodels.IndividualPublicationViewModel
+import com.google.firebase.inappmessaging.display.internal.Logging.logd
 
 //"61980a202fef10d6b7f20747"
 @Composable
 fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublicationViewModel = hiltViewModel(), onArticleClick: (Article, NavigationSource) -> Unit) {
-    //navController.previousBackStackEntry?.savedStateHandle?.set("key", result)
 
     val publicationUiState = individualPublicationViewModel.publicationUiState
 
@@ -89,20 +89,25 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
 
                 }
                 is ArticlesRetrievalState.Success -> {
-                    articlesByPublicationState.articles.forEach { article ->
-                        CreateHorizontalArticleRow(
-                            article
-                        ) {
-                            onArticleClick(
-                                article,
-                                NavigationSource.OTHER_ARTICLES
-                            )
+                    Column(verticalArrangement = Arrangement.spacedBy(20.dp),
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .padding(start=12.dp, end = 12.dp)
+                    ) {
+                        articlesByPublicationState.articles.forEach { article ->
+                            CreateHorizontalArticleRow(
+                                article
+                            ) {
+                                onArticleClick(
+                                    article,
+                                    NavigationSource.OTHER_ARTICLES
+                                )
+                            }
                         }
                     }
                 }
             }
         }
-
     }
 }
 

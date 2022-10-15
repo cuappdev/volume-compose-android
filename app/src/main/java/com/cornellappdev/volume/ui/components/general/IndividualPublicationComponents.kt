@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.MagnifierStyle.Companion.Default
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -25,13 +26,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -40,19 +48,21 @@ import com.cornellappdev.volume.R
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.ui.theme.*
 import com.cornellappdev.volume.ui.viewmodels.PublicationsViewModel
+import org.intellij.lang.annotations.JdkConstants
 
 @Composable
 fun createIndividualPublicationHeading(
     publication: Publication,
     followButtonClicked: (Boolean) -> Unit,
-){
+) {
     val hasBeenClicked = rememberSaveable { mutableStateOf(true) }
     Column(
-        modifier= Modifier
+        modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-    ){
-        Box(){
+    ) {
+        Box() {
+
             AsyncImage(
                 model = publication.backgroundImageURL,
                 contentScale = ContentScale.Crop,
@@ -60,6 +70,7 @@ fun createIndividualPublicationHeading(
                     .fillMaxWidth(),
                 contentDescription = null
             )
+
             AsyncImage(
                 model = publication.profileImageURL,
                 contentScale = ContentScale.Crop,
@@ -71,9 +82,9 @@ fun createIndividualPublicationHeading(
                 contentDescription = null
             )
         }
-        Row(){
+        Row(modifier = Modifier.padding(top = 10.dp)) {
             Text(
-                modifier = Modifier.padding(start=12.dp, bottom = 2.dp, end = 20.dp),
+                modifier = Modifier.padding(start = 12.dp, top = 2.dp, end = 20.dp),
                 text = publication.name,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -82,7 +93,9 @@ fun createIndividualPublicationHeading(
                 fontSize = 18.sp
             )
             OutlinedButton(
-                modifier = Modifier.size(width=120.dp, height=33.dp).padding(start=20.dp),
+                modifier = Modifier
+                    .size(width = 120.dp, height = 33.dp)
+                    .padding(start = 20.dp),
                 onClick = {
                     hasBeenClicked.value = !hasBeenClicked.value
                     followButtonClicked(hasBeenClicked.value)
@@ -99,20 +112,20 @@ fun createIndividualPublicationHeading(
                             fontFamily = lato,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 12.sp,
-                            color = GrayFour
+                            color = Color.White
                         )
                     } else {
-                        Row(horizontalArrangement = Arrangement.Center){
+                        Row(horizontalArrangement = Arrangement.Center) {
                             Icon(
                                 Icons.Default.Add,
                                 contentDescription = "Follow",
-                                modifier=Modifier.scale(.8f),
+                                modifier = Modifier.scale(.8f),
                                 tint = VolumeOrange
                             )
                             Text(
-                                modifier = Modifier.padding(top=2.dp, start=6.dp),
+                                modifier = Modifier.padding(top = 2.dp, start = 6.dp),
                                 text = "Follow",
-                                textAlign=TextAlign.Center,
+                                textAlign = TextAlign.Center,
                                 fontFamily = lato,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 12.sp,
@@ -125,10 +138,10 @@ fun createIndividualPublicationHeading(
             }
 
         }
-        Row (modifier = Modifier.fillMaxWidth()){
+        Row(modifier = Modifier.padding(start = 12.dp)) {
             Text(
-                modifier = Modifier.padding(start=12.dp),
-                text = "${publication.shoutouts.toInt()} ${ "shoutouts"}",
+                modifier = Modifier.padding(),
+                text = "${publication.shoutouts.toInt()} ${"shoutouts"}",
                 fontFamily = lato,
                 fontWeight = FontWeight.Medium,
                 fontSize = 10.sp,
@@ -136,7 +149,7 @@ fun createIndividualPublicationHeading(
             )
         }
         Text(
-            modifier = Modifier.padding(start=12.dp, bottom = 2.dp, end = 20.dp),
+            modifier = Modifier.padding(start = 12.dp, top = 2.dp, end = 20.dp),
             text = publication.bio,
             maxLines = 6,
             overflow = TextOverflow.Ellipsis,
@@ -144,63 +157,124 @@ fun createIndividualPublicationHeading(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp
         )
-        Row(modifier= Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp)){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp), horizontalArrangement = Arrangement.Center
+        ) {
+            for (social in publication.socials) {
+                if (social.social == "instagram") {
+                    Image(
+                        modifier = Modifier
+                            .scale(1.3f),
+                        painter = painterResource(R.drawable.ic_instagram),
+                        contentDescription = null,
+                    )
+                    HyperlinkText(
+                        fullText = "Instagram",
+                        modifier = Modifier.padding(start = 10.dp),
+                        hyperLinks = mutableMapOf(
+                            "Instagram" to social.url
+                        ),
+                        textStyle = TextStyle(
+                            textAlign = TextAlign.Center,
+                            color = VolumeOrange
+                        ),
+                    )
+                }
+                if (social.social == "facebook") {
+                    Image(
+                        modifier = Modifier
+                            .scale(1.3f),
+                        painter = painterResource(R.drawable.ic_facebook),
+                        contentDescription = null,
+                    )
+                    HyperlinkText(
+                        fullText = "Facebook",
+                        modifier = Modifier.padding(start = 10.dp),
+                        hyperLinks = mutableMapOf(
+                            "Facebook" to social.url
+                        ),
+                        textStyle = TextStyle(
+                            textAlign = TextAlign.Center,
+                            color = VolumeOrange
+                        ),
+                    )
+                }
+            }
             Image(
-                modifier= Modifier
-                    .padding(start = 12.dp)
-                    .scale(1.3f),
-                painter = painterResource(R.drawable.ic_instagram),
-                contentDescription = null,
-            )
-            Text(
-                modifier = Modifier.padding(start=10.dp),
-                color = colorResource(R.color.volumeOrange),
-                text = "Instagram",
-                fontFamily = lato,
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp
-            )
-            Image(
-                modifier= Modifier
-                    .padding(start = 10.dp)
-                    .scale(1.3f),
-                painter = painterResource(R.drawable.ic_facebook),
-                contentDescription = null,
-            )
-            Text(
-                modifier = Modifier.padding(start=10.dp),
-                color = colorResource(R.color.volumeOrange),
-                text = "Facebook",
-                fontFamily = lato,
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp
-            )
-            Image(
-                modifier= Modifier
+                modifier = Modifier
                     .padding(start = 10.dp)
                     .scale(1.3f),
                 painter = painterResource(R.drawable.ic_link),
                 contentDescription = null,
             )
-            Text(
-                modifier = Modifier
-                    .padding(start = 10.dp)
-                    .clickable(enabled = true) {
-
-                    },
-                color = colorResource(R.color.volumeOrange),
-                maxLines=1,
-                overflow = TextOverflow.Ellipsis,
-                text = publication.websiteURL,
-                fontFamily = lato,
-                fontWeight = FontWeight.Medium,
-                fontSize = 12.sp
+            HyperlinkText(
+                fullText = publication.websiteURL,
+                modifier = Modifier.padding(start = 10.dp),
+                hyperLinks = mutableMapOf(
+                    publication.websiteURL to publication.websiteURL
+                ),
+                textStyle = TextStyle(
+                    textAlign = TextAlign.Center,
+                    color = VolumeOrange
+                ),
             )
-
-
         }
 
     }
+}
+
+@Composable
+fun HyperlinkText(
+    modifier: Modifier = Modifier,
+    fullText: String,
+    hyperLinks: Map<String, String>,
+    textStyle: TextStyle = TextStyle.Default,
+) {
+    val annotatedString = buildAnnotatedString {
+        append(fullText)
+        for ((key, value) in hyperLinks) {
+            val startIndex = fullText.indexOf(key)
+            val endIndex = startIndex + key.length
+            addStyle(
+                style = SpanStyle(
+                    color = VolumeOrange,
+                    fontSize = 12.sp,
+                ),
+                start = startIndex,
+                end = endIndex
+            )
+            addStringAnnotation(
+                tag = "URL",
+                annotation = value,
+                start = startIndex,
+                end = endIndex
+            )
+        }
+        addStyle(
+            style = SpanStyle(
+                fontSize = 12.sp
+            ),
+            start = 0,
+            end = fullText.length
+        )
+    }
+
+    val uriHandler = LocalUriHandler.current
+
+    ClickableText(
+        modifier = modifier,
+        text = annotatedString,
+        style = TextStyle(fontFamily = lato),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        onClick = {
+            annotatedString
+                .getStringAnnotations("URL", it, it)
+                .firstOrNull()?.let { stringAnnotation ->
+                    uriHandler.openUri(stringAnnotation.item)
+                }
+        },
+    )
 }
