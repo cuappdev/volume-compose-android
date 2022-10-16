@@ -39,7 +39,7 @@ class IndividualPublicationViewModel @Inject constructor(
 
     init {
         queryPublication()
-        queryArticleByPublication()
+
     }
 
     fun followPublication() = viewModelScope.launch {
@@ -59,8 +59,8 @@ class IndividualPublicationViewModel @Inject constructor(
     }
 
     private fun queryPublication() = viewModelScope.launch {
-            publicationUiState = try {
-                publicationUiState.copy(
+        try {
+            publicationUiState = publicationUiState.copy(
                 publicationState = PublicationRetrievalState.Success(
                     publicationRepository.fetchPublicationBySlug(
                         publicationSlug
@@ -70,12 +70,14 @@ class IndividualPublicationViewModel @Inject constructor(
                     publicationSlug
                 )
             )
+            queryArticleByPublication()
         } catch (e: Exception) {
-                publicationUiState.copy(
+            publicationUiState = publicationUiState.copy(
                 publicationState = PublicationRetrievalState.Error
             )
         }
     }
+
 
     private fun queryArticleByPublication() = viewModelScope.launch {
         publicationUiState = try {

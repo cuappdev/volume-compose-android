@@ -92,7 +92,7 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
                     Column(verticalArrangement = Arrangement.spacedBy(20.dp),
                         modifier = Modifier
                             .wrapContentHeight()
-                            .padding(start=12.dp, end = 12.dp)
+                            .padding(top= 20.dp, start=12.dp, end = 12.dp)
                     ) {
                         articlesByPublicationState.articles.forEach { article ->
                             CreateHorizontalArticleRow(
