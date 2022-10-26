@@ -93,10 +93,11 @@ class NotificationService : FirebaseMessagingService() {
         notification: RemoteMessage.Notification,
         data: MutableMap<String, String>
     ) {
+        Log.d("notif_sent", "here")
         // TODO test out notifications. It leverages Navigation Deep linking, not sure if it works
         // https://developer.android.com/jetpack/compose/navigation#deeplinks
-//        val intent = Intent(this, MainActivity::class.java)
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         var deepLinkIntent: Intent? = null
 
         // What's sent back to the MainActivity depends on the type of the notification
@@ -110,18 +111,18 @@ class NotificationService : FirebaseMessagingService() {
                     MainActivity::class.java
                 )
 //                )
-//                intent.putExtra(
-//                    NotificationDataKeys.NOTIFICATION_TYPE.key,
-//                    NotificationType.NEW_ARTICLE.type
-//                )
-//                intent.putExtra(
-//                    NotificationDataKeys.ARTICLE_ID.key,
-//                    data[NotificationDataKeys.ARTICLE_ID.key]
-//                )
-//                intent.putExtra(
-//                    NotificationDataKeys.ARTICLE_URL.key,
-//                    data[NotificationDataKeys.ARTICLE_URL.key]
-//                )
+                intent.putExtra(
+                    NotificationDataKeys.NOTIFICATION_TYPE.key,
+                    NotificationType.NEW_ARTICLE.type
+                )
+                intent.putExtra(
+                    NotificationDataKeys.ARTICLE_ID.key,
+                    data[NotificationDataKeys.ARTICLE_ID.key]
+                )
+                intent.putExtra(
+                    NotificationDataKeys.ARTICLE_URL.key,
+                    data[NotificationDataKeys.ARTICLE_URL.key]
+                )
             }
             NotificationType.WEEKLY_DEBRIEF.type -> {
                 // We simply just need to identify the type of the notification. The
@@ -132,10 +133,10 @@ class NotificationService : FirebaseMessagingService() {
                     this,
                     MainActivity::class.java
                 )
-//                intent.putExtra(
-//                    NotificationDataKeys.NOTIFICATION_TYPE.key,
-//                    NotificationType.NEW_ARTICLE.type
-//                )
+                intent.putExtra(
+                    NotificationDataKeys.NOTIFICATION_TYPE.key,
+                    NotificationType.NEW_ARTICLE.type
+                )
             }
         }
 
