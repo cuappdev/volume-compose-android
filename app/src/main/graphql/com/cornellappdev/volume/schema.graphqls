@@ -1,152 +1,152 @@
 directive @specifiedBy(url: String!) on SCALAR
 type Article {
-  id: ID!
-  articleURL: String!
-  date: DateTime!
-  imageURL: String!
-  publication: Publication!
-  publicationSlug: String!
-  shoutouts: Float!
-  title: String!
-  nsfw: Boolean!
-  isTrending: Boolean!
-  trendiness: Float!
-  isFiltered: Boolean!
+    id: ID!
+    articleURL: String!
+    date: DateTime!
+    imageURL: String!
+    publication: Publication!
+    publicationSlug: String!
+    shoutouts: Float!
+    title: String!
+    nsfw: Boolean!
+    isTrending: Boolean!
+    trendiness: Float!
+    isFiltered: Boolean!
 }
 
 scalar DateTime
 
 type Magazine {
-  id: ID!
-  magazineURL: String!
-  date: DateTime!
-  semester: String!
-  pdfURL: String!
-  publication: Publication!
-  publicationSlug: String!
-  shoutouts: Float!
-  title: String!
-  nsfw: Boolean!
-  isFeatured: Boolean!
-  trendiness: Float!
-  isFiltered: Boolean!
+    id: ID!
+    magazineURL: String!
+    date: DateTime!
+    semester: String!
+    pdfURL: String!
+    publication: Publication!
+    publicationSlug: String!
+    shoutouts: Float!
+    title: String!
+    nsfw: Boolean!
+    isFeatured: Boolean!
+    trendiness: Float!
+    isFiltered: Boolean!
 }
 
 type Mutation {
-  incrementShoutouts(id: String!, uuid: String!): Article
-  createUser(
-    deviceType: String!
-    followedPublications: [String!]!
-    deviceToken: String!
-  ): User!
-  followPublication(slug: String!, uuid: String!): User
-  unfollowPublication(slug: String!, uuid: String!): User
-  readArticle(articleID: String!, uuid: String!): User
-  bookmarkArticle(uuid: String!): User
-  getWeeklyDebrief: [User!]!
-  incrementMagazineShoutouts(id: String!, uuid: String!): Magazine
+    incrementShoutouts(id: String!, uuid: String!): Article
+    createUser(
+        deviceType: String!
+        followedPublications: [String!]!
+        deviceToken: String!
+    ): User!
+    followPublication(slug: String!, uuid: String!): User
+    unfollowPublication(slug: String!, uuid: String!): User
+    readArticle(articleID: String!, uuid: String!): User
+    bookmarkArticle(uuid: String!): User
+    getWeeklyDebrief: [User!]!
+    incrementMagazineShoutouts(id: String!, uuid: String!): Magazine
 }
 
 type Publication {
-  id: ID!
-  backgroundImageURL: String!
-  bio: String!
-  bioShort: String!
-  name: String!
-  profileImageURL: String!
-  rssName: String!
-  rssURL: String
-  slug: String!
-  shoutouts: Float!
-  websiteURL: String!
-  contentTypes: [String!]!
-  mostRecentArticle: Article
-  numArticles: Float!
-  socials: [Social!]!
+    id: ID!
+    backgroundImageURL: String!
+    bio: String!
+    bioShort: String!
+    name: String!
+    profileImageURL: String!
+    rssName: String!
+    rssURL: String
+    slug: String!
+    shoutouts: Float!
+    websiteURL: String!
+    contentTypes: [String!]!
+    mostRecentArticle: Article
+    numArticles: Float!
+    socials: [Social!]!
 }
 
 type PublicationSlug {
-  slug: String!
+    slug: String!
 }
 
 type Query {
-  getArticleByID(id: String!): Article
-  getArticlesByIDs(ids: [String!]!): [Article!]!
-  getAllArticles(offset: Float = 0, limit: Float = 25): [Article!]!
-  getArticlesByPublicationID(
-    offset: Float = 0
-    limit: Float = 25
-    publicationID: String!
-  ): [Article!]!
-  getArticlesByPublicationIDs(
-    offset: Float = 0
-    limit: Float = 25
-    publicationIDs: [String!]!
-  ): [Article!]!
-  getArticlesByPublicationSlug(
-    offset: Float = 0
-    limit: Float = 25
-    slug: String!
-  ): [Article!]!
-  getArticlesByPublicationSlugs(
-    offset: Float = 0
-    limit: Float = 25
-    slugs: [String!]!
-  ): [Article!]!
-  getArticlesAfterDate(limit: Float = 25, since: String!): [Article!]!
-  getTrendingArticles(limit: Float = 25): [Article!]!
-  searchArticles(limit: Float = 25, query: String!): [Article!]!
-  getAllPublications: [Publication!]!
-  getPublicationByID(id: String!): Publication
-  getPublicationBySlug(slug: String!): Publication
-  getPublicationsByIDs(ids: [String!]!): [Publication!]!
-  getUser(uuid: String!): User
-  getAllMagazines(offset: Float = 0, limit: Float = 25): [Magazine!]!
-  getMagazinesBySemester(
-    offset: Float = 0
-    limit: Float = 25
-    semester: String!
-  ): [Magazine!]!
-  getMagazinesByPublicationSlug(
-    offset: Float = 0
-    limit: Float = 25
-    slug: String!
-  ): [Magazine!]!
-  getMagazinesByPublicationSlugs(
-    offset: Float = 0
-    limit: Float = 25
-    slugs: [String!]!
-  ): [Magazine!]!
-  getMagazineByID(id: String!): Magazine
-  getMagazinesByIDs(ids: [String!]!): [Magazine!]!
-  getFeaturedMagazines(limit: Float = 25): [Magazine!]
+    getArticleByID(id: String!): Article
+    getArticlesByIDs(ids: [String!]!): [Article!]!
+    getAllArticles(offset: Float = 0, limit: Float = 25): [Article!]!
+    getArticlesByPublicationID(
+        offset: Float = 0
+        limit: Float = 25
+        publicationID: String!
+    ): [Article!]!
+    getArticlesByPublicationIDs(
+        offset: Float = 0
+        limit: Float = 25
+        publicationIDs: [String!]!
+    ): [Article!]!
+    getArticlesByPublicationSlug(
+        offset: Float = 0
+        limit: Float = 25
+        slug: String!
+    ): [Article!]!
+    getArticlesByPublicationSlugs(
+        offset: Float = 0
+        limit: Float = 25
+        slugs: [String!]!
+    ): [Article!]!
+    getArticlesAfterDate(limit: Float = 25, since: String!): [Article!]!
+    getTrendingArticles(limit: Float = 25): [Article!]!
+    searchArticles(limit: Float = 25, query: String!): [Article!]!
+    getAllPublications: [Publication!]!
+    getPublicationByID(id: String!): Publication
+    getPublicationBySlug(slug: String!): Publication
+    getPublicationsByIDs(ids: [String!]!): [Publication!]!
+    getUser(uuid: String!): User
+    getAllMagazines(offset: Float = 0, limit: Float = 25): [Magazine!]!
+    getMagazinesBySemester(
+        offset: Float = 0
+        limit: Float = 25
+        semester: String!
+    ): [Magazine!]!
+    getMagazinesByPublicationSlug(
+        offset: Float = 0
+        limit: Float = 25
+        slug: String!
+    ): [Magazine!]!
+    getMagazinesByPublicationSlugs(
+        offset: Float = 0
+        limit: Float = 25
+        slugs: [String!]!
+    ): [Magazine!]!
+    getMagazineByID(id: String!): Magazine
+    getMagazinesByIDs(ids: [String!]!): [Magazine!]!
+    getFeaturedMagazines(limit: Float = 25): [Magazine!]
 }
 
 type Social {
-  social: String!
-  URL: String!
+    social: String!
+    URL: String!
 }
 
 type User {
-  id: ID!
-  uuid: String!
-  followedPublications: [PublicationSlug!]!
-  deviceToken: String!
-  deviceType: String!
-  numShoutouts: Float!
-  numBookmarkedArticles: Float!
-  readArticles: [Article!]!
-  weeklyDebrief: WeeklyDebrief
+    id: ID!
+    uuid: String!
+    followedPublications: [PublicationSlug!]!
+    deviceToken: String!
+    deviceType: String!
+    numShoutouts: Float!
+    numBookmarkedArticles: Float!
+    readArticles: [Article!]!
+    weeklyDebrief: WeeklyDebrief
 }
 
 type WeeklyDebrief {
-  id: ID!
-  uuid: String!
-  creationDate: DateTime!
-  expirationDate: DateTime!
-  numShoutouts: Float!
-  numBookmarkedArticles: Float!
-  numReadArticles: Float!
-  readArticles: [Article!]!
-  randomArticles: [Article!]!
+    id: ID!
+    uuid: String!
+    creationDate: DateTime!
+    expirationDate: DateTime!
+    numShoutouts: Float!
+    numBookmarkedArticles: Float!
+    numReadArticles: Float!
+    readArticles: [Article!]!
+    randomArticles: [Article!]!
 }
