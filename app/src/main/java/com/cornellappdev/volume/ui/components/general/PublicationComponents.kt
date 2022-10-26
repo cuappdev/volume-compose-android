@@ -70,6 +70,7 @@ fun CreateHorizontalPublicationRow(
                     fontWeight = FontWeight.Medium,
                     fontSize = 18.sp
                 )
+
                 OutlinedButton(
                     modifier = Modifier.size(33.dp),
                     // Passes true to callback if followed, false if unfollowed.
@@ -98,6 +99,7 @@ fun CreateHorizontalPublicationRow(
                         }
                     }
                 }
+
             }
 
             Row(
@@ -188,6 +190,7 @@ fun CreateHorizontalPublicationRowFollowing(
                     fontWeight = FontWeight.Medium,
                     fontSize = 18.sp
                 )
+
                 OutlinedButton(
                     modifier = Modifier.size(33.dp),
                     // Passes true to callback if followed, false if unfollowed.
@@ -216,6 +219,7 @@ fun CreateHorizontalPublicationRowFollowing(
                         }
                     }
                 }
+
             }
 
             Row(

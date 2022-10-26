@@ -20,6 +20,7 @@ import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.ui.components.general.CreateFollowPublicationRow
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalPublicationRow
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalPublicationRowFollowing
+import com.cornellappdev.volume.ui.states.PublicationRetrievalState
 import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.notoserif
@@ -70,6 +71,8 @@ fun PublicationsScreen(
                            }
                        }
                        PublicationsRetrievalState.Error -> {
+                           Text("ERROR")
+                           Text(PublicationRetrievalState.Error.toString())
                            // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
                        }
                        is PublicationsRetrievalState.Success -> {

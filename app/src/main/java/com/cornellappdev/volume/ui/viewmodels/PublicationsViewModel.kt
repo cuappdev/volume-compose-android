@@ -9,6 +9,7 @@ import com.cornellappdev.volume.data.repositories.PublicationRepository
 import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.data.repositories.UserRepository
 import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
+import com.google.firebase.inappmessaging.display.internal.Logging.logd
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -92,6 +93,7 @@ class PublicationsViewModel @Inject constructor(
                 followedPublicationsState = PublicationsRetrievalState.Error,
                 morePublicationsState = PublicationsRetrievalState.Error
             )
+            logd(PublicationsRetrievalState.Error.toString())
         }
     }
 }

@@ -82,11 +82,11 @@ fun createIndividualPublicationHeading(
                 contentDescription = null
             )
         }
-        Row(modifier = Modifier.padding(top = 10.dp)) {
+        Box(modifier = Modifier.padding(top = 10.dp).fillMaxWidth()) {
             Text(
-                modifier = Modifier.padding(start = 12.dp, top = 2.dp, end = 20.dp),
+                modifier = Modifier.padding(start = 12.dp, top = 2.dp).wrapContentHeight().width(230.dp),
                 text = publication.name,
-                maxLines = 2,
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 fontFamily = notoserif,
                 fontWeight = FontWeight.Medium,
@@ -94,13 +94,12 @@ fun createIndividualPublicationHeading(
             )
             OutlinedButton(
                 modifier = Modifier
-                    .size(width = 120.dp, height = 33.dp)
-                    .padding(start = 20.dp),
+                    .padding(start = 250.dp)
+                    .size(width = 120.dp, height = 33.dp),
                 onClick = {
                     hasBeenClicked.value = !hasBeenClicked.value
                     followButtonClicked(hasBeenClicked.value)
                 },
-                contentPadding = PaddingValues(0.dp),
                 shape = RoundedCornerShape(5.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked.value) VolumeOrange else GrayFour),
                 border = null
@@ -141,6 +140,14 @@ fun createIndividualPublicationHeading(
         Row(modifier = Modifier.padding(start = 12.dp)) {
             Text(
                 modifier = Modifier.padding(),
+                text = "${publication.numArticles.toInt()} ${"articles · "}",
+                fontFamily = lato,
+                fontWeight = FontWeight.Medium,
+                fontSize = 10.sp,
+                color = GrayOne
+            )
+            Text(
+                modifier = Modifier.padding(),
                 text = "${publication.shoutouts.toInt()} ${"shoutouts"}",
                 fontFamily = lato,
                 fontWeight = FontWeight.Medium,
@@ -160,7 +167,7 @@ fun createIndividualPublicationHeading(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp), horizontalArrangement = Arrangement.Center
+                .padding(top = 10.dp, start=12.dp, end=12.dp), horizontalArrangement = Arrangement.Center
         ) {
             for (social in publication.socials) {
                 if (social.social == "instagram") {
@@ -210,10 +217,10 @@ fun createIndividualPublicationHeading(
                 contentDescription = null,
             )
             HyperlinkText(
-                fullText = publication.websiteURL,
+                fullText = publication.name,
                 modifier = Modifier.padding(start = 10.dp),
                 hyperLinks = mutableMapOf(
-                    publication.websiteURL to publication.websiteURL
+                    publication.name to publication.websiteURL
                 ),
                 textStyle = TextStyle(
                     textAlign = TextAlign.Center,
