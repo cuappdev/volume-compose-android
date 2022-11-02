@@ -1,6 +1,5 @@
 package com.cornellappdev.volume.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -73,16 +72,15 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    fun queryAllPublications() = viewModelScope.launch {
-        Log.d("device_token",userPreferencesRepository.fetchDeviceToken() )
-        try {
-            onboardingUiState = onboardingUiState.copy(
+    private fun queryAllPublications() = viewModelScope.launch {
+        onboardingUiState = try {
+            onboardingUiState.copy(
                 publicationsState = PublicationsRetrievalState.Success(
                     publicationRepository.fetchAllPublications()
                 )
             )
         } catch (e: Exception) {
-            onboardingUiState = onboardingUiState.copy(
+            onboardingUiState.copy(
                 publicationsState = PublicationsRetrievalState.Error
             )
         }

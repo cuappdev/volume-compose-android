@@ -1,118 +1,138 @@
 package com.cornellappdev.volume.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.cornellappdev.volume.data.models.Publication
+import com.cornellappdev.volume.ui.components.general.CreateFollowPublicationRow
+import com.cornellappdev.volume.ui.components.general.CreateHorizontalPublicationRow
+import com.cornellappdev.volume.ui.components.general.CreateHorizontalPublicationRowFollowing
 import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
+import com.cornellappdev.volume.ui.theme.notoserif
 import com.cornellappdev.volume.ui.viewmodels.PublicationsViewModel
 
 @Composable
 fun PublicationsScreen(
     publicationsViewModel: PublicationsViewModel = hiltViewModel(),
-    navController: NavController,
     onPublicationClick: (Publication) -> Unit
 ) {
     val publicationsUiState = publicationsViewModel.publicationsUiState
 
-    LazyColumn {
-        item { publicationsTitle() }
-        item { morePublications() }
-        when (publicationsUiState.publicationsState) {
-            PublicationsRetrievalState.Loading -> {
-                item {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(color = VolumeOrange)
-                    }
-                }
-            }
-            PublicationsRetrievalState.Error -> {
+       Scaffold (topBar = {
+           Text(
+               modifier = Modifier.padding(start = 20.dp, top = 20.dp),
+               text = "Publications",
+               fontFamily = notoserif,
+               fontWeight = FontWeight.Medium,
+               fontSize = 28.sp,
+               textAlign = TextAlign.Left
+           )
+       },content = { innerPadding ->
+           LazyColumn(
+               modifier =
+               Modifier
+                   .fillMaxSize()
+                   .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
+           ) {
+               item {
+                   Text(
+                       modifier = Modifier.padding(top = 30.dp),
+                       text = "Following",
+                       fontFamily = notoserif,
+                       fontSize = 20.sp,
+                       fontWeight = FontWeight.Medium
+                   )
 
-            }
-            is PublicationsRetrievalState.Success -> {
-                items(publicationsUiState.publicationsState.publications) { publication ->
-                    morePublicationItem(publication)
-                }
-            }
-        }
+                   Spacer(modifier = Modifier.height(10.dp))
+               }
+               item {
+                   when (val followingPublicationsState = publicationsUiState.followedPublicationsState) {
+                       PublicationsRetrievalState.Loading -> {
+                           Column(
+                               modifier = Modifier.fillMaxWidth(),
+                               horizontalAlignment = Alignment.CenterHorizontally
+                           ) {
+                               CircularProgressIndicator(color = VolumeOrange)
+                           }
+                       }
+                       PublicationsRetrievalState.Error -> {
+                           // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
+                       }
+                       is PublicationsRetrievalState.Success -> {
+                           LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+
+                               items(followingPublicationsState.publications) { publication ->
+                                   CreateFollowPublicationRow(publication) {
+                                       onPublicationClick(publication)
+                                   }
+                               }
+                           }
+                       }
+                   }
+               }
+               item {
+                   Text(
+                       modifier = Modifier.padding(top = 30.dp),
+                       text = "More Publications",
+                       fontFamily = notoserif,
+                       fontSize = 20.sp,
+                       fontWeight = FontWeight.Medium
+                   )
+
+                   Spacer(modifier = Modifier.height(22.dp))
+               }
+               item {
+                   when (val morePublicationsState =
+                       publicationsUiState.morePublicationsState) {
+                       PublicationsRetrievalState.Loading -> {
+                           Column(
+                               modifier = Modifier.fillMaxWidth(),
+                               horizontalAlignment = Alignment.CenterHorizontally
+                           ) {
+                               CircularProgressIndicator(color = VolumeOrange)
+                           }
+                       }
+                       PublicationsRetrievalState.Error -> {
+                           // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
+                       }
+                       is PublicationsRetrievalState.Success -> {
+                           Column(verticalArrangement = Arrangement.spacedBy(24.dp),
+                               modifier = Modifier
+                               .wrapContentHeight()
+                               .padding(end = 12.dp)
+                           ) {
+                               morePublicationsState.publications.forEach { publication->
+                                   CreateHorizontalPublicationRowFollowing(publication = publication) { publicationFromCallback, isFollowing ->
+                                       if (isFollowing) {
+                                           publicationsViewModel.followPublication(
+                                               publicationFromCallback.slug
+                                           )
+                                       } else {
+                                           publicationsViewModel.unfollowPublication(
+                                               publicationFromCallback.slug
+                                           )
+                                       }
+                                   }
+                               }
+
+                           }
+                       }
+                   }
+               }
+           }
+       })
     }
-
-    val data =
-        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>("fromIndividualPublication")
-            ?.observeAsState()
-
-
-}
-
-@Composable
-fun publicationsTitle() {
-//    Row {
-//        Image(
-//            painter = painterResource(R.drawable.publications_title),
-//            contentDescription = stringResource(R.string.publications_title)
-//        )
-//    }
-}
-
-@Composable
-fun morePublications() {
-//    Box {
-//        Text(
-//            stringResource(id = R.string.more_publicationa),
-//            color = Color.Black,
-//            style = MaterialTheme.typography.subtitle1
-//        )
-//        Image(
-//            painter = painterResource(id = R.drawable.ic_more_pub_line),
-//            contentDescription = stringResource(
-//                id = R.string.underline
-//            )
-//        )
-//
-//    }
-}
-
-@Composable
-fun morePublicationItem(data: Publication) {
-//    Row(modifier = Modifier.height(89.dp)) {
-//        if (data != null) {
-//            AsyncImage(
-//                model = data.profileImageURL, contentDescription = null, Modifier
-//                    .height(50.dp)
-//                    .width(50.dp)
-//                    .clip(CircleShape), contentScale = ContentScale.Crop
-//            )
-//        }
-//        Column(modifier = Modifier.width(237.dp)) {
-//            if (data != null) {
-//                Text(text = data.name)
-//                Text(text = data.bio)
-//                data.mostRecentArticle?.title?.let { Text(text = truncateTitle(it)) }
-//            }
-//        }
-//        Button(
-//            onClick = { }
-//        ) {
-//            Image(
-//                painter = painterResource(id = R.drawable.follow_small),
-//                contentDescription = null
-//            )
-//        }
-//
-//    }
-}
-
-fun truncateTitle(title: String): String =
-    if (title.length > 57) (title.substring(0, 57) + "...") else title

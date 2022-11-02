@@ -24,7 +24,8 @@ class PublicationsViewModel @Inject constructor(
     ViewModel() {
 
     data class PublicationsUiState(
-        val publicationsState: PublicationsRetrievalState = PublicationsRetrievalState.Loading
+        val followedPublicationsState: PublicationsRetrievalState=PublicationsRetrievalState.Loading,
+        val morePublicationsState: PublicationsRetrievalState = PublicationsRetrievalState.Loading
     )
 
     var publicationsUiState by mutableStateOf(PublicationsUiState())
@@ -37,20 +38,39 @@ class PublicationsViewModel @Inject constructor(
     fun followPublication(publicationSlug: String) = viewModelScope.launch {
         val uuid = userPreferencesRepository.fetchUuid()
         userRepository.followPublication(publicationSlug, uuid)
-
-        // move from more to followed
+        queryAllPublications()
+    }
+    
+    fun unfollowPublication(publicationSlug: String)=viewModelScope.launch {
+        val uuid=userPreferencesRepository.fetchUuid()
+        userRepository.unfollowPublication(publicationSlug, uuid)
+        queryAllPublications()
     }
 
     private fun queryAllPublications() = viewModelScope.launch {
         try {
+            val allPublications= publicationRepository.fetchAllPublications()
+            val followedPublicationsId =
+                userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs
+
+            val followedPublications = allPublications.filter {
+                followedPublicationsId.contains(it.slug)
+            }
+            val morePublicationsState = allPublications.filter {
+                !followedPublicationsId.contains(it.slug)
+            }
             publicationsUiState = publicationsUiState.copy(
-                publicationsState = PublicationsRetrievalState.Success(
-                    publicationRepository.fetchAllPublications()
+                followedPublicationsState = PublicationsRetrievalState.Success(
+                    followedPublications
+                ),
+                morePublicationsState = PublicationsRetrievalState.Success(
+                    morePublicationsState
                 )
             )
         } catch (e: Exception) {
             publicationsUiState = publicationsUiState.copy(
-                publicationsState = PublicationsRetrievalState.Error
+                followedPublicationsState = PublicationsRetrievalState.Error,
+                morePublicationsState = PublicationsRetrievalState.Error
             )
         }
     }

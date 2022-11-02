@@ -67,7 +67,7 @@ fun FirstPage(onProceedClicked: () -> Unit) {
                 maxLines = 1,
                 fontFamily = notoserif,
                 fontWeight = FontWeight.Medium,
-                fontSize = 18.sp
+                fontSize = 16.sp
             )
 
             BoxWithConstraints {

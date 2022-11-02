@@ -218,7 +218,6 @@ private fun MainScreenNavigationConfigurations(
         composable(Routes.MAGAZINES.route) {}
         composable(Routes.PUBLICATIONS.route) {
             PublicationsScreen(
-                navController = navController,
                 onPublicationClick =
                 { publication ->
                     navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")
