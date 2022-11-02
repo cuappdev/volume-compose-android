@@ -39,9 +39,10 @@ import com.cornellappdev.volume.ui.theme.*
 @Composable
 fun CreateIndividualPublicationHeading(
     publication: Publication,
+    followButton: Boolean,
     followButtonClicked: (Boolean) -> Unit,
 ) {
-    val hasBeenClicked = rememberSaveable { mutableStateOf(true) }
+    val hasBeenClicked = rememberSaveable { mutableStateOf(followButton) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -88,7 +89,7 @@ fun CreateIndividualPublicationHeading(
             Button(
                 modifier = Modifier
                     .padding(start = 30.dp)
-                    .size(width = 100.dp, height = 33.dp),
+                    .height(33.dp),
                 onClick = {
                     hasBeenClicked.value = !hasBeenClicked.value
                     followButtonClicked(hasBeenClicked.value)
@@ -106,7 +107,7 @@ fun CreateIndividualPublicationHeading(
                             color = GrayThree
                         )
                     } else {
-                        Row(horizontalArrangement = Arrangement.Center) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 Icons.Default.Add,
                                 contentDescription = "Follow",
@@ -114,7 +115,7 @@ fun CreateIndividualPublicationHeading(
                                 tint = VolumeOrange
                             )
                             Text(
-                                modifier = Modifier.padding(top = 2.dp, start = 6.dp),
+                                modifier = Modifier.padding(start = 6.dp),
                                 text = "Follow",
                                 textAlign = TextAlign.Center,
                                 fontFamily = lato,
@@ -198,6 +199,7 @@ fun CreateIndividualPublicationHeading(
             )
             endIndex = Math.max(endIndex, publication.websiteURL.indexOf("al") + 2)
             endIndex = Math.max(endIndex, publication.websiteURL.indexOf("edu") + 3)
+            endIndex = Math.max(endIndex, publication.websiteURL.indexOf("net") + 3)
             var urlString: String = if (wwwIndex == -1) {
                 "www." + publication.websiteURL.substring(httpsIndex, endIndex)
             } else {

@@ -40,7 +40,10 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
 
                 }
                 is PublicationRetrievalState.Success -> {
-                    CreateIndividualPublicationHeading(publication = publicationState.publication) { isFollowing ->
+                    CreateIndividualPublicationHeading(
+                        publication = publicationState.publication,
+                        publicationUiState.isFollowed
+                    ) { isFollowing ->
                         if (isFollowing) {
                             individualPublicationViewModel.followPublication()
                         } else {
