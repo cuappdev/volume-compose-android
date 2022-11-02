@@ -1,14 +1,15 @@
 package com.cornellappdev.volume.ui.components.general
 
+import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -85,7 +86,7 @@ fun CreateIndividualPublicationHeading(
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp
             )
-            OutlinedButton(
+            Button(
                 modifier = Modifier
                     .padding(start = 250.dp)
                     .size(width = 120.dp, height = 33.dp),
@@ -95,7 +96,6 @@ fun CreateIndividualPublicationHeading(
                 },
                 shape = RoundedCornerShape(5.dp),
                 colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked.value) VolumeOrange else GrayThree),
-                border = null
             ) {
                 Crossfade(targetState = hasBeenClicked.value) { hasBeenClicked ->
                     if (hasBeenClicked) {
@@ -191,8 +191,25 @@ fun CreateIndividualPublicationHeading(
                 painter = painterResource(R.drawable.ic_link),
                 contentDescription = null,
             )
+            val httpsIndex = publication.websiteURL.indexOf("http") + 8
+            val wwwIndex = publication.websiteURL.indexOf("www")
+            var endIndex = Math.max(
+                publication.websiteURL.indexOf("com") + 3,
+                publication.websiteURL.indexOf("org") + 3
+            )
+            endIndex = Math.max(endIndex, publication.websiteURL.indexOf("al") + 2)
+            endIndex = Math.max(endIndex, publication.websiteURL.indexOf("edu") + 3)
+            Log.d("apple", httpsIndex.toString())
+            Log.d("banana", wwwIndex.toString())
+            Log.d("turtle", endIndex.toString())
+            Log.d("cornell reviews", publication.websiteURL)
+            var urlString: String = if (wwwIndex == -1) {
+                "www." + publication.websiteURL.substring(httpsIndex, endIndex)
+            } else {
+                publication.websiteURL.substring(wwwIndex, endIndex)
+            }
             HyperlinkText(
-                fullText = publication.websiteURL,
+                fullText = urlString,
                 modifier = Modifier.padding(start = 10.dp),
                 hyperLinks = Pair(publication.name, publication.websiteURL),
                 style = TextStyle(
