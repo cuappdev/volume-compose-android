@@ -1,6 +1,5 @@
 package com.cornellappdev.volume.ui.components.general
 
-import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -69,7 +68,7 @@ fun CreateIndividualPublicationHeading(
                 contentDescription = null
             )
         }
-        Box(
+        Row(
             modifier = Modifier
                 .padding(top = 10.dp)
                 .fillMaxWidth()
@@ -88,8 +87,8 @@ fun CreateIndividualPublicationHeading(
             )
             Button(
                 modifier = Modifier
-                    .padding(start = 250.dp)
-                    .size(width = 120.dp, height = 33.dp),
+                    .padding(start = 30.dp)
+                    .size(width = 100.dp, height = 33.dp),
                 onClick = {
                     hasBeenClicked.value = !hasBeenClicked.value
                     followButtonClicked(hasBeenClicked.value)
@@ -199,10 +198,6 @@ fun CreateIndividualPublicationHeading(
             )
             endIndex = Math.max(endIndex, publication.websiteURL.indexOf("al") + 2)
             endIndex = Math.max(endIndex, publication.websiteURL.indexOf("edu") + 3)
-            Log.d("apple", httpsIndex.toString())
-            Log.d("banana", wwwIndex.toString())
-            Log.d("turtle", endIndex.toString())
-            Log.d("cornell reviews", publication.websiteURL)
             var urlString: String = if (wwwIndex == -1) {
                 "www." + publication.websiteURL.substring(httpsIndex, endIndex)
             } else {
