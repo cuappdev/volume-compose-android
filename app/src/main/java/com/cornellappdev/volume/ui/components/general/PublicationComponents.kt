@@ -70,6 +70,7 @@ fun CreateHorizontalPublicationRow(
                     fontWeight = FontWeight.Medium,
                     fontSize = 18.sp
                 )
+
                 OutlinedButton(
                     modifier = Modifier.size(33.dp),
                     // Passes true to callback if followed, false if unfollowed.
@@ -98,6 +99,7 @@ fun CreateHorizontalPublicationRow(
                         }
                     }
                 }
+
             }
 
             Row(
@@ -107,7 +109,7 @@ fun CreateHorizontalPublicationRow(
                     .padding(bottom = 2.dp)
             ) {
 
-            Text(
+                Text(
                     modifier = Modifier.padding(end = 20.dp),
                     text = publication.bio,
                     color = GrayOne,
@@ -156,13 +158,18 @@ fun CreateHorizontalPublicationRow(
 @Composable
 fun CreateHorizontalPublicationRowFollowing(
     publication: Publication,
+    onPublicationClick: (Publication) -> Unit,
     followButtonClicked: (Publication, Boolean) -> Unit,
-) {
+
+    ) {
     var hasBeenClicked = false
     Row(
         modifier = Modifier
             .height(100.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                onPublicationClick(publication)
+            },
     ) {
         AsyncImage(
             model = publication.profileImageURL,
@@ -188,6 +195,7 @@ fun CreateHorizontalPublicationRowFollowing(
                     fontWeight = FontWeight.Medium,
                     fontSize = 18.sp
                 )
+
                 OutlinedButton(
                     modifier = Modifier.size(33.dp),
                     // Passes true to callback if followed, false if unfollowed.
@@ -216,6 +224,7 @@ fun CreateHorizontalPublicationRowFollowing(
                         }
                     }
                 }
+
             }
 
             Row(
@@ -272,18 +281,18 @@ fun CreateHorizontalPublicationRowFollowing(
 }
 
 @Composable
-fun CreateFollowPublicationRow (
+fun CreateFollowPublicationRow(
     publication: Publication,
     onPublicationClick: (Publication) -> Unit
-){
-    val title= publication.name
+) {
+    val title = publication.name
 
     Column(modifier = Modifier
         .wrapContentHeight()
         .width(100.dp)
         .clickable {
             onPublicationClick(publication)
-        }){
+        }) {
 
         AsyncImage(
             model = publication.profileImageURL, modifier = Modifier
