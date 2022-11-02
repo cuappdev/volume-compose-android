@@ -223,7 +223,9 @@ private fun MainScreenNavigationConfigurations(
                 onPublicationClick =
                 { publication ->
                     navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")
-                })
+                }
+            )
+
         }
         composable(Routes.BOOKMARKS.route,
             enterTransition = {

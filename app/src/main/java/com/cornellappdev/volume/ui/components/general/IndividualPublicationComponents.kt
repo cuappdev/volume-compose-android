@@ -1,11 +1,7 @@
 package com.cornellappdev.volume.ui.components.general
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.MagnifierStyle.Companion.Default
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,7 +12,6 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -24,13 +19,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -38,20 +29,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.size.Dimension
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.ui.theme.*
-import com.cornellappdev.volume.ui.viewmodels.PublicationsViewModel
-import org.intellij.lang.annotations.JdkConstants
 
 @Composable
-fun createIndividualPublicationHeading(
+fun CreateIndividualPublicationHeading(
     publication: Publication,
     followButtonClicked: (Boolean) -> Unit,
 ) {
@@ -61,7 +47,7 @@ fun createIndividualPublicationHeading(
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        Box() {
+        Box {
 
             AsyncImage(
                 model = publication.backgroundImageURL,
@@ -82,9 +68,16 @@ fun createIndividualPublicationHeading(
                 contentDescription = null
             )
         }
-        Box(modifier = Modifier.padding(top = 10.dp).fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .fillMaxWidth()
+        ) {
             Text(
-                modifier = Modifier.padding(start = 12.dp, top = 2.dp).wrapContentHeight().width(230.dp),
+                modifier = Modifier
+                    .padding(start = 12.dp, top = 2.dp)
+                    .wrapContentHeight()
+                    .width(230.dp),
                 text = publication.name,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -101,7 +94,7 @@ fun createIndividualPublicationHeading(
                     followButtonClicked(hasBeenClicked.value)
                 },
                 shape = RoundedCornerShape(5.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked.value) VolumeOrange else GrayFour),
+                colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked.value) VolumeOrange else GrayThree),
                 border = null
             ) {
                 Crossfade(targetState = hasBeenClicked.value) { hasBeenClicked ->
@@ -111,7 +104,7 @@ fun createIndividualPublicationHeading(
                             fontFamily = lato,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 12.sp,
-                            color = Color.White
+                            color = GrayThree
                         )
                     } else {
                         Row(horizontalArrangement = Arrangement.Center) {
@@ -137,37 +130,29 @@ fun createIndividualPublicationHeading(
             }
 
         }
-        Row(modifier = Modifier.padding(start = 12.dp)) {
-            Text(
-                modifier = Modifier.padding(),
-                text = "${publication.numArticles.toInt()} ${"articles · "}",
-                fontFamily = lato,
-                fontWeight = FontWeight.Medium,
-                fontSize = 10.sp,
-                color = GrayOne
-            )
-            Text(
-                modifier = Modifier.padding(),
-                text = "${publication.shoutouts.toInt()} ${"shoutouts"}",
-                fontFamily = lato,
-                fontWeight = FontWeight.Medium,
-                fontSize = 10.sp,
-                color = GrayOne
-            )
-        }
+        Text(
+            modifier = Modifier.padding(start = 12.dp),
+            text = "${publication.numArticles.toInt()} articles · ${publication.shoutouts.toInt()} shoutouts",
+            fontFamily = lato,
+            fontWeight = FontWeight.Medium,
+            fontSize = 10.sp,
+            color = GrayOne
+        )
+
         Text(
             modifier = Modifier.padding(start = 12.dp, top = 2.dp, end = 20.dp),
             text = publication.bio,
             maxLines = 6,
             overflow = TextOverflow.Ellipsis,
-            fontFamily = notoserif,
+            fontFamily = lato,
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp
         )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 10.dp, start=12.dp, end=12.dp), horizontalArrangement = Arrangement.Center
+                .padding(top = 10.dp, start = 12.dp, end = 12.dp),
+            horizontalArrangement = Arrangement.Start
         ) {
             for (social in publication.socials) {
                 if (social.social == "instagram") {
@@ -180,13 +165,8 @@ fun createIndividualPublicationHeading(
                     HyperlinkText(
                         fullText = "Instagram",
                         modifier = Modifier.padding(start = 10.dp),
-                        hyperLinks = mutableMapOf(
-                            "Instagram" to social.url
-                        ),
-                        textStyle = TextStyle(
-                            textAlign = TextAlign.Center,
-                            color = VolumeOrange
-                        ),
+                        hyperLinks = Pair("Instagram", social.url),
+                        style = TextStyle(fontFamily = lato, color = VolumeOrange)
                     )
                 }
                 if (social.social == "facebook") {
@@ -199,13 +179,8 @@ fun createIndividualPublicationHeading(
                     HyperlinkText(
                         fullText = "Facebook",
                         modifier = Modifier.padding(start = 10.dp),
-                        hyperLinks = mutableMapOf(
-                            "Facebook" to social.url
-                        ),
-                        textStyle = TextStyle(
-                            textAlign = TextAlign.Center,
-                            color = VolumeOrange
-                        ),
+                        hyperLinks = Pair("Facebook", social.url),
+                        style = TextStyle(fontFamily = lato, color = VolumeOrange)
                     )
                 }
             }
@@ -217,15 +192,14 @@ fun createIndividualPublicationHeading(
                 contentDescription = null,
             )
             HyperlinkText(
-                fullText = publication.name,
+                fullText = publication.websiteURL,
                 modifier = Modifier.padding(start = 10.dp),
-                hyperLinks = mutableMapOf(
-                    publication.name to publication.websiteURL
-                ),
-                textStyle = TextStyle(
-                    textAlign = TextAlign.Center,
-                    color = VolumeOrange
-                ),
+                hyperLinks = Pair(publication.name, publication.websiteURL),
+                style = TextStyle(
+                    fontFamily = lato,
+                    color = VolumeOrange,
+                    textDecoration = TextDecoration.Underline
+                )
             )
         }
 
@@ -236,29 +210,28 @@ fun createIndividualPublicationHeading(
 fun HyperlinkText(
     modifier: Modifier = Modifier,
     fullText: String,
-    hyperLinks: Map<String, String>,
-    textStyle: TextStyle = TextStyle.Default,
+    hyperLinks: Pair<String, String>,
+    style: TextStyle
 ) {
     val annotatedString = buildAnnotatedString {
         append(fullText)
-        for ((key, value) in hyperLinks) {
-            val startIndex = fullText.indexOf(key)
-            val endIndex = startIndex + key.length
-            addStyle(
-                style = SpanStyle(
-                    color = VolumeOrange,
-                    fontSize = 12.sp,
-                ),
-                start = startIndex,
-                end = endIndex
-            )
-            addStringAnnotation(
-                tag = "URL",
-                annotation = value,
-                start = startIndex,
-                end = endIndex
-            )
-        }
+        val startIndex = fullText.indexOf(hyperLinks.first)
+        val endIndex = startIndex + hyperLinks.first.length
+        addStyle(
+            style = SpanStyle(
+                color = VolumeOrange,
+                fontSize = 12.sp,
+            ),
+            start = startIndex,
+            end = endIndex
+        )
+        addStringAnnotation(
+            tag = "URL",
+            annotation = hyperLinks.second,
+            start = startIndex,
+            end = endIndex
+        )
+
         addStyle(
             style = SpanStyle(
                 fontSize = 12.sp
@@ -273,8 +246,8 @@ fun HyperlinkText(
     ClickableText(
         modifier = modifier,
         text = annotatedString,
-        style = TextStyle(fontFamily = lato),
         maxLines = 1,
+        style = style,
         overflow = TextOverflow.Ellipsis,
         onClick = {
             annotatedString
