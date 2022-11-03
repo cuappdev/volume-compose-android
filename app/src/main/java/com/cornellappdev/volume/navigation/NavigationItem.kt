@@ -75,6 +75,7 @@ enum class Routes(override var route: String) : NavUnit {
     ONBOARDING("onboarding"),
     INDIVIDUAL_PUBLICATION("individual"),
     OPEN_ARTICLE("open_article"),
+    OPEN_MAGAZINE("open_magazine"),
     SETTINGS("settings"),
     ABOUT_US("about_us"),
     WEEKLY_DEBRIEF("weekly_debrief")

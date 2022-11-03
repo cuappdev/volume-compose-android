@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.data.models.Publication
-import com.cornellappdev.volume.ui.components.general.CreateFollowPublicationRow
-import com.cornellappdev.volume.ui.components.general.CreateHorizontalPublicationRowFollowing
+import com.cornellappdev.volume.ui.components.general.CreatePublicationColumn
+import com.cornellappdev.volume.ui.components.general.CreatePublicationRow
 import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.notoserif
@@ -94,7 +94,7 @@ fun PublicationsScreen(
                         ) {
 
                             items(followingPublicationsState.publications) { publication ->
-                                CreateFollowPublicationRow(publication) {
+                                CreatePublicationColumn(publication) {
                                     onPublicationClick(publication)
                                 }
                             }
@@ -146,7 +146,7 @@ fun PublicationsScreen(
                                 .padding(start = 12.dp, end = 12.dp)
                         ) {
                             morePublicationsState.publications.forEach { publication ->
-                                CreateHorizontalPublicationRowFollowing(
+                                CreatePublicationRow(
                                     publication = publication,
                                     onPublicationClick
                                 ) { publicationFromCallback, isFollowing ->

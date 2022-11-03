@@ -26,6 +26,7 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
@@ -218,6 +219,11 @@ private fun MainScreenNavigationConfigurations(
             )
         }
         composable(Routes.MAGAZINES.route) {}
+        composable(
+            route = "${Routes.OPEN_MAGAZINE.route}/{magazineId}/{navigationSourceName}",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "volume://${Routes.OPEN_MAGAZINE.route}/{magazineId}" }
+            )) {}
         composable(Routes.PUBLICATIONS.route) {
             PublicationsScreen(
                 onPublicationClick =
@@ -227,7 +233,8 @@ private fun MainScreenNavigationConfigurations(
             )
 
         }
-        composable(Routes.BOOKMARKS.route,
+        composable(
+            Routes.BOOKMARKS.route,
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,

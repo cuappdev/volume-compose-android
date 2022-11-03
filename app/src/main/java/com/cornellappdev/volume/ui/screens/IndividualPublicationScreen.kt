@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Article
-import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
+import com.cornellappdev.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.volume.ui.components.general.CreateIndividualPublicationHeading
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.volume.ui.states.PublicationRetrievalState
@@ -79,7 +79,7 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
                             .padding(top = 20.dp, start = 12.dp, end = 12.dp)
                     ) {
                         articlesByPublicationState.articles.forEach { article ->
-                            CreateHorizontalArticleRow(
+                            CreateArticleRow(
                                 article
                             ) {
                                 onArticleClick(

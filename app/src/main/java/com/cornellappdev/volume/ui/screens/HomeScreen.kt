@@ -4,12 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -17,8 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,12 +24,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Article
+import com.cornellappdev.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.volume.ui.components.general.CreateBigReadRow
-import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
-import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheEnd
-import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheStart
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
-import com.cornellappdev.volume.ui.theme.VolumeOffWhite
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.lato
 import com.cornellappdev.volume.ui.theme.notoserif
@@ -133,7 +126,7 @@ fun HomeScreen(
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
                                 followingArticlesState.articles.forEach { article ->
-                                    CreateHorizontalArticleRow(
+                                    CreateArticleRow(
                                         article
                                     ) {
                                         onArticleClick(
@@ -243,7 +236,7 @@ fun HomeScreen(
                             verticalArrangement = Arrangement.spacedBy(20.dp),
                         ) {
                             otherArticlesState.articles.forEach { article ->
-                                CreateHorizontalArticleRow(
+                                CreateArticleRow(
                                     article
                                 ) {
                                     onArticleClick(

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -36,7 +37,7 @@ import com.cornellappdev.volume.ui.theme.*
  * @param followButtonClicked
  */
 @Composable
-fun CreateHorizontalPublicationRow(
+fun CreatePublicationRow(
     publication: Publication,
     followButtonClicked: (Publication, Boolean) -> Unit,
 ) {
@@ -156,12 +157,12 @@ fun CreateHorizontalPublicationRow(
 }
 
 @Composable
-fun CreateHorizontalPublicationRowFollowing(
+fun CreatePublicationRow(
     publication: Publication,
     onPublicationClick: (Publication) -> Unit,
-    followButtonClicked: (Publication, Boolean) -> Unit,
+    followButtonClicked: (Publication, Boolean) -> Unit
+) {
 
-    ) {
     var hasBeenClicked = false
     Row(
         modifier = Modifier
@@ -224,7 +225,6 @@ fun CreateHorizontalPublicationRowFollowing(
                         }
                     }
                 }
-
             }
 
             Row(
@@ -233,7 +233,6 @@ fun CreateHorizontalPublicationRowFollowing(
                     .height(IntrinsicSize.Min)
                     .padding(bottom = 2.dp)
             ) {
-
                 Text(
                     modifier = Modifier.padding(end = 20.dp),
                     text = publication.bio,
@@ -281,26 +280,27 @@ fun CreateHorizontalPublicationRowFollowing(
 }
 
 @Composable
-fun CreateFollowPublicationRow(
+fun CreatePublicationColumn(
     publication: Publication,
     onPublicationClick: (Publication) -> Unit
 ) {
     val title = publication.name
 
-    Column(modifier = Modifier
-        .wrapContentHeight()
-        .width(100.dp)
-        .clickable {
-            onPublicationClick(publication)
-        }) {
-
+    Column(
+        modifier = Modifier
+            .wrapContentHeight()
+            .width(100.dp)
+            .clickable {
+                onPublicationClick(publication)
+            },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         AsyncImage(
             model = publication.profileImageURL, modifier = Modifier
                 .height(100.dp)
                 .width(100.dp)
                 .clip(CircleShape), contentDescription = null, contentScale = ContentScale.Crop
         )
-
         Text(
             modifier = Modifier.padding(bottom = 2.dp, top = 2.dp),
             text = title,

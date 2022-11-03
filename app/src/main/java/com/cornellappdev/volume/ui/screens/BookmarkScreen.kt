@@ -27,7 +27,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Article
-import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
+import com.cornellappdev.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOffWhite
 import com.cornellappdev.volume.ui.theme.VolumeOrange
@@ -187,7 +187,7 @@ fun BookmarkScreen(
                                             }
                                         },
                                         dismissContent = {
-                                            CreateHorizontalArticleRow(
+                                            CreateArticleRow(
                                                 article = article,
                                                 isABookmarkedArticle = true
                                             ) {

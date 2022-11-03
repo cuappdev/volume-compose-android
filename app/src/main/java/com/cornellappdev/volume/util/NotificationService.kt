@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
 import com.cornellappdev.volume.MainActivity
 import com.cornellappdev.volume.R
@@ -33,11 +32,16 @@ class NotificationService : FirebaseMessagingService() {
      * as keys for the intent bundle to the MainActivity.
      *
      * @property key key name
+     * @see [NotificationRepo](https://github.com/cuappdev/volume-backend/blob/main/src/repos/NotificationRepo.ts)
      */
     enum class NotificationDataKeys(val key: String) {
+        NOTIFICATION_TYPE("notificationType"),
         ARTICLE_ID("articleID"),
         ARTICLE_URL("articleURL"),
-        NOTIFICATION_TYPE("notification_type")
+        MAGAZINE_ID("magazineID"),
+        MAGAZINE_PDF("magazinePDF"),
+        TITLE("title"),
+        BODY("body")
     }
 
     /**
@@ -47,7 +51,8 @@ class NotificationService : FirebaseMessagingService() {
      */
     enum class NotificationType(val type: String) {
         WEEKLY_DEBRIEF("weekly_debrief"),
-        NEW_ARTICLE("new_article")
+        NEW_ARTICLE("new_article"),
+        NEW_MAGAZINE("new_magazine")
     }
 
     /**
@@ -55,21 +60,8 @@ class NotificationService : FirebaseMessagingService() {
      *
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // There are two types of messages data messages and notification messages. Data messages are handled
-        // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
-        // traditionally used with GCM. Notification messages are only received here in onMessageReceived when the app
-        // is in the foreground. When the app is in the background an automatically generated notification is displayed.
-        // When the user taps on the notification they are returned to the app. Messages containing both notification
-        // and data payloads are treated as notification messages. The Firebase console always sends notification
-        // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
-
-        // Check if message contains a notification payload.
-        remoteMessage.notification?.let {
-            sendNotification(it, remoteMessage.data)
-            Log.d(TAG, "Message Notification Body: ${it.body}")
-        }
-    }
+    override fun onMessageReceived(remoteMessage: RemoteMessage) =
+        sendNotification(remoteMessage.data)
 
     /**
      * Called if the FCM registration token is updated. This may occur if the security of
@@ -90,14 +82,11 @@ class NotificationService : FirebaseMessagingService() {
      * Create and show a simple notification containing the received FCM message.
      */
     private fun sendNotification(
-        notification: RemoteMessage.Notification,
         data: MutableMap<String, String>
     ) {
-        Log.d("notif_sent", "here")
+        Log.d(TAG, data.toString())
         // TODO test out notifications. It leverages Navigation Deep linking, not sure if it works
         // https://developer.android.com/jetpack/compose/navigation#deeplinks
-        val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         var deepLinkIntent: Intent? = null
 
         // What's sent back to the MainActivity depends on the type of the notification
@@ -110,19 +99,18 @@ class NotificationService : FirebaseMessagingService() {
                     this,
                     MainActivity::class.java
                 )
+//                intent.putExtra(
+//                    NotificationDataKeys.NOTIFICATION_TYPE.key,
+//                    NotificationType.NEW_ARTICLE.type
 //                )
-                intent.putExtra(
-                    NotificationDataKeys.NOTIFICATION_TYPE.key,
-                    NotificationType.NEW_ARTICLE.type
-                )
-                intent.putExtra(
-                    NotificationDataKeys.ARTICLE_ID.key,
-                    data[NotificationDataKeys.ARTICLE_ID.key]
-                )
-                intent.putExtra(
-                    NotificationDataKeys.ARTICLE_URL.key,
-                    data[NotificationDataKeys.ARTICLE_URL.key]
-                )
+//                intent.putExtra(
+//                    NotificationDataKeys.ARTICLE_ID.key,
+//                    data[NotificationDataKeys.ARTICLE_ID.key]
+//                )
+//                intent.putExtra(
+//                    NotificationDataKeys.ARTICLE_URL.key,
+//                    data[NotificationDataKeys.ARTICLE_URL.key]
+//                )
             }
             NotificationType.WEEKLY_DEBRIEF.type -> {
                 // We simply just need to identify the type of the notification. The
@@ -133,19 +121,25 @@ class NotificationService : FirebaseMessagingService() {
                     this,
                     MainActivity::class.java
                 )
-                intent.putExtra(
-                    NotificationDataKeys.NOTIFICATION_TYPE.key,
-                    NotificationType.NEW_ARTICLE.type
+//                intent.putExtra(
+//                    NotificationDataKeys.NOTIFICATION_TYPE.key,
+//                    NotificationType.NEW_ARTICLE.type
+//                )
+            }
+            NotificationType.NEW_MAGAZINE.type -> {
+                deepLinkIntent = Intent(
+                    Intent.ACTION_VIEW,
+                    "volume://${Routes.OPEN_MAGAZINE.route}/${data[NotificationDataKeys.MAGAZINE_ID.key]}".toUri(),
+                    this,
+                    MainActivity::class.java
                 )
             }
         }
 
-        val pendingIntent: PendingIntent? = TaskStackBuilder.create(this).run {
-            if (deepLinkIntent != null) {
-                addNextIntentWithParentStack(deepLinkIntent)
-            }
-            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-        }
+        val pendingIntent =
+            PendingIntent.getActivity(this, 0, deepLinkIntent, PendingIntent.FLAG_ONE_SHOT)
+
+        pendingIntent.send()
 
         val channelId = getString((R.string.default_notification_channel_id))
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
@@ -156,19 +150,19 @@ class NotificationService : FirebaseMessagingService() {
                     R.drawable.volume_icon
                 )
             )
-            .setContentTitle(notification.title)
-            .setContentText(notification.body)
+            .setContentTitle(data[NotificationDataKeys.TITLE.key])
+            .setContentText(data[NotificationDataKeys.BODY.key])
             .setAutoCancel(true)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
             .setContentIntent(pendingIntent)
 
-        if (notification.imageUrl != null) {
-            val bitmap: Bitmap? = getBitmapFromUrl(notification.imageUrl.toString())
-            notificationBuilder.setStyle(
-                NotificationCompat.BigPictureStyle()
-                    .bigPicture(bitmap)
-            )
-        }
+//        if (data.imageUrl != null) {
+//            val bitmap: Bitmap? = getBitmapFromUrl(data.imageUrl.toString())
+//            notificationBuilder.setStyle(
+//                NotificationCompat.BigPictureStyle()
+//                    .bigPicture(bitmap)
+//            )
+//        }
 
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

@@ -29,7 +29,7 @@ import com.cornellappdev.volume.ui.theme.*
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun CreateHorizontalArticleRow(
+fun CreateArticleRow(
     article: Article,
     isABookmarkedArticle: Boolean = false,
     onClick: (Article) -> Unit
