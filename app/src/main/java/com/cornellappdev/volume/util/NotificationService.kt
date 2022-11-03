@@ -139,8 +139,6 @@ class NotificationService : FirebaseMessagingService() {
         val pendingIntent =
             PendingIntent.getActivity(this, 0, deepLinkIntent, PendingIntent.FLAG_ONE_SHOT)
 
-        pendingIntent.send()
-
         val channelId = getString((R.string.default_notification_channel_id))
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.volume_icon)
