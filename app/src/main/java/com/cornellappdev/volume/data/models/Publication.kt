@@ -21,10 +21,11 @@ data class Publication(
     val name: String,
     val profileImageURL: String,
     val rssName: String,
-    val rssURL: String,
+    val rssURL: String? = null,
     val slug: String,
     val shoutouts: Double,
     val websiteURL: String,
+    val numArticles: Double,
     val mostRecentArticle: Article? = null,
     val socials: List<Social>
 )

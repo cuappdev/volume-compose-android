@@ -42,6 +42,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                 rssURL = publicationData.rssURL,
                 slug = publicationData.slug,
                 shoutouts = publicationData.shoutouts,
+                numArticles = publicationData.numArticles,
                 websiteURL = publicationData.websiteURL,
                 mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
                     Article(
@@ -50,7 +51,6 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                         publicationData.mostRecentArticle.articleURL,
                         publicationData.mostRecentArticle.imageURL,
                         Publication(
-
                             backgroundImageURL = publicationData.backgroundImageURL,
                             bio = publicationData.bio,
                             name = publicationData.name,
@@ -59,6 +59,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                             rssURL = publicationData.rssURL,
                             slug = publicationData.slug,
                             shoutouts = publicationData.shoutouts,
+                            numArticles = publicationData.numArticles,
                             websiteURL = publicationData.websiteURL,
                             socials = publicationData.socials
                                 .map { Social(it.social, it.url) }),
@@ -84,6 +85,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                     rssURL = publicationData.rssURL,
                     slug = publicationData.slug,
                     shoutouts = publicationData.shoutouts,
+                    numArticles = publicationData.numArticles,
                     websiteURL = publicationData.websiteURL,
                     mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
                         Article(
@@ -102,6 +104,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                                 slug = publicationData.slug,
                                 shoutouts = publicationData.shoutouts,
                                 websiteURL = publicationData.websiteURL,
+                                numArticles = publicationData.numArticles,
                                 socials = publicationData.socials
                                     .map { Social(it.social, it.url) }),
                             publicationData.mostRecentArticle.date.toString(),

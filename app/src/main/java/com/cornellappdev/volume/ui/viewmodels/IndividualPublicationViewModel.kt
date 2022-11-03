@@ -12,6 +12,7 @@ import com.cornellappdev.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.volume.data.repositories.UserRepository
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.volume.ui.states.PublicationRetrievalState
+import com.google.firebase.inappmessaging.display.internal.Logging.logd
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,7 +26,6 @@ class IndividualPublicationViewModel @Inject constructor(
     private val publicationRepository: PublicationRepository
 ) : ViewModel() {
 
-    // Navigation arguments can be retrieved through the SavedStateHandle
     private val publicationSlug: String = checkNotNull(savedStateHandle["publicationSlug"])
 
     data class PublicationUiState(
@@ -39,7 +39,7 @@ class IndividualPublicationViewModel @Inject constructor(
 
     init {
         queryPublication()
-        queryArticleByPublication()
+
     }
 
     fun followPublication() = viewModelScope.launch {
@@ -70,6 +70,7 @@ class IndividualPublicationViewModel @Inject constructor(
                     publicationSlug
                 )
             )
+            queryArticleByPublication()
         } catch (e: Exception) {
             publicationUiState = publicationUiState.copy(
                 publicationState = PublicationRetrievalState.Error
@@ -77,15 +78,16 @@ class IndividualPublicationViewModel @Inject constructor(
         }
     }
 
+
     private fun queryArticleByPublication() = viewModelScope.launch {
-        try {
-            publicationUiState = publicationUiState.copy(
+        publicationUiState = try {
+            publicationUiState.copy(
                 articlesByPublicationState = ArticlesRetrievalState.Success(
                     articleRepository.fetchArticlesByPublicationSlug(publicationSlug)
                 )
             )
         } catch (e: Exception) {
-            publicationUiState = publicationUiState.copy(
+            publicationUiState.copy(
                 articlesByPublicationState = ArticlesRetrievalState.Error
             )
         }
