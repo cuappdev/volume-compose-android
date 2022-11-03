@@ -223,7 +223,18 @@ private fun MainScreenNavigationConfigurations(
             route = "${Routes.OPEN_MAGAZINE.route}/{magazineId}/{navigationSourceName}",
             deepLinks = listOf(
                 navDeepLink { uriPattern = "volume://${Routes.OPEN_MAGAZINE.route}/{magazineId}" }
-            )) {}
+            ),
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 1500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 1500)
+                )
+            }) {}
         composable(Routes.PUBLICATIONS.route) {
             PublicationsScreen(
                 onPublicationClick =
