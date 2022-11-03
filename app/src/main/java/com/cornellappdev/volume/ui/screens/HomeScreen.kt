@@ -4,12 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -17,8 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,10 +26,7 @@ import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Article
 import com.cornellappdev.volume.ui.components.general.CreateBigReadRow
 import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
-import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheEnd
-import com.cornellappdev.volume.ui.components.onboarding.isScrolledToTheStart
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
-import com.cornellappdev.volume.ui.theme.VolumeOffWhite
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.lato
 import com.cornellappdev.volume.ui.theme.notoserif
@@ -62,14 +55,23 @@ fun HomeScreen(
                 .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
         ) {
             item {
-                Text(
-                    text = "The Big Read",
-                    fontFamily = notoserif,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-
-                Spacer(modifier = Modifier.height(22.dp))
+                Box {
+                    Text(
+                        text = "The Big Read",
+                        fontFamily = notoserif,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(top = 15.dp)
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.ic_underline_big_read),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(start = 2.dp, top = 40.dp)
+                            .scale(1.05F)
+                    )
+                }
+                Spacer(modifier = Modifier.height(25.dp))
             }
 
             item {
@@ -96,16 +98,25 @@ fun HomeScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(25.dp))
             }
 
             item {
-                Text(
-                    text = "Following",
-                    fontFamily = notoserif,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                Box {
+                    Text(
+                        text = "Following",
+                        fontFamily = notoserif,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.ic_underline_following),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(start = 0.dp, top = 25.dp)
+                            .scale(1.05F)
+                    )
+                }
             }
 
             item {
@@ -164,23 +175,33 @@ fun HomeScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Image(
-                                painter = painterResource(id = R.drawable.ic_volume_bars_orange_large),
+                                painter = painterResource(id = R.drawable.ic_volume_bars_orange),
                                 contentDescription = null,
                             )
-                            Text(
-                                text = "Nothing to see here!",
-                                fontFamily = notoserif,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center
-                            )
+                            Box(modifier = Modifier.padding(top = 10.dp)) {
+                                Text(
+                                    text = "Nothing to see here!",
+                                    fontFamily = notoserif,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    textAlign = TextAlign.Center
+                                )
+                                Image(
+                                    painter = painterResource(R.drawable.ic_underline_nothing_new),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(start = 5.dp, top = 20.dp)
+                                        .scale(1.05F)
+                                )
+                            }
 
                             Text(
                                 text = "Follow some student publications that you are interested in.",
                                 fontFamily = lato,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(top = 10.dp)
                             )
                         }
                     } else {
@@ -195,18 +216,28 @@ fun HomeScreen(
                                 painter = painterResource(id = R.drawable.ic_volume_bars_orange),
                                 contentDescription = null,
                             )
-                            Text(
-                                text = "You're up to date!",
-                                fontFamily = notoserif,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Medium
-                            )
+                            Box(modifier = Modifier.padding(top = 10.dp)) {
+                                Text(
+                                    text = "You're up to date!",
+                                    fontFamily = notoserif,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Image(
+                                    painter = painterResource(R.drawable.ic_underline_up_to_date),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(start = 1.dp, top = 16.dp)
+                                        .scale(1.05F)
+                                )
+                            }
                             Text(
                                 text = "You've seen all new articles from the publications you are following.",
                                 fontFamily = lato,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(top = 10.dp)
                             )
                         }
                     }
@@ -214,12 +245,21 @@ fun HomeScreen(
             }
 
             item {
-                Text(
-                    text = "Other Articles",
-                    fontFamily = notoserif,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                Box {
+                    Text(
+                        text = "Other Articles",
+                        fontFamily = notoserif,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.ic_underline_other_article),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(start = 2.dp, top = 25.dp)
+                            .scale(1.05F)
+                    )
+                }
             }
 
             item {
@@ -239,7 +279,7 @@ fun HomeScreen(
                         Column(
                             modifier = Modifier
                                 .wrapContentHeight()
-                                .padding(end = 12.dp),
+                                .padding(end = 12.dp, top = 25.dp),
                             verticalArrangement = Arrangement.spacedBy(20.dp),
                         ) {
                             otherArticlesState.articles.forEach { article ->
