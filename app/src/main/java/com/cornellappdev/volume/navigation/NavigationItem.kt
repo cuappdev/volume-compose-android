@@ -42,7 +42,7 @@ sealed class NavigationItem(
             Routes.BOOKMARKS.route,
             R.drawable.ic_bookmark_gray,
             R.drawable.ic_bookmark_orange,
-            "Saved"
+            "Bookmarks"
         )
 
     companion object {
