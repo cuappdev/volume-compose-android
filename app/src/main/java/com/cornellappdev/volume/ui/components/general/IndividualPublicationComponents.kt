@@ -160,7 +160,6 @@ fun CreateIndividualPublicationHeading(
                 horizontalArrangement = Arrangement.spacedBy(13.dp)
             ) {
                 for (social in publication.socials) {
-                    // Capitalizes the first letter in the social name
                     val socialName =
                         formattedSocialNameMap.getOrDefault(social.social, social.social)
 
