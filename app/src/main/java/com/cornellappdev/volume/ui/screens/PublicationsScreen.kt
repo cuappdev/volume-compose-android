@@ -35,14 +35,23 @@ fun PublicationsScreen(
     val publicationsUiState = publicationsViewModel.publicationsUiState
 
     Scaffold(topBar = {
-        Text(
-            modifier = Modifier.padding(start = 20.dp, top = 20.dp),
-            text = "Publications",
-            fontFamily = notoserif,
-            fontWeight = FontWeight.Medium,
-            fontSize = 28.sp,
-            textAlign = TextAlign.Left
-        )
+        Row {
+            Text(
+                modifier = Modifier.padding(start = 12.dp, top = 20.dp),
+                text = "Publications",
+                fontFamily = notoserif,
+                fontWeight = FontWeight.Medium,
+                fontSize = 28.sp,
+                textAlign = TextAlign.Left
+            )
+            Image(
+                painter = painterResource(R.drawable.ic_period),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 3.dp, top = 43.5.dp)
+                    .scale(1.05F)
+            )
+        }
 
     }, content = { innerPadding ->
         LazyColumn(
@@ -54,18 +63,18 @@ fun PublicationsScreen(
             item {
                 Box {
                     Text(
-                        modifier = Modifier.padding(start = 12.dp, top = 30.dp),
+                        modifier = Modifier.padding(start = 12.dp, top = 25.dp),
                         text = "Following",
                         fontFamily = notoserif,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Medium
                     )
                     Image(
-                        painter = painterResource(R.drawable.ic_underline),
+                        painter = painterResource(R.drawable.ic_underline_following),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(start = 8.dp, top = 55.dp)
-                            .scale(0.9f)
+                            .padding(start = 12.dp, top = 50.dp)
+                            .scale(1.05F)
                     )
                 }
 
@@ -112,11 +121,11 @@ fun PublicationsScreen(
                         fontWeight = FontWeight.Medium
                     )
                     Image(
-                        painter = painterResource(R.drawable.ic_underline),
+                        painter = painterResource(R.drawable.ic_underline_more_publications),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(start = 40.dp, top = 55.dp)
-                            .scale(1.3f)
+                            .padding(start = 16.dp, top = 55.dp)
+                            .scale(1.06F)
                     )
                 }
 
