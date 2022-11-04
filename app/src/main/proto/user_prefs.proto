@@ -16,4 +16,6 @@ message UserPreferences {
   repeated string bookmarked_articles = 4;
 
   map<string, int32> shoutout = 5;
+
+  int32 notification_id = 6;
 }

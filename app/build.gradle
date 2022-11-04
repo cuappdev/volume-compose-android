@@ -24,8 +24,6 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "PROD_ENDPOINT", secretsProperties['PROD_ENDPOINT'])
-        buildConfigField("String", "DEV_ENDPOINT", secretsProperties['DEV_ENDPOINT'])
         buildConfigField("String", "FEEDBACK_FORM", secretsProperties['FEEDBACK_FORM'])
         buildConfigField("String", "WEBSITE", secretsProperties['WEBSITE'])
 
@@ -39,9 +37,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "false")
+            buildConfigField("String", "ENDPOINT", secretsProperties['PROD_ENDPOINT'])
         }
         debug {
             resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "true")
+            buildConfigField("String", "ENDPOINT", secretsProperties['DEV_ENDPOINT'])
         }
     }
 

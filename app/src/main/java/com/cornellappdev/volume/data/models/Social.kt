@@ -14,10 +14,11 @@ data class Social(
 ) {
     companion object {
         val formattedSocialNameMap = mapOf(
-            "instagram" to "Instagram",
+            "insta" to "Instagram",
             "facebook" to "Facebook",
             "linkedin" to "LinkedIn",
-            "twitter" to "Twitter"
+            "twitter" to "Twitter",
+            "youtube" to "YouTube"
         )
         val socialLogoMap =
             mapOf("Instagram" to R.drawable.ic_instagram, "Facebook" to R.drawable.ic_facebook)

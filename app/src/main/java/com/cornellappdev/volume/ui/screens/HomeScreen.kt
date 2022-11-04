@@ -24,8 +24,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Article
+import com.cornellappdev.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.volume.ui.components.general.CreateBigReadRow
-import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.lato
@@ -55,7 +55,7 @@ fun HomeScreen(
                 .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
         ) {
             item {
-                Box {
+                Column {
                     Text(
                         text = "The Big Read",
                         fontFamily = notoserif,
@@ -67,7 +67,8 @@ fun HomeScreen(
                         painter = painterResource(R.drawable.ic_underline_big_read),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(start = 2.dp, top = 40.dp)
+                            .offset(y = (-5).dp)
+                            .padding(start = 2.dp)
                             .scale(1.05F)
                     )
                 }
@@ -102,7 +103,7 @@ fun HomeScreen(
             }
 
             item {
-                Box {
+                Column {
                     Text(
                         text = "Following",
                         fontFamily = notoserif,
@@ -113,7 +114,7 @@ fun HomeScreen(
                         painter = painterResource(R.drawable.ic_underline_following),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(start = 0.dp, top = 25.dp)
+                            .offset(y = (-5).dp)
                             .scale(1.05F)
                     )
                 }
@@ -144,7 +145,7 @@ fun HomeScreen(
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
                                 followingArticlesState.articles.forEach { article ->
-                                    CreateHorizontalArticleRow(
+                                    CreateArticleRow(
                                         article
                                     ) {
                                         onArticleClick(
@@ -178,7 +179,7 @@ fun HomeScreen(
                                 painter = painterResource(id = R.drawable.ic_volume_bars_orange),
                                 contentDescription = null,
                             )
-                            Box(modifier = Modifier.padding(top = 10.dp)) {
+                            Column(modifier = Modifier.padding(top = 10.dp)) {
                                 Text(
                                     text = "Nothing to see here!",
                                     fontFamily = notoserif,
@@ -190,7 +191,8 @@ fun HomeScreen(
                                     painter = painterResource(R.drawable.ic_underline_nothing_new),
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .padding(start = 5.dp, top = 20.dp)
+                                        .padding(start = 5.dp)
+                                        .offset(y = (-5).dp)
                                         .scale(1.05F)
                                 )
                             }
@@ -216,7 +218,7 @@ fun HomeScreen(
                                 painter = painterResource(id = R.drawable.ic_volume_bars_orange),
                                 contentDescription = null,
                             )
-                            Box(modifier = Modifier.padding(top = 10.dp)) {
+                            Column(modifier = Modifier.padding(top = 10.dp)) {
                                 Text(
                                     text = "You're up to date!",
                                     fontFamily = notoserif,
@@ -227,7 +229,8 @@ fun HomeScreen(
                                     painter = painterResource(R.drawable.ic_underline_up_to_date),
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .padding(start = 1.dp, top = 16.dp)
+                                        .padding(start = 1.dp)
+                                        .offset(y = (-3).dp)
                                         .scale(1.05F)
                                 )
                             }
@@ -245,7 +248,7 @@ fun HomeScreen(
             }
 
             item {
-                Box {
+                Column {
                     Text(
                         text = "Other Articles",
                         fontFamily = notoserif,
@@ -256,7 +259,8 @@ fun HomeScreen(
                         painter = painterResource(R.drawable.ic_underline_other_article),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(start = 2.dp, top = 25.dp)
+                            .padding(start = 2.dp)
+                            .offset(y = (-7).dp)
                             .scale(1.05F)
                     )
                 }
@@ -283,7 +287,7 @@ fun HomeScreen(
                             verticalArrangement = Arrangement.spacedBy(20.dp),
                         ) {
                             otherArticlesState.articles.forEach { article ->
-                                CreateHorizontalArticleRow(
+                                CreateArticleRow(
                                     article
                                 ) {
                                     onArticleClick(

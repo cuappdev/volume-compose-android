@@ -15,18 +15,19 @@ import com.cornellappdev.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.volume.ui.components.general.CreateIndividualPublicationHeading
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.volume.ui.states.PublicationRetrievalState
-import com.cornellappdev.volume.ui.theme.GrayFour
+import com.cornellappdev.volume.ui.theme.GrayThree
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.viewmodels.IndividualPublicationViewModel
 
-//"61980a202fef10d6b7f20747"
 @Composable
-fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublicationViewModel = hiltViewModel(), onArticleClick: (Article, NavigationSource) -> Unit) {
-
+fun IndividualPublicationScreen(
+    individualPublicationViewModel: IndividualPublicationViewModel = hiltViewModel(),
+    onArticleClick: (Article, NavigationSource) -> Unit
+) {
     val publicationUiState = individualPublicationViewModel.publicationUiState
 
     LazyColumn {
-        item{
+        item {
             when (val publicationState = publicationUiState.publicationState) {
                 PublicationRetrievalState.Loading -> {
                     Column(
@@ -53,10 +54,14 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
                 }
             }
         }
-        item{
-            Divider(modifier=Modifier.padding(top=20.dp, start=100.dp, end=100.dp), color = GrayFour, thickness = 1.dp)
+        item {
+            Row {
+                Spacer(Modifier.weight(1f, true))
+                Divider(Modifier.weight(1f, true), color = GrayThree, thickness = 2.dp)
+                Spacer(Modifier.weight(1f, true))
+            }
         }
-        item{
+        item {
             when (val articlesByPublicationState = publicationUiState.articlesByPublicationState) {
                 ArticlesRetrievalState.Loading -> {
                     Column(
@@ -73,7 +78,8 @@ fun IndividualPublicationScreen(individualPublicationViewModel: IndividualPublic
 
                 }
                 is ArticlesRetrievalState.Success -> {
-                    Column(verticalArrangement = Arrangement.spacedBy(20.dp),
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
                         modifier = Modifier
                             .wrapContentHeight()
                             .padding(top = 20.dp, start = 12.dp, end = 12.dp)

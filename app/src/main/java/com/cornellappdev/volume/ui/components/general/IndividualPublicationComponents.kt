@@ -73,119 +73,123 @@ fun CreateIndividualPublicationHeading(
             )
         }
 
-        Row(
-            modifier = Modifier
-                .padding(start = 12.dp, top = 10.dp, end = 12.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp)
         ) {
-            Text(
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 20.dp),
-                text = publication.name,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                fontFamily = notoserif,
-                fontWeight = FontWeight.Medium,
-                fontSize = 18.sp
-            )
-
-            Button(
-                modifier = Modifier
-                    .height(33.dp),
-                onClick = {
-                    hasBeenClicked.value = !hasBeenClicked.value
-                    followButtonClicked(hasBeenClicked.value)
-                },
-                shape = RoundedCornerShape(5.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked.value) VolumeOrange else GrayThree),
+                    .padding(top = 10.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Crossfade(targetState = hasBeenClicked.value) { hasBeenClicked ->
-                    if (hasBeenClicked) {
-                        Text(
-                            text = "Following",
-                            fontFamily = lato,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 12.sp,
-                            color = GrayThree
-                        )
-                    } else {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.Add,
-                                contentDescription = "Follow",
-                                tint = VolumeOrange
-                            )
-                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 20.dp),
+                    text = publication.name,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    fontFamily = notoserif,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 18.sp
+                )
+
+                Button(
+                    modifier = Modifier
+                        .height(33.dp),
+                    onClick = {
+                        hasBeenClicked.value = !hasBeenClicked.value
+                        followButtonClicked(hasBeenClicked.value)
+                    },
+                    shape = RoundedCornerShape(5.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked.value) VolumeOrange else GrayThree),
+                ) {
+                    Crossfade(targetState = hasBeenClicked.value) { hasBeenClicked ->
+                        if (hasBeenClicked) {
                             Text(
-                                text = "Follow",
-                                textAlign = TextAlign.Center,
+                                text = "Following",
                                 fontFamily = lato,
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 12.sp,
-                                color = VolumeOrange
+                                color = GrayThree
                             )
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Add,
+                                    contentDescription = "Follow",
+                                    tint = VolumeOrange
+                                )
+                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                Text(
+                                    text = "Follow",
+                                    textAlign = TextAlign.Center,
+                                    fontFamily = lato,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 12.sp,
+                                    color = VolumeOrange
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
-        Text(
-            modifier = Modifier.padding(start = 12.dp),
-            text = "${publication.numArticles.toInt()} articles · ${publication.shoutouts.toInt()} shoutouts",
-            fontFamily = lato,
-            fontWeight = FontWeight.Medium,
-            fontSize = 10.sp,
-            color = GrayOne
-        )
-
-        Text(
-            modifier = Modifier.padding(start = 12.dp, top = 2.dp, end = 20.dp),
-            text = publication.bio,
-            maxLines = 6,
-            overflow = TextOverflow.Ellipsis,
-            fontFamily = lato,
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(top = 10.dp, start = 12.dp, end = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(13.dp)
-        ) {
-            for (social in publication.socials) {
-                // Capitalizes the first letter in the social name
-                val socialName = formattedSocialNameMap.getOrDefault(social.social, social.social)
-
-                Row {
-                    // Make sure that the drawable is in the socialLogoMap or the painter is null
-                    HyperlinkText(
-                        displayText = socialName,
-                        uri = social.url,
-                        style = TextStyle(fontFamily = lato, color = VolumeOrange),
-                        painter = socialLogoMap[socialName]?.let { painterResource(it) },
-                    )
-                }
-            }
-
-            val websiteURL =
-                publication.websiteURL.removePrefix("https://").removePrefix("http://")
-                    .removePrefix("www.")
-
-            HyperlinkText(
-                displayText = websiteURL,
-                uri = publication.websiteURL,
-                style = TextStyle(
-                    fontFamily = lato,
-                    color = VolumeOrange,
-                    textDecoration = TextDecoration.Underline
-                ),
-                painter = painterResource(R.drawable.ic_link),
+            Text(
+                text = "${publication.numArticles.toInt()} articles · ${publication.shoutouts.toInt()} shoutouts",
+                fontFamily = lato,
+                fontWeight = FontWeight.Medium,
+                fontSize = 10.sp,
+                color = GrayOne
             )
+
+            Text(
+                modifier = Modifier.padding(top = 2.dp),
+                text = publication.bio,
+                maxLines = 6,
+                overflow = TextOverflow.Ellipsis,
+                fontFamily = lato,
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(13.dp)
+            ) {
+                for (social in publication.socials) {
+                    // Capitalizes the first letter in the social name
+                    val socialName =
+                        formattedSocialNameMap.getOrDefault(social.social, social.social)
+
+                    Row {
+                        // Make sure that the drawable is in the socialLogoMap or the painter is null
+                        HyperlinkText(
+                            displayText = socialName,
+                            uri = social.url,
+                            style = TextStyle(fontFamily = lato, color = VolumeOrange),
+                            painter = socialLogoMap[socialName]?.let { painterResource(it) },
+                        )
+                    }
+                }
+
+                val websiteURL =
+                    publication.websiteURL.removePrefix("https://").removePrefix("http://")
+                        .removePrefix("www.").removeSuffix("/")
+
+                HyperlinkText(
+                    displayText = websiteURL,
+                    uri = publication.websiteURL,
+                    style = TextStyle(
+                        fontFamily = lato,
+                        color = VolumeOrange,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    painter = painterResource(R.drawable.ic_link),
+                )
+            }
         }
     }
 }

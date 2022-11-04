@@ -26,7 +26,6 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
@@ -51,6 +50,9 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
         }
         Routes.BOOKMARKS.route -> {
             showBottomBar.value = true
+        }
+        Routes.SETTINGS.route -> {
+            showBottomBar.value = false
         }
         Routes.ABOUT_US.route -> {
             showBottomBar.value = false
@@ -107,7 +109,9 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
             BottomNavigationItem(
                 icon = {
                     Icon(
-                        painter = painterResource(id = if (currentRoute == item.route) item.selectedIconId else item.unselectedIconId),
+                        painter = painterResource(
+                            id = if (item.selectedRoutes.contains(currentRoute)) item.selectedIconId else item.unselectedIconId
+                        ),
                         contentDescription = item.title
                     )
                 },
@@ -115,7 +119,7 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
                 selectedContentColor = VolumeOrange,
                 unselectedContentColor = DarkGray,
                 alwaysShowLabel = true,
-                selected = currentRoute == item.route,
+                selected = item.selectedRoutes.contains(currentRoute),
                 onClick = {
                     if (currentRoute != item.route) {
                         navController.navigate(item.route)
