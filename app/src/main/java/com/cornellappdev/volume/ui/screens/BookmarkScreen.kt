@@ -16,9 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,27 +60,32 @@ fun BookmarkScreen(
     }
 
     Scaffold(topBar = {
-        Row(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)) {
-            Text(
-                text = "Bookmarks",
-                fontFamily = notoserif,
-                fontWeight = FontWeight.Medium,
-                fontSize = 28.sp,
-                color = Color.Black
-            )
-            Image(
-                painter = painterResource(id = R.drawable.ic_period),
-                modifier = Modifier
-                    .align(Alignment.Bottom)
-                    .padding(bottom = 14.dp),
-                contentDescription = null
-            )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Row {
+                Text(
+                    modifier = Modifier.padding(start = 12.dp, top = 20.dp),
+                    text = "Bookmarks",
+                    fontFamily = notoserif,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 28.sp,
+                    textAlign = TextAlign.Left
+                )
+                Image(
+                    painter = painterResource(R.drawable.ic_period),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = 3.dp, top = 43.5.dp)
+                        .scale(1.05F)
+                )
+            }
             Spacer(Modifier.weight(1f, true))
             IconButton(onClick = onSettingsClick) {
                 Icon(
                     Icons.Filled.Settings,
                     contentDescription = "Settings",
-                    tint = Color(0xFF838383)
+                    tint = Color(0xFF838383),
+                    modifier = Modifier.padding(top = 10.dp)
                 )
             }
         }
@@ -126,14 +133,24 @@ fun BookmarkScreen(
                     } else {
                         Column(
                             modifier = Modifier
-                                .padding(horizontal = 16.dp),
+                                .padding(horizontal = 12.dp),
                         ) {
-                            Text(
-                                text = "Saved Articles",
-                                fontFamily = notoserif,
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Medium
-                            )
+                            Box {
+                                Text(
+                                    text = "Saved Articles",
+                                    fontFamily = notoserif,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(top = 25.dp)
+                                )
+                                Image(
+                                    painter = painterResource(R.drawable.ic_underline_other_article),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(start = 2.dp, top = 50.dp)
+                                        .scale(1.05F)
+                                )
+                            }
 
                             Spacer(modifier = Modifier.height(20.dp))
 
