@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -89,6 +90,7 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
             modifier = Modifier.padding(innerPadding),
             isOnboardingCompleted = onboardingCompleted,
             navController = navController,
+            showBottomBar = showBottomBar
         )
     }
 }
@@ -122,6 +124,7 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
                 selected = item.selectedRoutes.contains(currentRoute),
                 onClick = {
                     if (currentRoute != item.route) {
+                        FirstTimeShown.firstTimeShown = false
                         navController.navigate(item.route)
                     }
                 }
@@ -136,6 +139,7 @@ private fun MainScreenNavigationConfigurations(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     isOnboardingCompleted: Boolean,
+    showBottomBar: MutableState<Boolean>,
 ) {
     // The starting destination switches to onboarding if it isn't completed.
     AnimatedNavHost(
@@ -157,8 +161,11 @@ private fun MainScreenNavigationConfigurations(
             }) {
             HomeScreen(
                 onArticleClick = { article, navigationSource ->
+                    FirstTimeShown.firstTimeShown = false
                     navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
-                })
+                },
+                showBottomBar = showBottomBar,
+            )
         }
         composable(route = Routes.WEEKLY_DEBRIEF.route, deepLinks = listOf(
             navDeepLink { uriPattern = "volume://${Routes.WEEKLY_DEBRIEF.route}" }

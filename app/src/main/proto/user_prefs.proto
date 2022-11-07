@@ -18,4 +18,7 @@ message UserPreferences {
   map<string, int32> shoutout = 5;
 
   int32 notification_id = 6;
+
+  // Keeps track of when the user is first presented with the PermissionRequestDialog
+  bool notification_flow_completed = 7;
 }

@@ -1,6 +1,5 @@
 package com.cornellappdev.volume.util
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -95,12 +94,6 @@ class NotificationService : FirebaseMessagingService() {
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = getString((R.string.default_notification_channel_id))
-        val channel = NotificationChannel(
-            channelId,
-            packageName,
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        notificationManager.createNotificationChannel(channel)
 
         // What's sent back to the MainActivity depends on the type of the notification
         // received from Firebase. The type is embedded in the data sent for the notification from the backend.
@@ -158,7 +151,8 @@ class NotificationService : FirebaseMessagingService() {
                     PendingIntent.FLAG_IMMUTABLE
                 )
             )
-            .setGroup(channelId)
+            .setGroup(packageName)
+            .build()
 
         val summaryNotification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Volume")
@@ -167,14 +161,14 @@ class NotificationService : FirebaseMessagingService() {
                 NotificationCompat.InboxStyle()
                     .setSummaryText("New content on Volume!")
             )
-            .setGroup(channelId)
+            .setGroup(packageName)
             .setGroupSummary(true)
             .build()
 
         notificationManager.apply {
             notify(
                 getNextNotifId(),
-                volumeNotification.build()
+                volumeNotification
             )
             notify(
                 -1,

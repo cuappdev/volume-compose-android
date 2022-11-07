@@ -7,7 +7,7 @@
         <item quantity="one">%1$d shout-out</item>
         <item quantity="other">%1$d shout-outs</item>
     </plurals>
-    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="default_notification_channel_id" translatable="false">com.cornellappdev.volume</string>
 
     <!--    Publications Page -->
     <string name="following">Following</string>
