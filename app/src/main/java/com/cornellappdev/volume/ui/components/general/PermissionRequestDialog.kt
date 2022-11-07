@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -58,8 +57,6 @@ fun PermissionRequestDialog(
                     requestingPermission = false
                 }
                 is PermissionStatus.Denied -> {
-                    Log.d("HomeScreen", "Showing rationale")
-
                     Surface(
                         color = Color.Black.copy(alpha = 0.6f),
                         modifier = Modifier.fillMaxSize()
