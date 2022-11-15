@@ -23,13 +23,6 @@ sealed class NavigationItem(
         "For You"
     )
 
-    object Magazines : NavigationItem(
-        Routes.MAGAZINES.route,
-        R.drawable.ic_magazine_icon_selected,
-        R.drawable.ic_magazine_icon_unselected,
-        "Magazines"
-    )
-
     object Publications : NavigationItem(
         Routes.PUBLICATIONS.route,
         R.drawable.ic_publications_icon_selected,
@@ -48,7 +41,6 @@ sealed class NavigationItem(
     companion object {
         val bottomNavTabList = listOf(
             Home,
-            Magazines,
             Publications,
             Bookmarks
         )
