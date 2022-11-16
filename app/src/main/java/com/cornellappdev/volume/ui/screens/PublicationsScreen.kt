@@ -158,21 +158,22 @@ fun PublicationsScreen(
                                 .padding(start = 12.dp, end = 12.dp)
                         ) {
                             morePublicationsState.publications.forEach { publication ->
-                                CreatePublicationRow(
-                                    publication = publication,
-                                    onPublicationClick
-                                ) { publicationFromCallback, isFollowing ->
-                                    if (isFollowing) {
-                                        publicationsViewModel.followPublication(
-                                            publicationFromCallback.slug
-                                        )
-                                    } else {
-                                        publicationsViewModel.unfollowPublication(
-                                            publicationFromCallback.slug
-                                        )
+                                if (!publication.contentTypes.contains("magazines")) {
+                                    CreatePublicationRow(
+                                        publication = publication,
+                                        onPublicationClick
+                                    ) { publicationFromCallback, isFollowing ->
+                                        if (isFollowing) {
+                                            publicationsViewModel.followPublication(
+                                                publicationFromCallback.slug
+                                            )
+                                        } else {
+                                            publicationsViewModel.unfollowPublication(
+                                                publicationFromCallback.slug
+                                            )
+                                        }
                                     }
                                 }
-
                             }
                         }
                     }

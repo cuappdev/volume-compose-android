@@ -130,29 +130,33 @@ fun SecondPage(
                             ) { publication ->
                                 // Clicking on row IN onboarding should not lead to IndividualPublicationScreen. They are not
                                 // an official user yet so they shouldn't be interacting with the articles.
-                                CreatePublicationRow(publication = publication) { publicationFromCallback, isFollowing ->
-                                    if (isFollowing) {
-                                        onboardingViewModel.addPublicationToFollowed(
-                                            publicationFromCallback.slug
-                                        )
-                                        VolumeEvent.logEvent(
-                                            EventType.PUBLICATION, VolumeEvent.FOLLOW_PUBLICATION,
-                                            NavigationSource.ONBOARDING,
-                                            publicationFromCallback.slug
-                                        )
-                                    } else {
-                                        onboardingViewModel.removePublicationFromFollowed(
-                                            publicationFromCallback.slug
-                                        )
-                                        VolumeEvent.logEvent(
-                                            EventType.PUBLICATION, VolumeEvent.UNFOLLOW_PUBLICATION,
-                                            NavigationSource.ONBOARDING,
-                                            publicationFromCallback.slug
-                                        )
-                                    }
+                                if (!publication.contentTypes.contains("magazines")) {
+                                    CreatePublicationRow(publication = publication) { publicationFromCallback, isFollowing ->
+                                        if (isFollowing) {
+                                            onboardingViewModel.addPublicationToFollowed(
+                                                publicationFromCallback.slug
+                                            )
+                                            VolumeEvent.logEvent(
+                                                EventType.PUBLICATION,
+                                                VolumeEvent.FOLLOW_PUBLICATION,
+                                                NavigationSource.ONBOARDING,
+                                                publicationFromCallback.slug
+                                            )
+                                        } else {
+                                            onboardingViewModel.removePublicationFromFollowed(
+                                                publicationFromCallback.slug
+                                            )
+                                            VolumeEvent.logEvent(
+                                                EventType.PUBLICATION,
+                                                VolumeEvent.UNFOLLOW_PUBLICATION,
+                                                NavigationSource.ONBOARDING,
+                                                publicationFromCallback.slug
+                                            )
+                                        }
 
-                                    proceedEnabled =
-                                        onboardingViewModel.setOfPubsFollowed.isNotEmpty()
+                                        proceedEnabled =
+                                            onboardingViewModel.setOfPubsFollowed.isNotEmpty()
+                                    }
                                 }
                             }
                         }
