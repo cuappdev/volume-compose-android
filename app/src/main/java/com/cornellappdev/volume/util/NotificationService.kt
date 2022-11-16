@@ -1,26 +1,21 @@
 package com.cornellappdev.volume.util
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.RingtoneManager
-import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
 import com.cornellappdev.volume.MainActivity
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.navigation.Routes
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
+
 
 /**
  * Configures the NotificationService for Firebase Messaging
@@ -33,11 +28,16 @@ class NotificationService : FirebaseMessagingService() {
      * as keys for the intent bundle to the MainActivity.
      *
      * @property key key name
+     * @see [NotificationRepo](https://github.com/cuappdev/volume-backend/blob/main/src/repos/NotificationRepo.ts)
      */
     enum class NotificationDataKeys(val key: String) {
+        NOTIFICATION_TYPE("notificationType"),
         ARTICLE_ID("articleID"),
         ARTICLE_URL("articleURL"),
-        NOTIFICATION_TYPE("notification_type")
+        MAGAZINE_ID("magazineID"),
+        MAGAZINE_PDF("magazinePDF"),
+        TITLE("title"),
+        BODY("body")
     }
 
     /**
@@ -47,7 +47,8 @@ class NotificationService : FirebaseMessagingService() {
      */
     enum class NotificationType(val type: String) {
         WEEKLY_DEBRIEF("weekly_debrief"),
-        NEW_ARTICLE("new_article")
+        NEW_ARTICLE("new_article"),
+        NEW_MAGAZINE("new_magazine")
     }
 
     /**
@@ -55,21 +56,8 @@ class NotificationService : FirebaseMessagingService() {
      *
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // There are two types of messages data messages and notification messages. Data messages are handled
-        // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
-        // traditionally used with GCM. Notification messages are only received here in onMessageReceived when the app
-        // is in the foreground. When the app is in the background an automatically generated notification is displayed.
-        // When the user taps on the notification they are returned to the app. Messages containing both notification
-        // and data payloads are treated as notification messages. The Firebase console always sends notification
-        // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
-
-        // Check if message contains a notification payload.
-        remoteMessage.notification?.let {
-            sendNotification(it, remoteMessage.data)
-            Log.d(TAG, "Message Notification Body: ${it.body}")
-        }
-    }
+    override fun onMessageReceived(remoteMessage: RemoteMessage) =
+        sendNotification(remoteMessage.data)
 
     /**
      * Called if the FCM registration token is updated. This may occur if the security of
@@ -87,113 +75,105 @@ class NotificationService : FirebaseMessagingService() {
     }
 
     /**
+     * Obtains a unique notification ID from the data store and stores the next integer.
+     */
+    private fun getNextNotifId(): Int = runBlocking {
+        val id = userPreferencesStore.data.first().notificationId
+        userPreferencesStore.updateData { currentPreferences ->
+            currentPreferences.toBuilder().setNotificationId((id + 1) % Int.MAX_VALUE).build()
+        }
+        return@runBlocking id
+    }
+
+    /**
      * Create and show a simple notification containing the received FCM message.
      */
     private fun sendNotification(
-        notification: RemoteMessage.Notification,
         data: MutableMap<String, String>
     ) {
-        // TODO test out notifications. It leverages Navigation Deep linking, not sure if it works
-        // https://developer.android.com/jetpack/compose/navigation#deeplinks
-//        val intent = Intent(this, MainActivity::class.java)
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        var deepLinkIntent: Intent? = null
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channelId = getString((R.string.default_notification_channel_id))
 
         // What's sent back to the MainActivity depends on the type of the notification
-        // received from Firebase. The type is embedded in the data sent for the notification.
-        when (data[NotificationDataKeys.NOTIFICATION_TYPE.key]) {
+        // received from Firebase. The type is embedded in the data sent for the notification from the backend.
+        //
+        // Volume leverages deep links to send users to the proper composable from the notification. New
+        // deep links must be added to the Android Manifest.
+        // See: https://developer.android.com/jetpack/compose/navigation#deeplinks
+        val deepLinkIntent: Intent = when (data[NotificationDataKeys.NOTIFICATION_TYPE.key]) {
             NotificationType.NEW_ARTICLE.type -> {
-                deepLinkIntent = Intent(
+                Intent(
                     Intent.ACTION_VIEW,
                     "volume://${Routes.OPEN_ARTICLE.route}/${data[NotificationDataKeys.ARTICLE_ID.key]}".toUri(),
                     this,
                     MainActivity::class.java
                 )
-//                )
-//                intent.putExtra(
-//                    NotificationDataKeys.NOTIFICATION_TYPE.key,
-//                    NotificationType.NEW_ARTICLE.type
-//                )
-//                intent.putExtra(
-//                    NotificationDataKeys.ARTICLE_ID.key,
-//                    data[NotificationDataKeys.ARTICLE_ID.key]
-//                )
-//                intent.putExtra(
-//                    NotificationDataKeys.ARTICLE_URL.key,
-//                    data[NotificationDataKeys.ARTICLE_URL.key]
-//                )
             }
             NotificationType.WEEKLY_DEBRIEF.type -> {
-                // We simply just need to identify the type of the notification. The
-                // WeeklyDebrief can be retrieved from the UserRepository#GetUser
-                deepLinkIntent = Intent(
+                Intent(
                     Intent.ACTION_VIEW,
                     "volume://${Routes.WEEKLY_DEBRIEF.route}".toUri(),
                     this,
                     MainActivity::class.java
                 )
-//                intent.putExtra(
-//                    NotificationDataKeys.NOTIFICATION_TYPE.key,
-//                    NotificationType.NEW_ARTICLE.type
-//                )
+            }
+            NotificationType.NEW_MAGAZINE.type -> {
+                Intent(
+                    Intent.ACTION_VIEW,
+                    "volume://${Routes.OPEN_MAGAZINE.route}/${data[NotificationDataKeys.MAGAZINE_ID.key]}".toUri(),
+                    this,
+                    MainActivity::class.java
+                )
+            }
+            else -> {
+                Intent(this, MainActivity::class.java)
             }
         }
 
-        val pendingIntent: PendingIntent? = TaskStackBuilder.create(this).run {
-            if (deepLinkIntent != null) {
-                addNextIntentWithParentStack(deepLinkIntent)
-            }
-            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-        }
-
-        val channelId = getString((R.string.default_notification_channel_id))
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.volume_icon)
+        val volumeNotification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_volume_v)
             .setLargeIcon(
                 BitmapFactory.decodeResource(
                     resources,
-                    R.drawable.volume_icon
+                    R.drawable.ic_volume_v
                 )
             )
-            .setContentTitle(notification.title)
-            .setContentText(notification.body)
+            .setContentTitle(data[NotificationDataKeys.TITLE.key])
+            .setContentText(data[NotificationDataKeys.BODY.key])
             .setAutoCancel(true)
             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-            .setContentIntent(pendingIntent)
-
-        if (notification.imageUrl != null) {
-            val bitmap: Bitmap? = getBitmapFromUrl(notification.imageUrl.toString())
-            notificationBuilder.setStyle(
-                NotificationCompat.BigPictureStyle()
-                    .bigPicture(bitmap)
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    this,
+                    0,
+                    deepLinkIntent,
+                    PendingIntent.FLAG_IMMUTABLE
+                )
             )
-        }
+            .setGroup(packageName)
+            .build()
 
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val summaryNotification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Volume")
+            .setSmallIcon(R.drawable.ic_volume_v)
+            .setStyle(
+                NotificationCompat.InboxStyle()
+                    .setSummaryText("New content on Volume!")
+            )
+            .setGroup(packageName)
+            .setGroupSummary(true)
+            .build()
 
-        // Since android Oreo notification channel is needed.
-        val channel = NotificationChannel(
-            channelId,
-            packageName,
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        notificationManager.createNotificationChannel(channel)
-
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build())
-    }
-
-    private fun getBitmapFromUrl(imageUrl: String): Bitmap? {
-        return try {
-            val url = URL(imageUrl)
-            val connection: HttpURLConnection = url.openConnection() as HttpURLConnection
-            connection.doInput = true
-            connection.connect()
-            val input: InputStream = connection.inputStream
-            BitmapFactory.decodeStream(input)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in getting notification image: " + e.localizedMessage)
-            null
+        notificationManager.apply {
+            notify(
+                getNextNotifId(),
+                volumeNotification
+            )
+            notify(
+                -1,
+                summaryNotification
+            )
         }
     }
 

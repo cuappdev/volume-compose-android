@@ -14,6 +14,7 @@ import com.cornellappdev.volume.data.repositories.UserRepository
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 // TODO add refreshing if user follows new publications?
@@ -40,7 +41,7 @@ class HomeViewModel @Inject constructor(
         /**
          * State that holds information on whether the user has any followed articles
          */
-        val isFollowingEmpty: Boolean = false
+        val isFollowingEmpty: Boolean = false,
     )
 
     var homeUiState by mutableStateOf(HomeUiState())
@@ -50,6 +51,14 @@ class HomeViewModel @Inject constructor(
 
     init {
         queryTrendingArticles()
+    }
+
+    fun getNotificationPermissionFlowStatus() = runBlocking {
+        return@runBlocking userPreferencesRepository.fetchNotificationFlowStatus()
+    }
+
+    fun updateNotificationPermissionFlowStatus(value: Boolean) = viewModelScope.launch {
+        userPreferencesRepository.updateNotificationFlowStatus(value)
     }
 
     // Updates the state accordingly with the trending articles

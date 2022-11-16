@@ -17,7 +17,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val ENDPOINT = BuildConfig.DEV_ENDPOINT
+    private const val ENDPOINT = BuildConfig.ENDPOINT
 
     @Singleton
     @Provides

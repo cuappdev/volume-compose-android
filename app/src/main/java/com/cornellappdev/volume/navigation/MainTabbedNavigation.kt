@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -51,6 +52,9 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
         Routes.BOOKMARKS.route -> {
             showBottomBar.value = true
         }
+        Routes.SETTINGS.route -> {
+            showBottomBar.value = false
+        }
         Routes.ABOUT_US.route -> {
             showBottomBar.value = false
         }
@@ -86,6 +90,7 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
             modifier = Modifier.padding(innerPadding),
             isOnboardingCompleted = onboardingCompleted,
             navController = navController,
+            showBottomBar = showBottomBar
         )
     }
 }
@@ -106,7 +111,9 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
             BottomNavigationItem(
                 icon = {
                     Icon(
-                        painter = painterResource(id = if (currentRoute == item.route) item.selectedIconId else item.unselectedIconId),
+                        painter = painterResource(
+                            id = if (item.selectedRoutes.contains(currentRoute)) item.selectedIconId else item.unselectedIconId
+                        ),
                         contentDescription = item.title
                     )
                 },
@@ -114,9 +121,10 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
                 selectedContentColor = VolumeOrange,
                 unselectedContentColor = DarkGray,
                 alwaysShowLabel = true,
-                selected = currentRoute == item.route,
+                selected = item.selectedRoutes.contains(currentRoute),
                 onClick = {
                     if (currentRoute != item.route) {
+                        FirstTimeShown.firstTimeShown = false
                         navController.navigate(item.route)
                     }
                 }
@@ -131,6 +139,7 @@ private fun MainScreenNavigationConfigurations(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     isOnboardingCompleted: Boolean,
+    showBottomBar: MutableState<Boolean>,
 ) {
     // The starting destination switches to onboarding if it isn't completed.
     AnimatedNavHost(
@@ -152,8 +161,11 @@ private fun MainScreenNavigationConfigurations(
             }) {
             HomeScreen(
                 onArticleClick = { article, navigationSource ->
+                    FirstTimeShown.firstTimeShown = false
                     navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
-                })
+                },
+                showBottomBar = showBottomBar,
+            )
         }
         composable(route = Routes.WEEKLY_DEBRIEF.route, deepLinks = listOf(
             navDeepLink { uriPattern = "volume://${Routes.WEEKLY_DEBRIEF.route}" }
@@ -218,6 +230,22 @@ private fun MainScreenNavigationConfigurations(
             )
         }
         composable(Routes.MAGAZINES.route) {}
+        composable(
+            route = "${Routes.OPEN_MAGAZINE.route}/{magazineId}/{navigationSourceName}",
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "volume://${Routes.OPEN_MAGAZINE.route}/{magazineId}" }
+            ),
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 1500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 1500)
+                )
+            }) {}
         composable(Routes.PUBLICATIONS.route) {
             PublicationsScreen(
                 onPublicationClick =
@@ -227,7 +255,8 @@ private fun MainScreenNavigationConfigurations(
             )
 
         }
-        composable(Routes.BOOKMARKS.route,
+        composable(
+            Routes.BOOKMARKS.route,
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,

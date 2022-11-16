@@ -1,5 +1,8 @@
 package com.cornellappdev.volume
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,10 +21,18 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val onboardingCompleted = runBlocking {
             return@runBlocking userPreferences.fetchOnboardingCompleted()
         }
+
+        val channelId = getString((R.string.default_notification_channel_id))
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(
+            NotificationChannel(
+                channelId,
+                packageName,
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+        )
 
         setContent {
             MaterialTheme(

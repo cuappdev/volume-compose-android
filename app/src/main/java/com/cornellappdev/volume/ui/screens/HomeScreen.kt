@@ -24,8 +24,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.data.models.Article
+import com.cornellappdev.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.volume.ui.components.general.CreateBigReadRow
-import com.cornellappdev.volume.ui.components.general.CreateHorizontalArticleRow
+import com.cornellappdev.volume.ui.components.general.PermissionRequestDialog
 import com.cornellappdev.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.lato
@@ -35,267 +36,292 @@ import com.cornellappdev.volume.ui.viewmodels.HomeViewModel
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
-    onArticleClick: (Article, NavigationSource) -> Unit
+    onArticleClick: (Article, NavigationSource) -> Unit,
+    showBottomBar: MutableState<Boolean>,
 ) {
     val homeUiState = homeViewModel.homeUiState
     var showPageBreak by remember { mutableStateOf(false) }
 
-    Scaffold(topBar = {
-        // TODO fix positioning, little weird on my phone not sure if that's the case universally
-        Image(
-            painter = painterResource(R.drawable.volume_title),
-            contentDescription = null,
-            modifier = Modifier
-                .scale(0.8f)
-        )
-    }, content = { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
-        ) {
-            item {
-                Box {
-                    Text(
-                        text = "The Big Read",
-                        fontFamily = notoserif,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(top = 15.dp)
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.ic_underline_big_read),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(start = 2.dp, top = 40.dp)
-                            .scale(1.05F)
-                    )
+    Box {
+        Scaffold(topBar = {
+            Image(
+                painter = painterResource(R.drawable.volume_title),
+                contentDescription = null,
+                modifier = Modifier
+                    .scale(0.8f)
+            )
+        }, content = { innerPadding ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
+            ) {
+                item {
+                    Column {
+                        Text(
+                            text = "The Big Read",
+                            fontFamily = notoserif,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier.padding(top = 15.dp)
+                        )
+                        Image(
+                            painter = painterResource(R.drawable.ic_underline_big_read),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .offset(y = (-5).dp)
+                                .padding(start = 2.dp)
+                                .scale(1.05F)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(25.dp))
                 }
-                Spacer(modifier = Modifier.height(25.dp))
-            }
 
-            item {
-                when (val trendingArticlesState = homeUiState.trendingArticlesState) {
-                    ArticlesRetrievalState.Loading -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator(color = VolumeOrange)
-                        }
-                    }
-                    ArticlesRetrievalState.Error -> {
-                        // TODO Prompt to try again, queryTrendingArticles manually (it's public). Could be that internet is down.
-                    }
-                    is ArticlesRetrievalState.Success -> {
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                            items(trendingArticlesState.articles) { article ->
-                                CreateBigReadRow(article) {
-                                    onArticleClick(article, NavigationSource.TRENDING_ARTICLES)
-                                }
+                item {
+                    when (val trendingArticlesState = homeUiState.trendingArticlesState) {
+                        ArticlesRetrievalState.Loading -> {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                CircularProgressIndicator(color = VolumeOrange)
                             }
                         }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(25.dp))
-            }
-
-            item {
-                Box {
-                    Text(
-                        text = "Following",
-                        fontFamily = notoserif,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.ic_underline_following),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(start = 0.dp, top = 25.dp)
-                            .scale(1.05F)
-                    )
-                }
-            }
-
-            item {
-                when (val followingArticlesState = homeUiState.followingArticlesState) {
-                    ArticlesRetrievalState.Loading -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator(
-                                color = VolumeOrange,
-                                modifier = Modifier.padding(vertical = 50.dp)
-                            )
+                        ArticlesRetrievalState.Error -> {
+                            // TODO Prompt to try again, queryTrendingArticles manually (it's public). Could be that internet is down.
                         }
-                    }
-                    ArticlesRetrievalState.Error -> {
-                        // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
-                    }
-                    is ArticlesRetrievalState.Success -> {
-                        Box(modifier = Modifier.padding(top = 10.dp)) {
-                            Column(
-                                modifier = Modifier
-                                    .wrapContentHeight()
-                                    .padding(end = 12.dp),
-                                verticalArrangement = Arrangement.spacedBy(20.dp),
-                            ) {
-                                followingArticlesState.articles.forEach { article ->
-                                    CreateHorizontalArticleRow(
-                                        article
-                                    ) {
+                        is ArticlesRetrievalState.Success -> {
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                                items(trendingArticlesState.articles) { article ->
+                                    CreateBigReadRow(article) {
                                         onArticleClick(
                                             article,
-                                            NavigationSource.FOLLOWING_ARTICLES
+                                            NavigationSource.TRENDING_ARTICLES
                                         )
                                     }
                                 }
                             }
-                            showPageBreak = true
                         }
                     }
+                    Spacer(modifier = Modifier.height(25.dp))
                 }
-            }
 
-            item {
-                AnimatedVisibility(
-                    visible = showPageBreak,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    if (homeUiState.isFollowingEmpty) {
-                        Column(
+                item {
+                    Column {
+                        Text(
+                            text = "Following",
+                            fontFamily = notoserif,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Image(
+                            painter = painterResource(R.drawable.ic_underline_following),
+                            contentDescription = null,
                             modifier = Modifier
-                                .padding(vertical = 40.dp, horizontal = 16.dp)
-                                .fillMaxWidth()
-                                .wrapContentHeight(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_volume_bars_orange),
-                                contentDescription = null,
-                            )
-                            Box(modifier = Modifier.padding(top = 10.dp)) {
-                                Text(
-                                    text = "Nothing to see here!",
-                                    fontFamily = notoserif,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    textAlign = TextAlign.Center
-                                )
-                                Image(
-                                    painter = painterResource(R.drawable.ic_underline_nothing_new),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .padding(start = 5.dp, top = 20.dp)
-                                        .scale(1.05F)
+                                .offset(y = (-5).dp)
+                                .scale(1.05F)
+                        )
+                    }
+                }
+
+                item {
+                    when (val followingArticlesState = homeUiState.followingArticlesState) {
+                        ArticlesRetrievalState.Loading -> {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                CircularProgressIndicator(
+                                    color = VolumeOrange,
+                                    modifier = Modifier.padding(vertical = 50.dp)
                                 )
                             }
-
-                            Text(
-                                text = "Follow some student publications that you are interested in.",
-                                fontFamily = lato,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(top = 10.dp)
-                            )
                         }
-                    } else {
-                        Column(
-                            modifier = Modifier
-                                .padding(vertical = 70.dp, horizontal = 16.dp)
-                                .fillMaxWidth()
-                                .wrapContentHeight(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_volume_bars_orange),
-                                contentDescription = null,
-                            )
+                        ArticlesRetrievalState.Error -> {
+                            // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
+                        }
+                        is ArticlesRetrievalState.Success -> {
                             Box(modifier = Modifier.padding(top = 10.dp)) {
-                                Text(
-                                    text = "You're up to date!",
-                                    fontFamily = notoserif,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Image(
-                                    painter = painterResource(R.drawable.ic_underline_up_to_date),
-                                    contentDescription = null,
+                                Column(
                                     modifier = Modifier
-                                        .padding(start = 1.dp, top = 16.dp)
-                                        .scale(1.05F)
-                                )
-                            }
-                            Text(
-                                text = "You've seen all new articles from the publications you are following.",
-                                fontFamily = lato,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(top = 10.dp)
-                            )
-                        }
-                    }
-                }
-            }
-
-            item {
-                Box {
-                    Text(
-                        text = "Other Articles",
-                        fontFamily = notoserif,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.ic_underline_other_article),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(start = 2.dp, top = 25.dp)
-                            .scale(1.05F)
-                    )
-                }
-            }
-
-            item {
-                when (val otherArticlesState = homeUiState.otherArticlesState) {
-                    ArticlesRetrievalState.Loading -> {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator(color = VolumeOrange)
-                        }
-                    }
-                    ArticlesRetrievalState.Error -> {
-                        // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
-                    }
-                    is ArticlesRetrievalState.Success -> {
-                        Column(
-                            modifier = Modifier
-                                .wrapContentHeight()
-                                .padding(end = 12.dp, top = 25.dp),
-                            verticalArrangement = Arrangement.spacedBy(20.dp),
-                        ) {
-                            otherArticlesState.articles.forEach { article ->
-                                CreateHorizontalArticleRow(
-                                    article
+                                        .wrapContentHeight()
+                                        .padding(end = 12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(20.dp),
                                 ) {
-                                    onArticleClick(
-                                        article,
-                                        NavigationSource.OTHER_ARTICLES
+                                    followingArticlesState.articles.forEach { article ->
+                                        CreateArticleRow(
+                                            article
+                                        ) {
+                                            onArticleClick(
+                                                article,
+                                                NavigationSource.FOLLOWING_ARTICLES
+                                            )
+                                        }
+                                    }
+                                }
+                                showPageBreak = true
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    AnimatedVisibility(
+                        visible = showPageBreak,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        if (homeUiState.isFollowingEmpty) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(vertical = 40.dp, horizontal = 16.dp)
+                                    .fillMaxWidth()
+                                    .wrapContentHeight(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_volume_bars_orange),
+                                    contentDescription = null,
+                                )
+                                Column(modifier = Modifier.padding(top = 10.dp)) {
+                                    Text(
+                                        text = "Nothing to see here!",
+                                        fontFamily = notoserif,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        textAlign = TextAlign.Center
                                     )
+                                    Image(
+                                        painter = painterResource(R.drawable.ic_underline_nothing_new),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .padding(start = 5.dp)
+                                            .offset(y = (-5).dp)
+                                            .scale(1.05F)
+                                    )
+                                }
+
+                                Text(
+                                    text = "Follow some student publications that you are interested in.",
+                                    fontFamily = lato,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(top = 10.dp)
+                                )
+                            }
+                        } else {
+                            Column(
+                                modifier = Modifier
+                                    .padding(vertical = 70.dp, horizontal = 16.dp)
+                                    .fillMaxWidth()
+                                    .wrapContentHeight(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_volume_bars_orange),
+                                    contentDescription = null,
+                                )
+                                Column(modifier = Modifier.padding(top = 10.dp)) {
+                                    Text(
+                                        text = "You're up to date!",
+                                        fontFamily = notoserif,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Image(
+                                        painter = painterResource(R.drawable.ic_underline_up_to_date),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .padding(start = 1.dp)
+                                            .offset(y = (-3).dp)
+                                            .scale(1.05F)
+                                    )
+                                }
+                                Text(
+                                    text = "You've seen all new articles from the publications you are following.",
+                                    fontFamily = lato,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(top = 10.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    Column {
+                        Text(
+                            text = "Other Articles",
+                            fontFamily = notoserif,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Image(
+                            painter = painterResource(R.drawable.ic_underline_other_article),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(start = 2.dp)
+                                .offset(y = (-7).dp)
+                                .scale(1.05F)
+                        )
+                    }
+                }
+
+                item {
+                    when (val otherArticlesState = homeUiState.otherArticlesState) {
+                        ArticlesRetrievalState.Loading -> {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                CircularProgressIndicator(color = VolumeOrange)
+                            }
+                        }
+                        ArticlesRetrievalState.Error -> {
+                            // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
+                        }
+                        is ArticlesRetrievalState.Success -> {
+                            Column(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .padding(end = 12.dp, top = 25.dp),
+                                verticalArrangement = Arrangement.spacedBy(20.dp),
+                            ) {
+                                otherArticlesState.articles.forEach { article ->
+                                    CreateArticleRow(
+                                        article
+                                    ) {
+                                        onArticleClick(
+                                            article,
+                                            NavigationSource.OTHER_ARTICLES
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+        })
+
+        if (FirstTimeShown.firstTimeShown) {
+            PermissionRequestDialog(
+                showBottomBar = showBottomBar,
+                notificationFlowStatus = homeViewModel.getNotificationPermissionFlowStatus(),
+                updateNotificationFlowStatus = {
+                    homeViewModel.updateNotificationPermissionFlowStatus(it)
+                })
         }
-    })
+    }
+}
+
+/**
+ * Keeps track of when app navigates away from HomeScreen so PermissionRequestDialog
+ * only occurs when the app FIRST is navigated to the HomeScreen.
+ */
+object FirstTimeShown {
+    var firstTimeShown = true
 }

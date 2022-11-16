@@ -29,6 +29,12 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun updateNotificationFlowStatus(value: Boolean) {
+        userPreferencesStore.updateData { currentPreferences ->
+            currentPreferences.toBuilder().setNotificationFlowCompleted(value).build()
+        }
+    }
+
     suspend fun addBookmarkedArticle(articleId: String) {
         userPreferencesStore.updateData { currentPreferences ->
             val currentBookmarks = currentPreferences.bookmarkedArticlesList.toHashSet()
@@ -78,4 +84,7 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun fetchShoutoutCount(articleId: String): Int =
         userPreferencesFlow.first().shoutoutMap.getOrDefault(articleId, 0)
+
+    suspend fun fetchNotificationFlowStatus(): Boolean =
+        userPreferencesFlow.first().notificationFlowCompleted
 }

@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.R
 import com.cornellappdev.volume.data.models.Publication
-import com.cornellappdev.volume.ui.components.general.CreateFollowPublicationRow
-import com.cornellappdev.volume.ui.components.general.CreateHorizontalPublicationRowFollowing
+import com.cornellappdev.volume.ui.components.general.CreatePublicationColumn
+import com.cornellappdev.volume.ui.components.general.CreatePublicationRow
 import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.volume.ui.theme.VolumeOrange
 import com.cornellappdev.volume.ui.theme.notoserif
@@ -61,9 +61,10 @@ fun PublicationsScreen(
                 .padding(top = innerPadding.calculateTopPadding()),
         ) {
             item {
-                Box {
+                Column(
+                    modifier = Modifier.padding(start = 12.dp, top = 25.dp)
+                ) {
                     Text(
-                        modifier = Modifier.padding(start = 12.dp, top = 25.dp),
                         text = "Following",
                         fontFamily = notoserif,
                         fontSize = 20.sp,
@@ -73,7 +74,7 @@ fun PublicationsScreen(
                         painter = painterResource(R.drawable.ic_underline_following),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(start = 12.dp, top = 50.dp)
+                            .offset(y = (-5).dp)
                             .scale(1.05F)
                     )
                 }
@@ -103,7 +104,7 @@ fun PublicationsScreen(
                         ) {
 
                             items(followingPublicationsState.publications) { publication ->
-                                CreateFollowPublicationRow(publication) {
+                                CreatePublicationColumn(publication) {
                                     onPublicationClick(publication)
                                 }
                             }
@@ -112,9 +113,10 @@ fun PublicationsScreen(
                 }
             }
             item {
-                Box {
+                Column(
+                    modifier = Modifier.padding(start = 12.dp, top = 30.dp)
+                ) {
                     Text(
-                        modifier = Modifier.padding(start = 12.dp, top = 30.dp),
                         text = "More Publications",
                         fontFamily = notoserif,
                         fontSize = 20.sp,
@@ -124,7 +126,8 @@ fun PublicationsScreen(
                         painter = painterResource(R.drawable.ic_underline_more_publications),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(start = 16.dp, top = 55.dp)
+                            .padding(start = 4.dp)
+                            .offset(y = (-5).dp)
                             .scale(1.06F)
                     )
                 }
@@ -155,7 +158,7 @@ fun PublicationsScreen(
                                 .padding(start = 12.dp, end = 12.dp)
                         ) {
                             morePublicationsState.publications.forEach { publication ->
-                                CreateHorizontalPublicationRowFollowing(
+                                CreatePublicationRow(
                                     publication = publication,
                                     onPublicationClick
                                 ) { publicationFromCallback, isFollowing ->
