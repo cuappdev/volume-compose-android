@@ -110,22 +110,22 @@ class NotificationService : FirebaseMessagingService() {
                     MainActivity::class.java
                 )
             }
-            NotificationType.WEEKLY_DEBRIEF.type -> {
-                Intent(
-                    Intent.ACTION_VIEW,
-                    "volume://${Routes.WEEKLY_DEBRIEF.route}".toUri(),
-                    this,
-                    MainActivity::class.java
-                )
-            }
-            NotificationType.NEW_MAGAZINE.type -> {
-                Intent(
-                    Intent.ACTION_VIEW,
-                    "volume://${Routes.OPEN_MAGAZINE.route}/${data[NotificationDataKeys.MAGAZINE_ID.key]}".toUri(),
-                    this,
-                    MainActivity::class.java
-                )
-            }
+//            NotificationType.WEEKLY_DEBRIEF.type -> {
+//                Intent(
+//                    Intent.ACTION_VIEW,
+//                    "volume://${Routes.WEEKLY_DEBRIEF.route}".toUri(),
+//                    this,
+//                    MainActivity::class.java
+//                )
+//            }
+//            NotificationType.NEW_MAGAZINE.type -> {
+//                Intent(
+//                    Intent.ACTION_VIEW,
+//                    "volume://${Routes.OPEN_MAGAZINE.route}/${data[NotificationDataKeys.MAGAZINE_ID.key]}".toUri(),
+//                    this,
+//                    MainActivity::class.java
+//                )
+//            }
             else -> {
                 Intent(this, MainActivity::class.java)
             }

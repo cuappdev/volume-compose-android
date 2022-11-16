@@ -172,6 +172,7 @@ fun PublicationsScreen(
                                         )
                                     }
                                 }
+
                             }
                         }
                     }
