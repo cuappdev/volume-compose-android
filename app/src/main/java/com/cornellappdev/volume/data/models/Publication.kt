@@ -25,6 +25,7 @@ data class Publication(
     val slug: String,
     val shoutouts: Double,
     val websiteURL: String,
+    val contentTypes: List<String>,
     val numArticles: Double,
     val mostRecentArticle: Article? = null,
     val socials: List<Social>

@@ -11,6 +11,7 @@ query AllArticles ($limit: Float) {
             rssURL
             slug
             shoutouts
+            contentTypes
             websiteURL
             numArticles
             socials {
@@ -48,6 +49,7 @@ query AllPublications {
         shoutouts
         websiteURL
         numArticles
+        contentTypes
         socials {
             social
             url:URL
@@ -75,6 +77,7 @@ query PublicationBySlug($slug: String!) {
         slug
         shoutouts
         websiteURL
+        contentTypes
         numArticles
         socials {
             social
@@ -105,6 +108,7 @@ query TrendingArticles ($limit: Float) {
             rssURL
             slug
             shoutouts
+            contentTypes
             numArticles
             websiteURL
             socials {
@@ -144,6 +148,7 @@ query ArticlesByPublicationSlug($slug: String!) {
             rssURL
             slug
             shoutouts
+            contentTypes
             websiteURL
             numArticles
             socials {
@@ -180,6 +185,7 @@ query ArticlesByIDs($ids:[String!]!) {
             rssURL
             slug
             shoutouts
+            contentTypes
             websiteURL
             numArticles
             socials {
@@ -217,6 +223,7 @@ query ArticleByID($id: String!) {
             rssURL
             slug
             shoutouts
+            contentTypes
             websiteURL
             numArticles
             socials {
@@ -256,6 +263,7 @@ query ArticlesByPublicationSlugs($slugs: [String!]!) {
             rssURL
             slug
             shoutouts
+            contentTypes
             numArticles
             websiteURL
             socials {
@@ -296,6 +304,7 @@ query ArticlesAfterDate($since: String!) {
             rssURL
             slug
             shoutouts
+            contentTypes
             numArticles
             websiteURL
             socials {
