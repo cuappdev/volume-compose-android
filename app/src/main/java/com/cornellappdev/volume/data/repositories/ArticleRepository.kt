@@ -55,12 +55,14 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
+                    contentTypes = publication.contentTypes,
                     websiteURL = publication.websiteURL,
                     numArticles = publication.numArticles,
                     socials = publication.socials
                         .map { Social(it.social, it.url) }
                 ),
                 shoutouts = articleData.shoutouts,
+
                 nsfw = articleData.nsfw
             )
         }
@@ -84,6 +86,7 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
+                    contentTypes = publication.contentTypes,
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -113,6 +116,7 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
+                    contentTypes = publication.contentTypes,
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -142,6 +146,7 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
+                    contentTypes = publication.contentTypes,
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -171,6 +176,7 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
+                    contentTypes = publication.contentTypes,
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -200,6 +206,7 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
+                    contentTypes = publication.contentTypes,
                     websiteURL = publication.websiteURL,
                     numArticles = publication.numArticles,
                     socials = publication.socials

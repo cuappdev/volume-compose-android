@@ -43,6 +43,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                 slug = publicationData.slug,
                 shoutouts = publicationData.shoutouts,
                 numArticles = publicationData.numArticles,
+                contentTypes = publicationData.contentTypes,
                 websiteURL = publicationData.websiteURL,
                 mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
                     Article(
@@ -60,6 +61,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                             slug = publicationData.slug,
                             shoutouts = publicationData.shoutouts,
                             numArticles = publicationData.numArticles,
+                            contentTypes = publicationData.contentTypes,
                             websiteURL = publicationData.websiteURL,
                             socials = publicationData.socials
                                 .map { Social(it.social, it.url) }),
@@ -85,6 +87,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                     rssURL = publicationData.rssURL,
                     slug = publicationData.slug,
                     shoutouts = publicationData.shoutouts,
+                    contentTypes = publicationData.contentTypes,
                     numArticles = publicationData.numArticles,
                     websiteURL = publicationData.websiteURL,
                     mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
@@ -103,6 +106,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                                 rssURL = publicationData.rssURL,
                                 slug = publicationData.slug,
                                 shoutouts = publicationData.shoutouts,
+                                contentTypes = publicationData.contentTypes,
                                 websiteURL = publicationData.websiteURL,
                                 numArticles = publicationData.numArticles,
                                 socials = publicationData.socials
