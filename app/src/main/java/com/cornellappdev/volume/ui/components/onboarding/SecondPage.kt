@@ -35,6 +35,7 @@ import com.cornellappdev.volume.R
 import com.cornellappdev.volume.analytics.EventType
 import com.cornellappdev.volume.analytics.NavigationSource
 import com.cornellappdev.volume.analytics.VolumeEvent
+import com.cornellappdev.volume.data.models.ContentType
 import com.cornellappdev.volume.ui.components.general.CreatePublicationRow
 import com.cornellappdev.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.volume.ui.theme.*
@@ -130,7 +131,7 @@ fun SecondPage(
                             ) { publication ->
                                 // Clicking on row IN onboarding should not lead to IndividualPublicationScreen. They are not
                                 // an official user yet so they shouldn't be interacting with the articles.
-                                if (!publication.contentTypes.contains("magazines")) {
+                                if (!publication.contentTypes.contains(ContentType.MAGAZINES)) {
                                     CreatePublicationRow(publication = publication) { publicationFromCallback, isFollowing ->
                                         if (isFollowing) {
                                             onboardingViewModel.addPublicationToFollowed(

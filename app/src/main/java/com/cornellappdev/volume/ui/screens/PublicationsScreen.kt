@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.volume.R
+import com.cornellappdev.volume.data.models.ContentType
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.ui.components.general.CreatePublicationColumn
 import com.cornellappdev.volume.ui.components.general.CreatePublicationRow
@@ -158,7 +159,7 @@ fun PublicationsScreen(
                                 .padding(start = 12.dp, end = 12.dp)
                         ) {
                             morePublicationsState.publications.forEach { publication ->
-                                if (!publication.contentTypes.contains("magazines")) {
+                                if (!publication.contentTypes.contains(ContentType.MAGAZINES)) {
                                     CreatePublicationRow(
                                         publication = publication,
                                         onPublicationClick
