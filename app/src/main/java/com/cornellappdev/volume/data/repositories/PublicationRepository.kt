@@ -4,6 +4,7 @@ import com.cornellappdev.volume.AllPublicationsQuery
 import com.cornellappdev.volume.PublicationBySlugQuery
 import com.cornellappdev.volume.data.NetworkApi
 import com.cornellappdev.volume.data.models.Article
+import com.cornellappdev.volume.data.models.ContentType
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.models.Social
 import javax.inject.Inject
@@ -43,7 +44,9 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                 slug = publicationData.slug,
                 shoutouts = publicationData.shoutouts,
                 numArticles = publicationData.numArticles,
-                contentTypes = publicationData.contentTypes,
+                contentTypes = publicationData.contentTypes.map {
+                    ContentType.valueOf(it.uppercase())
+                },
                 websiteURL = publicationData.websiteURL,
                 mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
                     Article(
@@ -61,7 +64,9 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                             slug = publicationData.slug,
                             shoutouts = publicationData.shoutouts,
                             numArticles = publicationData.numArticles,
-                            contentTypes = publicationData.contentTypes,
+                            contentTypes = publicationData.contentTypes.map {
+                                ContentType.valueOf(it.uppercase())
+                            },
                             websiteURL = publicationData.websiteURL,
                             socials = publicationData.socials
                                 .map { Social(it.social, it.url) }),
@@ -87,7 +92,9 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                     rssURL = publicationData.rssURL,
                     slug = publicationData.slug,
                     shoutouts = publicationData.shoutouts,
-                    contentTypes = publicationData.contentTypes,
+                    contentTypes = publicationData.contentTypes.map {
+                        ContentType.valueOf(it.uppercase())
+                    },
                     numArticles = publicationData.numArticles,
                     websiteURL = publicationData.websiteURL,
                     mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
@@ -106,7 +113,9 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                                 rssURL = publicationData.rssURL,
                                 slug = publicationData.slug,
                                 shoutouts = publicationData.shoutouts,
-                                contentTypes = publicationData.contentTypes,
+                                contentTypes = publicationData.contentTypes.map {
+                                    ContentType.valueOf(it.uppercase())
+                                },
                                 websiteURL = publicationData.websiteURL,
                                 numArticles = publicationData.numArticles,
                                 socials = publicationData.socials
