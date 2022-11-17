@@ -3,6 +3,7 @@ package com.cornellappdev.volume.data.repositories
 import com.cornellappdev.volume.*
 import com.cornellappdev.volume.data.NetworkApi
 import com.cornellappdev.volume.data.models.Article
+import com.cornellappdev.volume.data.models.ContentType
 import com.cornellappdev.volume.data.models.Publication
 import com.cornellappdev.volume.data.models.Social
 import javax.inject.Inject
@@ -55,7 +56,9 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes,
+                    contentTypes = publication.contentTypes.map {
+                        ContentType.valueOf(it.uppercase())
+                    },
                     websiteURL = publication.websiteURL,
                     numArticles = publication.numArticles,
                     socials = publication.socials
@@ -86,7 +89,9 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes,
+                    contentTypes = publication.contentTypes.map {
+                        ContentType.valueOf(it.uppercase())
+                    },
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -116,7 +121,9 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes,
+                    contentTypes = publication.contentTypes.map {
+                        ContentType.valueOf(it.uppercase())
+                    },
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -146,7 +153,9 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes,
+                    contentTypes = publication.contentTypes.map {
+                        ContentType.valueOf(it.uppercase())
+                    },
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -176,7 +185,9 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes,
+                    contentTypes = publication.contentTypes.map {
+                        ContentType.valueOf(it.uppercase())
+                    },
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -206,7 +217,9 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes,
+                    contentTypes = publication.contentTypes.map {
+                        ContentType.valueOf(it.uppercase())
+                    },
                     websiteURL = publication.websiteURL,
                     numArticles = publication.numArticles,
                     socials = publication.socials
