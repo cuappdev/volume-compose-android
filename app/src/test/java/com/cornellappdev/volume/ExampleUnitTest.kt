@@ -1,4 +1,4 @@
-package com.cornellappdev.volume
+package com.cornellappdev.android.volume
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

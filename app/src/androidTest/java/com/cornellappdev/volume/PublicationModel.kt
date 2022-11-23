@@ -1,4 +1,4 @@
-package com.cornellappdev.volume
+package com.cornellappdev.android.volume
 
 data class Article(
         var id: String,
