@@ -7,7 +7,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
-import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.volume.navigation.TabbedNavigationSetup
 import com.cornellappdev.android.volume.ui.theme.LightColors

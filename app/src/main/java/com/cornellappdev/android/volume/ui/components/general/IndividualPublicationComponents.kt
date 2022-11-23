@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.data.models.Publication
 import com.cornellappdev.android.volume.data.models.Social.Companion.formattedSocialNameMap
 import com.cornellappdev.android.volume.data.models.Social.Companion.socialLogoMap
