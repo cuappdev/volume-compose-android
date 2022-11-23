@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:name=".VolumeApplication"
+        android:name="com.cornellappdev.android.volume.VolumeApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -23,7 +23,7 @@
             android:value="@bool/FIREBASE_ANALYTICS_DEACTIVATED" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.cornellappdev.android.volume.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -64,7 +64,7 @@
         </activity>
 
         <service
-            android:name=".util.NotificationService"
+            android:name="com.cornellappdev.android.volume.util.NotificationService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

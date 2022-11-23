@@ -1,4 +1,4 @@
-package com.cornellappdev.volume
+package com.cornellappdev.android.volume
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
