@@ -93,6 +93,30 @@ fun FirstPage(onProceedClicked: () -> Unit) {
                 Row {
                     Image(
                         modifier = Modifier.size(40.dp),
+                        painter = painterResource(R.drawable.ic_volume_bars_orange),
+                        contentDescription = null
+                    )
+                    Text(
+                        modifier = Modifier.padding(start = 28.dp),
+                        fontSize = 16.sp,
+                        fontFamily = notoserif,
+                        fontWeight = FontWeight.Medium,
+                        text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    fontWeight = FontWeight.Bold
+                                )
+                            ) {
+                                append("Read articles and magazines")
+                            }
+                            append(" trending in the Cornell community and from publications you follow")
+                        }
+                    )
+                }
+
+                Row {
+                    Image(
+                        modifier = Modifier.size(40.dp),
                         painter = painterResource(R.drawable.ic_publications_icon_selected),
                         contentDescription = null
                     )
@@ -113,7 +137,7 @@ fun FirstPage(onProceedClicked: () -> Unit) {
                 Row {
                     Image(
                         modifier = Modifier.size(40.dp),
-                        painter = painterResource(R.drawable.ic_volume_bars_orange),
+                        painter = painterResource(R.drawable.ic_magazine_icon_selected),
                         contentDescription = null
                     )
                     Text(
@@ -127,9 +151,9 @@ fun FirstPage(onProceedClicked: () -> Unit) {
                                     fontWeight = FontWeight.Bold
                                 )
                             ) {
-                                append("Read articles")
+                                append("Explore magazines")
                             }
-                            append(" trending in the Cornell community and from publications you follow")
+                            append(" curated by Cornell students for students")
                         }
                     )
                 }
@@ -137,7 +161,7 @@ fun FirstPage(onProceedClicked: () -> Unit) {
                 Row {
                     Image(
                         modifier = Modifier.size(40.dp),
-                        painter = painterResource(R.drawable.ic_shoutout_orange),
+                        painter = painterResource(R.drawable.ic_bookmark_orange),
                         contentDescription = null
                     )
                     Text(
@@ -151,9 +175,9 @@ fun FirstPage(onProceedClicked: () -> Unit) {
                                     fontWeight = FontWeight.Bold
                                 )
                             ) {
-                                append("Give shout-outs")
+                                append("Bookmark")
                             }
-                            append(" to support student content")
+                            append(" content to refer back to and share with others")
                         }
                     )
                 }
