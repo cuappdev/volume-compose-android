@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -125,7 +126,8 @@ fun CreateBigReadRow(article: Article, onClick: (Article) -> Unit) {
         AsyncImage(
             model = article.imageURL, modifier = Modifier
                 .height(180.dp)
-                .width(180.dp), contentDescription = null, contentScale = ContentScale.Crop
+                .width(180.dp)
+                .shadow(elevation = 8.dp), contentDescription = null, contentScale = ContentScale.Crop
         )
         Text(
             modifier = Modifier.padding(top = 16.dp, bottom = 2.dp),
