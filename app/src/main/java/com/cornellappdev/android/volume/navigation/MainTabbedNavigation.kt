@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navDeepLink
-import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.analytics.EventType
 import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.analytics.VolumeEvent
@@ -231,7 +230,6 @@ private fun MainScreenNavigationConfigurations(
             )
         }
         composable(route = Routes.MAGAZINES.route,
-            //FIXME there is a strange animation hiccup where the text "run" appears on the screen.
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,

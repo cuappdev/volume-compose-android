@@ -23,6 +23,7 @@ import com.cornellappdev.android.volume.data.models.ContentType
 import com.cornellappdev.android.volume.data.models.Publication
 import com.cornellappdev.android.volume.ui.components.general.CreatePublicationColumn
 import com.cornellappdev.android.volume.ui.components.general.CreatePublicationRow
+import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.notoserif
@@ -62,23 +63,11 @@ fun PublicationsScreen(
                 .padding(top = innerPadding.calculateTopPadding()),
         ) {
             item {
-                Column(
+                VolumeHeaderText(
+                    text = "Following",
+                    underline = R.drawable.ic_underline_following,
                     modifier = Modifier.padding(start = 12.dp, top = 25.dp)
-                ) {
-                    Text(
-                        text = "Following",
-                        fontFamily = notoserif,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.ic_underline_following),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .offset(y = (-5).dp)
-                            .scale(1.05F)
-                    )
-                }
+                )
 
                 Spacer(modifier = Modifier.height(10.dp))
             }
@@ -114,24 +103,11 @@ fun PublicationsScreen(
                 }
             }
             item {
-                Column(
+                VolumeHeaderText(
+                    text = "More Publications",
+                    underline = R.drawable.ic_underline_more_publications,
                     modifier = Modifier.padding(start = 12.dp, top = 30.dp)
-                ) {
-                    Text(
-                        text = "More Publications",
-                        fontFamily = notoserif,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.ic_underline_more_publications),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(start = 4.dp)
-                            .offset(y = (-5).dp)
-                            .scale(1.06F)
-                    )
-                }
+                )
 
                 Spacer(modifier = Modifier.height(22.dp))
             }
