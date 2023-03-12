@@ -61,12 +61,7 @@ fun HomeScreen(
                 item {
                     when (val trendingArticlesState = homeUiState.trendingArticlesState) {
                         ArticlesRetrievalState.Loading -> {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                CircularProgressIndicator(color = VolumeOrange)
-                            }
+                            VolumeLoading()
                         }
                         ArticlesRetrievalState.Error -> {
                             // TODO Prompt to try again, queryTrendingArticles manually (it's public). Could be that internet is down.
@@ -97,15 +92,7 @@ fun HomeScreen(
                 item {
                     when (val followingArticlesState = homeUiState.followingArticlesState) {
                         ArticlesRetrievalState.Loading -> {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                CircularProgressIndicator(
-                                    color = VolumeOrange,
-                                    modifier = Modifier.padding(vertical = 50.dp)
-                                )
-                            }
+                            VolumeLoading()
                         }
                         ArticlesRetrievalState.Error -> {
                             // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.

@@ -19,23 +19,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
+import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
 import com.cornellappdev.android.volume.ui.components.general.VolumeLogo
+import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
+import com.cornellappdev.android.volume.ui.viewmodels.MagazinesViewModel
+import java.util.*
 
 @OptIn(ExperimentalMaterialApi::class)
 interface ExposedDropdownMenuBoxScope
 private const val TAG = "MagazinesScreen"
 @Preview
 @Composable
-fun MagazinesScreen() {
+fun MagazinesScreen(
+    magazinesViewModel: MagazinesViewModel = hiltViewModel()
+) {
     // Dropdown menu variables
     var expanded by remember { mutableStateOf(false) }
-    // TODO make list dynamic
-    val items = listOf( "Spring 2021", "Fall 2021",  "Spring 2020", "Fall 2020", "Spring 2019")
+    val semesters = arrayListOf<String>()
+    populateSemesterList(semesters)
     var selectedIndex by remember { mutableStateOf(0) }
+    val magazineUiState = magazinesViewModel.magazineUiState
 
     Box {
         Scaffold(
@@ -55,29 +63,27 @@ fun MagazinesScreen() {
                             VolumeHeaderText(
                                 text = "Featured",
                                 underline = R.drawable.ic_underline_featured,
-                                modifier = Modifier.padding(top=15.dp)
+                                modifier = Modifier.padding(top = 15.dp)
                             )
                         }
 
                         // Featured magazines row
                         item {
-                            LazyRow(content = {
-                                repeat(10) {
-                                    item {
-                                        CreateMagazineColumn() //TODO add parameter
-                                    }
-                                }
-                            })
+                            FillFeaturedMagazinesRow(
+                                magazineUiState = magazineUiState,
+                                forFeatured = true
+                            )
                         }
 
-                        // More magazines text and dropdown menu
+                        // Semester magazines text and dropdown menu
                         item {
-                            Row (
+                            Row(
                                 Modifier
                                     .fillMaxWidth()
                                     .padding(top = 15.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically)
+                                verticalAlignment = Alignment.CenterVertically
+                            )
                             {
                                 // More magazines text
                                 VolumeHeaderText(
@@ -86,8 +92,8 @@ fun MagazinesScreen() {
                                 )
 
                                 // Dropdown menu
-                                Column (modifier = Modifier.padding(end = 54.3.dp)) {
-                                    Row  (modifier = Modifier.drawWithContent {
+                                Column(modifier = Modifier.padding(end = 54.3.dp)) {
+                                    Row(modifier = Modifier.drawWithContent {
                                         drawContent()
                                         drawRoundRect(
                                             color = VolumeOrange,
@@ -100,11 +106,11 @@ fun MagazinesScreen() {
                                                 width = 115.49.dp.toPx(),
                                                 height = 31.dp.toPx()
                                             ),
-                                            topLeft = Offset(x=8.dp.toPx(), y=0.dp.toPx())
+                                            topLeft = Offset(x = 8.dp.toPx(), y = 0.dp.toPx())
                                         )
                                     }) {
                                         Text(
-                                            text = items[selectedIndex],
+                                            text = semesters[selectedIndex],
                                             color = VolumeOrange,
                                             modifier = Modifier
                                                 .clickable {
@@ -126,12 +132,17 @@ fun MagazinesScreen() {
                                         )
                                     }
 
-                                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                                        items.forEachIndexed { index, s ->
+                                    DropdownMenu(
+                                        expanded = expanded,
+                                        onDismissRequest = { expanded = false }) {
+                                        semesters.forEachIndexed { index, s ->
                                             if (index != selectedIndex) {
                                                 DropdownMenuItem(onClick = {
                                                     selectedIndex = index
                                                     expanded = false
+                                                    magazinesViewModel.querySemesterMagazines(
+                                                        semester = formatSemester(semesters[selectedIndex])
+                                                    )
                                                 }) {
                                                     Text(
                                                         text = s,
@@ -164,18 +175,62 @@ fun MagazinesScreen() {
                             }
                         }
 
-                        // More magazines row
+                        // Semester magazines row
                         item {
-                            LazyRow(content = {
-                                repeat(10) {
-                                    item {
-                                        CreateMagazineColumn() //TODO add parameter
-                                    }
-                                }
-                            })
+                            FillFeaturedMagazinesRow(
+                                magazineUiState = magazineUiState,
+                                forFeatured = false
+                            )
                         }
                     })
             },
         )
     }
 }
+@Composable
+fun FillFeaturedMagazinesRow(magazineUiState: MagazinesViewModel.MagazinesUiState, forFeatured: Boolean) {
+    when (
+        val magazinesState = if (forFeatured) magazineUiState.featuredMagazinesState
+                                else magazineUiState.semesterMagazinesState
+    ) {
+        MagazinesRetrievalState.Loading -> {
+            VolumeLoading()
+        }
+        MagazinesRetrievalState.Error -> {
+            // TODO Retry prompt
+        }
+        is MagazinesRetrievalState.Success -> {
+            LazyRow {
+                items(magazinesState.magazines.size) {
+                    magazinesState.magazines.forEach {
+                        CreateMagazineColumn(magazine = it)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Populates an array list of Strings dynamically with the current and previous semesters.
+ * @param semesters The list to be populated with semester strings.
+ */
+fun populateSemesterList(semesters: ArrayList<String>) {
+    val calendar = Calendar.getInstance()
+    var currentYear: Int = calendar.get(Calendar.YEAR)
+    var season: String = if (calendar.get(Calendar.MONTH) <= 9) "Spring" else "Fall"
+
+    repeat(5) {
+        semesters.add("$season $currentYear")
+        if (season == "Spring") {
+            currentYear -= 1
+            season = "Fall"
+        } else {
+            season = "Spring"
+        }
+    }
+}
+
+fun formatSemester(semester: String) =
+    semester.substring(0, 2).lowercase() + semester.substring(semester.length-2, semester.length)
+

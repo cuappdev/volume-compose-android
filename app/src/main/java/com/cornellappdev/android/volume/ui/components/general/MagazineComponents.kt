@@ -10,10 +10,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.theme.GrayOne
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
@@ -21,8 +21,9 @@ import com.cornellappdev.android.volume.ui.theme.notoserif
 private const val TAG = "MagazineComponents"
 
 @Composable
-@Preview
-fun CreateMagazineColumn () {
+fun CreateMagazineColumn (
+    magazine: Magazine
+) {
     Column (
         Modifier
             .padding(10.dp)
@@ -31,11 +32,11 @@ fun CreateMagazineColumn () {
                 Log.d(TAG, "CreateArticleColumn: Clicked!")
                 // TODO implement on click.
             }) {
-        //TODO implement with network
 
         // Magazine image
         AsyncImage(
-            model = "https://image.isu.pub/210515175504-13a3c5d3a2914c8c96f7a6643b3003aa/jpg/page_1.jpg", modifier = Modifier
+            model = magazine.publication.backgroundImageURL, // TODO replace with page 1 of PDF?
+            modifier = Modifier
                 .height(220.dp)
                 .width(150.dp)
                 .shadow(8.dp), contentDescription = null, contentScale = ContentScale.Crop
@@ -43,7 +44,7 @@ fun CreateMagazineColumn () {
         // Magazine publisher text
         Text(
             modifier = Modifier.padding(top = 16.dp, bottom = 2.dp),
-            text = "Thread Magazine",
+            text = magazine.publication.name,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             fontFamily = notoserif,
@@ -52,8 +53,7 @@ fun CreateMagazineColumn () {
         )
         // Magazine title text
         Text(
-            //TODO implement with network
-            text = "The Future Issue",
+            text = magazine.title,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
             fontFamily = lato,
@@ -63,8 +63,7 @@ fun CreateMagazineColumn () {
         Spacer(modifier = Modifier.height(5.dp))
         // Shoutouts and time since published text
         Text(
-            //TODO implement with network
-            text = "SP20 • 15 shout-outs",
+            text = "${magazine.semester.uppercase()} • ${magazine.shoutouts.toInt()} shout-outs",
             fontFamily = lato,
             fontWeight = FontWeight.Medium,
             fontSize = 10.sp,

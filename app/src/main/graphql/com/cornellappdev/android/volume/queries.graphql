@@ -172,6 +172,76 @@ query ArticlesByPublicationSlug($slug: String!) {
 
 }
 
+query MagazinesBySemester($offset: Float, $limit: Float, $semester: String!){
+    getMagazinesBySemester(offset: $offset, limit: $limit, semester: $semester){
+        id
+        date
+        semester
+        pdfURL
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
+        publicationSlug
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
+query FeaturedMagazines($limit: Float){
+    getFeaturedMagazines(limit: $limit){
+        id
+        date
+        semester
+        pdfURL
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
+        publicationSlug
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
 query ArticlesByIDs($ids:[String!]!) {
     getArticlesByIDs(ids: $ids) {
         id

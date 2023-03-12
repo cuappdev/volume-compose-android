@@ -36,6 +36,14 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     suspend fun fetchArticleByID(id: String): ApolloResponse<ArticleByIDQuery.Data> =
         apolloClient.query(ArticleByIDQuery(id)).execute()
 
+    suspend fun fetchFeaturedMagazines(limit: Double? = null): ApolloResponse<FeaturedMagazinesQuery.Data> =
+        apolloClient.query(FeaturedMagazinesQuery(Optional.presentIfNotNull(limit))).execute()
+
+    suspend fun fetchMagazinesBySemester(limit: Double? = null, semester: String): ApolloResponse<MagazinesBySemesterQuery.Data> =
+        apolloClient.query(MagazinesBySemesterQuery(
+            limit = Optional.presentIfNotNull(limit),
+            semester = semester
+        )).execute()
     suspend fun incrementShoutout(
         id: String,
         uuid: String
