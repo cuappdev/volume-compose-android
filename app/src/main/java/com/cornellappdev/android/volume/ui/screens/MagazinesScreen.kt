@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.DropdownMenu
@@ -25,8 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cornellappdev.android.volume.R
-import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
@@ -56,24 +55,26 @@ fun MagazinesScreen(
             },
 
             content = { innerPadding ->
-                Column(modifier = Modifier
+                LazyVerticalGrid( modifier = Modifier
                     .fillMaxSize()
                     .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
-                    content = {
-
-                        // Featured header
+                    columns = GridCells.Fixed(2)) {
+                    // Featured header
+                    item (span = { GridItemSpan(2)}) {
                         VolumeHeaderText(
                             text = "Featured",
-                            underline = R.drawable.ic_underline_featured,
+                            underline = com.cornellappdev.android.volume.R.drawable.ic_underline_featured,
                             modifier = Modifier.padding(top = 15.dp)
                         )
+                    }
 
-
-                        // Featured magazines row
+                    // Featured magazines row
+                    item (span = { GridItemSpan(2)}) {
                         FillFeaturedMagazinesRow(magazineUiState = magazineUiState)
+                    }
 
-
-                        // Semester magazines text and dropdown menu
+                    // Semester magazines text and dropdown menu
+                    item (span = { GridItemSpan(2)}) {
                         Row(
                             Modifier
                                 .fillMaxWidth()
@@ -85,7 +86,7 @@ fun MagazinesScreen(
                             // More magazines text
                             VolumeHeaderText(
                                 text = "More magazines",
-                                underline = R.drawable.ic_underline_more_magazines
+                                underline = com.cornellappdev.android.volume.R.drawable.ic_underline_more_magazines
                             )
 
                             // Dropdown menu
@@ -119,7 +120,7 @@ fun MagazinesScreen(
                                         fontWeight = FontWeight.Medium,
                                     )
                                     Image(
-                                        painter = painterResource(id = R.drawable.ic_dropdown),
+                                        painter = painterResource(id = com.cornellappdev.android.volume.R.drawable.ic_dropdown),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .padding(top = 12.dp)
@@ -148,20 +149,6 @@ fun MagazinesScreen(
                                                     fontSize = 12.sp,
                                                     modifier = Modifier.drawWithContent {
                                                         drawContent()
-                                                        // TODO use this to stylize better?
-                                                        /*drawRoundRect(
-                                                            color = VolumeOrange,
-                                                            style = Stroke(width = 1.5.dp.toPx()),
-                                                            cornerRadius = CornerRadius(
-                                                                x = 5.dp.toPx(),
-                                                                y = 5.dp.toPx()
-                                                            ),
-                                                            size = Size(
-                                                                width = 120.49.dp.toPx(),
-                                                                height = 1200.dp.toPx()
-                                                            ),
-                                                            topLeft = Offset(x=-15.dp.toPx(), y=-16.dp.toPx())
-                                                        )*/
                                                     },
                                                 )
                                             }
@@ -170,37 +157,26 @@ fun MagazinesScreen(
                                 }
                             }
                         }
+                    }
 
+                    // Semester magazines view
+                    when (val magazinesState = magazineUiState.semesterMagazinesState) {
+                        MagazinesRetrievalState.Loading -> {
+                            item (span = { GridItemSpan(2) }) {
+                                VolumeLoading()
+                            }
+                        }
+                        MagazinesRetrievalState.Error -> { /* TODO */ }
+                        is MagazinesRetrievalState.Success -> {
+                            items(magazinesState.magazines) {
+                                CreateMagazineColumn(magazine = it)
+                            }
+                        }
+                    }
 
-                        // Semester magazines row
-                        FillSemesterMagazinesGrid(magazineUiState = magazineUiState)
-                    })
+                }
             },
         )
-    }
-}
-
-@Composable
-fun FillSemesterMagazinesGrid(magazineUiState: MagazinesViewModel.MagazinesUiState) {
-    when (val magazinesState = magazineUiState.semesterMagazinesState) {
-        MagazinesRetrievalState.Loading -> {
-            VolumeLoading()
-        }
-        MagazinesRetrievalState.Error -> {
-            // TODO Retry prompt
-        }
-        is MagazinesRetrievalState.Success -> {
-            CreateGrid(magazines = magazinesState.magazines)
-        }
-    }
-}
-
-@Composable
-fun CreateGrid(magazines: List<Magazine>) {
-    LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-        items(magazines) {
-            CreateMagazineColumn(magazine = it)
-        }
     }
 }
 @Composable
