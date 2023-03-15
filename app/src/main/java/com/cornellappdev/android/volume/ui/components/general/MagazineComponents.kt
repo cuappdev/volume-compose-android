@@ -54,6 +54,7 @@ fun CreateMagazineColumn (
         )
         // Magazine title text
         Text(
+            modifier = Modifier.width(150.dp),
             text = magazine.title,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
