@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -26,7 +25,6 @@ import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.ui.components.general.*
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
-import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.HomeViewModel
@@ -218,12 +216,7 @@ fun HomeScreen(
                 item {
                     when (val otherArticlesState = homeUiState.otherArticlesState) {
                         ArticlesRetrievalState.Loading -> {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                CircularProgressIndicator(color = VolumeOrange)
-                            }
+                            VolumeLoading()
                         }
                         ArticlesRetrievalState.Error -> {
                             // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.

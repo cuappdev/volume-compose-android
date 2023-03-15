@@ -24,12 +24,13 @@ private const val TAG = "MagazineComponents"
 fun CreateMagazineColumn (
     magazine: Magazine
 ) {
+    Log.d(TAG, "CreateMagazineColumn: Creating magazine column")
     Column (
         Modifier
             .padding(10.dp)
             .wrapContentHeight()
             .clickable {
-                Log.d(TAG, "CreateArticleColumn: Clicked!")
+                Log.d(TAG, "CreateArticleColumn: ${magazine.title} Clicked!")
                 // TODO implement on click.
             }) {
 
@@ -54,7 +55,7 @@ fun CreateMagazineColumn (
         // Magazine title text
         Text(
             text = magazine.title,
-            maxLines = 3,
+            maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             fontFamily = lato,
             fontWeight = FontWeight.Bold,

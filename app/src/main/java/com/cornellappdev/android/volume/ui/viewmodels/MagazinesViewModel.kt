@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +14,7 @@ import java.util.*
 import javax.inject.Inject
 
 // TODO optimize loading?
+private const val TAG = "MagazinesViewModel"
 @HiltViewModel
 class MagazinesViewModel @Inject constructor(
     private val magazineRepository: MagazineRepository
@@ -56,6 +58,7 @@ class MagazinesViewModel @Inject constructor(
                 magazineUiState = magazineUiState.copy(
                     featuredMagazinesState = MagazinesRetrievalState.Error
                 )
+                Log.d(TAG, "queryFeaturedMagazines: LOAD FAILED: ${e.message}")
             }
         }
     }
