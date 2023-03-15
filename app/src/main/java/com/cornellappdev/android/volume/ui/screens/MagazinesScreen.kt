@@ -147,9 +147,6 @@ fun MagazinesScreen(
                                                     color = VolumeOrange,
                                                     fontWeight = FontWeight.Medium,
                                                     fontSize = 12.sp,
-                                                    modifier = Modifier.drawWithContent {
-                                                        drawContent()
-                                                    },
                                                 )
                                             }
                                         }
@@ -220,6 +217,11 @@ fun populateSemesterList(semesters: ArrayList<String>) {
     }
 }
 
+/**
+ * Formats a given String to fit the backend semester format of "fa" or "sp" and then the year.
+ * Requires: Semester string is at minimum length 2, and the first two letters are some form of
+ * "fa" or "sp", and the last two characters are the digits of the year.
+ */
 fun formatSemester(semester: String) =
     semester.substring(0, 2).lowercase() + semester.substring(semester.length-2, semester.length)
 

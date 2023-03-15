@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.notoserif
-// TODO apply abstractions to files other than magazine screen.
 
 @Composable
 fun VolumeLogo(modifier: Modifier=Modifier) {
@@ -50,7 +49,6 @@ fun VolumeHeaderText(text: String, underline: Int, modifier: Modifier=Modifier) 
     }
 }
 
-// TODO implement abstraction in more areas
 @Composable
 fun VolumeLoading() {
     Column(
