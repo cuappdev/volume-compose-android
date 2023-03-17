@@ -1,30 +1,39 @@
 package com.cornellappdev.android.volume.ui.components.general
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.theme.GrayOne
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
+import com.rizzi.bouquet.ResourceType
+import com.rizzi.bouquet.VerticalPDFReader
+import com.rizzi.bouquet.rememberVerticalPdfReaderState
+
 
 private const val TAG = "MagazineComponents"
-
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun CreateMagazineColumn (
-    magazine: Magazine
+    magazine: Magazine,
 ) {
-    Log.d(TAG, "CreateMagazineColumn: Creating magazine column")
+    val pdfState = rememberVerticalPdfReaderState(
+        resource = ResourceType.Remote(magazine.pdfURL),
+        isZoomEnable = false
+    )
+
     Column (
         Modifier
             .padding(10.dp)
@@ -34,14 +43,15 @@ fun CreateMagazineColumn (
                 // TODO implement on click.
             }) {
 
+
         // Magazine image
-        AsyncImage(
-            model = magazine.publication.backgroundImageURL, // TODO replace with page 1 of PDF?
-            modifier = Modifier
-                .height(220.dp)
-                .width(150.dp)
-                .shadow(8.dp), contentDescription = null, contentScale = ContentScale.Crop
-        )
+
+        Surface (modifier = Modifier
+            .width(150.dp)
+            .height(200.dp)
+            .shadow(8.dp)) {
+            VerticalPDFReader(state = pdfState, modifier = Modifier.shimmerEffect().fillMaxSize())
+        }
         // Magazine publisher text
         Text(
             modifier = Modifier.padding(top = 16.dp, bottom = 2.dp),
