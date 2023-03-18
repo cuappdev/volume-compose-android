@@ -229,7 +229,18 @@ private fun MainScreenNavigationConfigurations(
                 }
             )
         }
-        composable(Routes.MAGAZINES.route) {}
+        composable(route = Routes.MAGAZINES.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 1500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 1500)
+                )
+            }) { MagazinesScreen() }
         composable(
             route = "${Routes.OPEN_MAGAZINE.route}/{magazineId}/{navigationSourceName}",
             deepLinks = listOf(

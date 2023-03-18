@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -24,11 +23,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
-import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
-import com.cornellappdev.android.volume.ui.components.general.CreateBigReadRow
-import com.cornellappdev.android.volume.ui.components.general.PermissionRequestDialog
+import com.cornellappdev.android.volume.ui.components.general.*
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
-import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.HomeViewModel
@@ -44,12 +40,7 @@ fun HomeScreen(
 
     Box {
         Scaffold(topBar = {
-            Image(
-                painter = painterResource(R.drawable.volume_title),
-                contentDescription = null,
-                modifier = Modifier
-                    .scale(0.8f)
-            )
+            VolumeLogo()
         }, content = { innerPadding ->
             LazyColumn(
                 modifier = Modifier
@@ -57,35 +48,18 @@ fun HomeScreen(
                     .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
             ) {
                 item {
-                    Column {
-                        Text(
-                            text = "The Big Read",
-                            fontFamily = notoserif,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(top = 15.dp)
-                        )
-                        Image(
-                            painter = painterResource(R.drawable.ic_underline_big_read),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .offset(y = (-5).dp)
-                                .padding(start = 2.dp)
-                                .scale(1.05F)
-                        )
-                    }
+                    VolumeHeaderText(
+                        text = "The Big Read",
+                        underline = R.drawable.ic_underline_big_read,
+                        modifier = Modifier.padding(top = 15.dp)
+                    )
                     Spacer(modifier = Modifier.height(25.dp))
                 }
 
                 item {
                     when (val trendingArticlesState = homeUiState.trendingArticlesState) {
                         ArticlesRetrievalState.Loading -> {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                CircularProgressIndicator(color = VolumeOrange)
-                            }
+                            VolumeLoading()
                         }
                         ArticlesRetrievalState.Error -> {
                             // TODO Prompt to try again, queryTrendingArticles manually (it's public). Could be that internet is down.
@@ -107,35 +81,16 @@ fun HomeScreen(
                 }
 
                 item {
-                    Column {
-                        Text(
-                            text = "Following",
-                            fontFamily = notoserif,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Image(
-                            painter = painterResource(R.drawable.ic_underline_following),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .offset(y = (-5).dp)
-                                .scale(1.05F)
-                        )
-                    }
+                    VolumeHeaderText(
+                        text = "Following",
+                        underline = R.drawable.ic_underline_following
+                    )
                 }
 
                 item {
                     when (val followingArticlesState = homeUiState.followingArticlesState) {
                         ArticlesRetrievalState.Loading -> {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                CircularProgressIndicator(
-                                    color = VolumeOrange,
-                                    modifier = Modifier.padding(vertical = 50.dp)
-                                )
-                            }
+                            VolumeLoading()
                         }
                         ArticlesRetrievalState.Error -> {
                             // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
@@ -252,33 +207,16 @@ fun HomeScreen(
                 }
 
                 item {
-                    Column {
-                        Text(
-                            text = "Other Articles",
-                            fontFamily = notoserif,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Image(
-                            painter = painterResource(R.drawable.ic_underline_other_article),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(start = 2.dp)
-                                .offset(y = (-7).dp)
-                                .scale(1.05F)
-                        )
-                    }
+                    VolumeHeaderText(
+                        text = "Other Articles",
+                        underline = R.drawable.ic_underline_other_article
+                    )
                 }
 
                 item {
                     when (val otherArticlesState = homeUiState.otherArticlesState) {
                         ArticlesRetrievalState.Loading -> {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                CircularProgressIndicator(color = VolumeOrange)
-                            }
+                            VolumeLoading()
                         }
                         ArticlesRetrievalState.Error -> {
                             // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.

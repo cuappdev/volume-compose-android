@@ -56,7 +56,7 @@ sealed class NavigationItem(
     companion object {
         val bottomNavTabList = listOf(
             Home,
-//            Magazines,
+            Magazines,
             Publications,
             Bookmarks
         )

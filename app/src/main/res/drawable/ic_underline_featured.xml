@@ -1,8 +1,10 @@
+<!-- TODO This may not align with design correctly -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="99dp"
-    android:height="6dp"
-    android:viewportWidth="99"
-    android:viewportHeight="6">
+    android:width="84.11dp"
+    android:height="12.7dp"
+    android:viewportWidth="84.11"
+    android:viewportHeight="12.7">
+
     <path
         android:fillColor="#00000000"
         android:pathData="M0.5,5C32.804,-0.105 60.271,0.805 98.343,0.68"
