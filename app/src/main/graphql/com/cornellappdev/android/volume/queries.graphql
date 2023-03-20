@@ -207,6 +207,41 @@ query MagazinesBySemester($offset: Float, $limit: Float, $semester: String!){
     }
 }
 
+query MagazineById($id: String!){
+    getMagazineByID(id: $id){
+        id
+        date
+        semester
+        pdfURL
+        publicationSlug
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
 query FeaturedMagazines($limit: Float){
     getFeaturedMagazines(limit: $limit){
         id
@@ -455,6 +490,13 @@ mutation UnfollowPublication($slug: String!, $uuid: String!) {
 
 mutation IncrementShoutout($id: String!, $uuid: String!) {
     incrementShoutouts(id: $id, uuid: $uuid) {
+        id
+        shoutouts
+    }
+}
+
+mutation IncrementMagazineShoutouts($id: String!, $uuid: String!){
+    incrementMagazineShoutouts(id: $id, uuid: $uuid){
         id
         shoutouts
     }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.volume.data.repositories.MagazineRepository
+import com.cornellappdev.android.volume.ui.states.MagazineRetrievalState
 import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -28,6 +29,7 @@ class MagazinesViewModel @Inject constructor(
     data class MagazinesUiState(
         val featuredMagazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
         val semesterMagazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
+        val magazineByIdState: MagazineRetrievalState = MagazineRetrievalState.Loading
     )
 
     var magazineUiState by mutableStateOf(MagazinesUiState())
@@ -87,6 +89,28 @@ class MagazinesViewModel @Inject constructor(
             } catch (e: Exception) {
                 magazineUiState = magazineUiState.copy(
                     featuredMagazinesState = MagazinesRetrievalState.Error
+                )
+            }
+        }
+    }
+
+    /**
+     * Queries the backend for a specific magazine based on a given magazine id. If successful, it
+     * will update the UI state with the magazine retrieval state.
+     * Otherwise it will update it to a failure state.
+     * @param id The id of the magazine to query for.
+     */
+    fun queryMagazineById(id: String) {
+        viewModelScope.launch {
+            try {
+                magazineUiState = magazineUiState.copy(
+                    magazineByIdState = MagazineRetrievalState.Success(
+                        magazineRepository.fetchMagazineById(id)
+                    )
+                )
+            } catch (e: Exception) {
+                magazineUiState = magazineUiState.copy(
+                    magazineByIdState = MagazineRetrievalState.Error
                 )
             }
         }

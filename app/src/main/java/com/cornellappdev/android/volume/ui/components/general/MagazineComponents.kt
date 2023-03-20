@@ -1,7 +1,6 @@
 package com.cornellappdev.android.volume.ui.components.general
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,24 +13,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.theme.GrayOne
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
-import com.rizzi.bouquet.ResourceType
-import com.rizzi.bouquet.VerticalPDFReader
-import com.rizzi.bouquet.rememberVerticalPdfReaderState
+import com.cornellappdev.android.volume.ui.viewmodels.MagazinesViewModel
+import com.rizzi.bouquet.*
 
 
 private const val TAG = "MagazineComponents"
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun CreateMagazineColumn (
+    magazinesUiState: MagazinesViewModel = hiltViewModel(),
     magazine: Magazine,
+    onMagazineClick: (magazine: Magazine) -> Unit
 ) {
-    val pdfState = rememberVerticalPdfReaderState(
+    val pdfState = rememberHorizontalPdfReaderState(
         resource = ResourceType.Remote(magazine.pdfURL),
-        isZoomEnable = false
+        isZoomEnable = false,
     )
 
     Column (
@@ -39,18 +40,18 @@ fun CreateMagazineColumn (
             .padding(10.dp)
             .wrapContentHeight()
             .clickable {
-                Log.d(TAG, "CreateArticleColumn: ${magazine.title} Clicked!")
-                // TODO implement on click.
+                onMagazineClick(magazine)
             }) {
-
-
         // Magazine image
 
         Surface (modifier = Modifier
             .width(150.dp)
             .height(200.dp)
             .shadow(8.dp)) {
-            VerticalPDFReader(state = pdfState, modifier = Modifier.shimmerEffect().fillMaxSize())
+            HorizontalPDFReader(state = pdfState, modifier = Modifier
+                .shimmerEffect()
+                .fillMaxSize()
+                .disabledHorizontalPointerInputScroll())
         }
         // Magazine publisher text
         Text(

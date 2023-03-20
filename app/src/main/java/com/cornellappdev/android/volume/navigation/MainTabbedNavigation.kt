@@ -1,5 +1,7 @@
 package com.cornellappdev.android.volume.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
@@ -20,6 +22,7 @@ import androidx.navigation.navDeepLink
 import com.cornellappdev.android.volume.analytics.EventType
 import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.analytics.VolumeEvent
+import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.screens.*
 import com.cornellappdev.android.volume.ui.theme.DarkGray
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
@@ -27,6 +30,7 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
+@RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
@@ -133,6 +137,7 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun MainScreenNavigationConfigurations(
@@ -240,9 +245,11 @@ private fun MainScreenNavigationConfigurations(
                 fadeOut(
                     animationSpec = tween(durationMillis = 1500)
                 )
-            }) { MagazinesScreen() }
+            }) { MagazinesScreen( onMagazineClick = { magazine: Magazine ->
+                navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}")
+        } ) }
         composable(
-            route = "${Routes.OPEN_MAGAZINE.route}/{magazineId}/{navigationSourceName}",
+            route = "${Routes.OPEN_MAGAZINE.route}/{magazineId}",
             deepLinks = listOf(
                 navDeepLink { uriPattern = "volume://${Routes.OPEN_MAGAZINE.route}/{magazineId}" }
             ),
@@ -256,7 +263,11 @@ private fun MainScreenNavigationConfigurations(
                 fadeOut(
                     animationSpec = tween(durationMillis = 1500)
                 )
-            }) {}
+            }) {
+                entry ->
+                IndividualMagazineScreen(entry.arguments?.getString("magazineId") ?: "")
+            }
+
         composable(Routes.PUBLICATIONS.route) {
             PublicationsScreen(
                 onPublicationClick =

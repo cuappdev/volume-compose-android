@@ -44,11 +44,22 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
             limit = Optional.presentIfNotNull(limit),
             semester = semester
         )).execute()
+
+    suspend fun fetchMagazineById(id: String): ApolloResponse<MagazineByIdQuery.Data> =
+        apolloClient.query(MagazineByIdQuery(
+            id = id
+        )).execute()
     suspend fun incrementShoutout(
         id: String,
         uuid: String
     ): ApolloResponse<IncrementShoutoutMutation.Data> =
         apolloClient.mutation(IncrementShoutoutMutation(id, uuid)).execute()
+
+    suspend fun incrementMagazineShoutout(
+        id: String,
+        uuid: String
+    ): ApolloResponse<IncrementMagazineShoutoutsMutation.Data> =
+        apolloClient.mutation(IncrementMagazineShoutoutsMutation(id, uuid)).execute()
 
     suspend fun createUser(
         followedPublications: List<String>,

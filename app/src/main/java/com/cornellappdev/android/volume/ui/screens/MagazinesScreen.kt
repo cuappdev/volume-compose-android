@@ -1,5 +1,7 @@
 package com.cornellappdev.android.volume.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,10 +24,10 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
@@ -35,10 +37,11 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.viewmodels.MagazinesViewModel
 import java.util.*
 
-@Preview
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun MagazinesScreen(
-    magazinesViewModel: MagazinesViewModel = hiltViewModel()
+    magazinesViewModel: MagazinesViewModel = hiltViewModel(),
+    onMagazineClick: (magazine: Magazine) -> Unit
 ) {
     // Dropdown menu variables
     var expanded by remember { mutableStateOf(false) }
@@ -70,7 +73,7 @@ fun MagazinesScreen(
 
                     // Featured magazines row
                     item (span = { GridItemSpan(2)}) {
-                        FillFeaturedMagazinesRow(magazineUiState = magazineUiState)
+                        FillFeaturedMagazinesRow(magazineUiState = magazineUiState, onMagazineClick = onMagazineClick)
                     }
 
                     // Semester magazines text and dropdown menu
@@ -166,7 +169,7 @@ fun MagazinesScreen(
                         MagazinesRetrievalState.Error -> { /* TODO */ }
                         is MagazinesRetrievalState.Success -> {
                             items(magazinesState.magazines) {
-                                CreateMagazineColumn(magazine = it)
+                                CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
                             }
                         }
                     }
@@ -176,8 +179,11 @@ fun MagazinesScreen(
         )
     }
 }
+
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun FillFeaturedMagazinesRow(magazineUiState: MagazinesViewModel.MagazinesUiState) {
+fun FillFeaturedMagazinesRow(magazineUiState: MagazinesViewModel.MagazinesUiState, onMagazineClick: (magazine: Magazine) -> Unit)
+{
     when (val magazinesState =  magazineUiState.featuredMagazinesState) {
         MagazinesRetrievalState.Loading -> {
             VolumeLoading()
@@ -189,7 +195,7 @@ fun FillFeaturedMagazinesRow(magazineUiState: MagazinesViewModel.MagazinesUiStat
             LazyRow {
                 items(magazinesState.magazines.size) {
                     magazinesState.magazines.forEach {
-                        CreateMagazineColumn(magazine = it)
+                        CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
                     }
                 }
             }

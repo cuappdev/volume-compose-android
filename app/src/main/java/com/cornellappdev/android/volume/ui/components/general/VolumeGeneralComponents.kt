@@ -20,16 +20,21 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.notoserif
 
+// General components that have been abstracted for use throughout the Volume app
 @Composable
 fun VolumeLogo(modifier: Modifier=Modifier) {
     Image(
@@ -39,7 +44,6 @@ fun VolumeLogo(modifier: Modifier=Modifier) {
             .scale(0.8f)
     )
 }
-
 @Composable
 fun VolumeHeaderText(text: String, underline: Int, modifier: Modifier=Modifier) {
     Column (modifier = modifier) {
@@ -59,7 +63,6 @@ fun VolumeHeaderText(text: String, underline: Int, modifier: Modifier=Modifier) 
         )
     }
 }
-
 @Composable
 fun VolumeLoading() {
     Column(
@@ -70,6 +73,11 @@ fun VolumeLoading() {
     }
 }
 
+// Custom modifiers for use throughout the app:
+/**
+ * Modifier extension function to provide a "shimmer effect"
+ * Applies an animated gray background to any component with shimmer animation via gradients.
+ */
 fun Modifier.shimmerEffect(): Modifier = composed {
     var size by remember {
         mutableStateOf(IntSize.Zero)
@@ -97,3 +105,20 @@ fun Modifier.shimmerEffect(): Modifier = composed {
         size = it.size
     }
 }
+
+// Modifier extension functions that disables the scrolling ability for composables.
+
+fun Modifier.disabledVerticalPointerInputScroll(disabled: Boolean = true) =
+    if (disabled) this.nestedScroll(VerticalScrollConsumer) else this
+
+private val VerticalScrollConsumer = object : NestedScrollConnection {
+    override fun onPreScroll(available: Offset, source: NestedScrollSource) = available.copy(x = 0f)
+    override suspend fun onPreFling(available: Velocity) = available.copy(x = 0f)
+}
+
+private val HorizontalScrollConsumer = object : NestedScrollConnection {
+    override fun onPreScroll(available: Offset, source: NestedScrollSource) = available.copy(y = 0f)
+    override suspend fun onPreFling(available: Velocity) = available.copy(y = 0f)
+}
+fun Modifier.disabledHorizontalPointerInputScroll(disabled: Boolean = true) =
+    if (disabled) this.nestedScroll(HorizontalScrollConsumer) else this
