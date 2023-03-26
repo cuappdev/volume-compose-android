@@ -36,6 +36,9 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     suspend fun fetchArticleByID(id: String): ApolloResponse<ArticleByIDQuery.Data> =
         apolloClient.query(ArticleByIDQuery(id)).execute()
 
+    suspend fun fetchAllMagazines(limit: Double? = null): ApolloResponse<AllMagazinesQuery.Data> =
+        apolloClient.query(AllMagazinesQuery(Optional.presentIfNotNull(limit))).execute()
+
     suspend fun fetchFeaturedMagazines(limit: Double? = null): ApolloResponse<FeaturedMagazinesQuery.Data> =
         apolloClient.query(FeaturedMagazinesQuery(Optional.presentIfNotNull(limit))).execute()
 
@@ -44,11 +47,27 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
             limit = Optional.presentIfNotNull(limit),
             semester = semester
         )).execute()
+
+    suspend fun fetchMagazineById(id: String): ApolloResponse<MagazineByIdQuery.Data> =
+        apolloClient.query(MagazineByIdQuery(
+            id = id
+        )).execute()
+
+    suspend fun fetchMagazinesByIds(ids: List<String>): ApolloResponse<MagazinesByIDsQuery.Data> =
+        apolloClient.query(MagazinesByIDsQuery(
+            ids = ids
+        )).execute()
     suspend fun incrementShoutout(
         id: String,
         uuid: String
     ): ApolloResponse<IncrementShoutoutMutation.Data> =
         apolloClient.mutation(IncrementShoutoutMutation(id, uuid)).execute()
+
+    suspend fun incrementMagazineShoutout(
+        id: String,
+        uuid: String
+    ): ApolloResponse<IncrementMagazineShoutoutsMutation.Data> =
+        apolloClient.mutation(IncrementMagazineShoutoutsMutation(id, uuid)).execute()
 
     suspend fun createUser(
         followedPublications: List<String>,
