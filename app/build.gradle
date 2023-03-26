@@ -45,7 +45,7 @@ android {
         }
         debug {
             resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "true")
-            buildConfigField("String", "ENDPOINT", secretsProperties['PROD_ENDPOINT'])
+            buildConfigField("String", "ENDPOINT", secretsProperties['DEV_ENDPOINT'])
         }
     }
 
