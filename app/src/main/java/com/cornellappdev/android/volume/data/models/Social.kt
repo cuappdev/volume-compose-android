@@ -21,6 +21,12 @@ data class Social(
             "youtube" to "YouTube"
         )
         val socialLogoMap =
-            mapOf("Instagram" to R.drawable.ic_instagram, "Facebook" to R.drawable.ic_facebook)
+            mapOf(
+                "Instagram" to R.drawable.ic_instagram,
+                "Facebook" to R.drawable.ic_facebook,
+                "LinkedIn" to R.drawable.ic_linkedin,
+                "Twitter" to R.drawable.ic_twitter,
+                "YouTube" to R.drawable.ic_youtube
+            )
     }
 }
