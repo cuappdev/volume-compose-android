@@ -242,6 +242,41 @@ query MagazineById($id: String!){
     }
 }
 
+query MagazinesByIDs($ids: [String!]!){
+    getMagazinesByIDs(ids: $ids){
+        id
+        date
+        semester
+        pdfURL
+        publication {
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
+        publicationSlug
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
 query FeaturedMagazines($limit: Float){
     getFeaturedMagazines(limit: $limit){
         id
@@ -268,6 +303,41 @@ query FeaturedMagazines($limit: Float){
             }
         }
         publicationSlug
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
+query AllMagazines ($limit: Float) {
+    getAllMagazines (limit: $limit) {
+        id
+        date
+        semester
+        pdfURL
+        publicationSlug
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
         shoutouts
         title
         nsfw

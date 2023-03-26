@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.CircularProgressIndicator
@@ -13,12 +14,14 @@ import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateIndividualPublicationHeading
+import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.android.volume.ui.states.PublicationRetrievalState
 import com.cornellappdev.android.volume.ui.theme.GrayThree
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.viewmodels.IndividualPublicationViewModel
 
+private const val TAG = "IndividualPublicationScreen"
 @Composable
 fun IndividualPublicationScreen(
     individualPublicationViewModel: IndividualPublicationViewModel = hiltViewModel(),
@@ -30,17 +33,14 @@ fun IndividualPublicationScreen(
         item {
             when (val publicationState = publicationUiState.publicationState) {
                 PublicationRetrievalState.Loading -> {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        CircularProgressIndicator(color = VolumeOrange)
-                    }
+                    Log.d(TAG, "IndividualPublicationScreen: Loading state reached")
+                    VolumeLoading()
                 }
                 PublicationRetrievalState.Error -> {
-
+                    Log.d(TAG, "IndividualPublicationScreen: Error state reached")
                 }
                 is PublicationRetrievalState.Success -> {
+                    Log.d(TAG, "IndividualPublicationScreen: Success state reached")
                     CreateIndividualPublicationHeading(
                         publication = publicationState.publication,
                         publicationUiState.isFollowed

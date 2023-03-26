@@ -11,7 +11,6 @@ import com.cornellappdev.android.volume.ui.states.MagazineRetrievalState
 import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 // TODO optimize loading?
@@ -28,7 +27,7 @@ class MagazinesViewModel @Inject constructor(
 
     data class MagazinesUiState(
         val featuredMagazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
-        val semesterMagazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
+        val moreMagazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
         val magazineByIdState: MagazineRetrievalState = MagazineRetrievalState.Loading
     )
 
@@ -55,7 +54,7 @@ class MagazinesViewModel @Inject constructor(
                         )
                     )
                 )
-                querySemesterMagazines(semester = getCurrentSemester())
+                queryMoreMagazines(query = "View all")
             } catch (e: Exception) {
                 magazineUiState = magazineUiState.copy(
                     featuredMagazinesState = MagazinesRetrievalState.Error
@@ -69,23 +68,32 @@ class MagazinesViewModel @Inject constructor(
      * Queries the backend for the magazines of the current semester. If successful, it will update
      * the ui state with the magazines retrieval state.
      * Otherwise it will update it with a failure state.
-     * @param semester Current semester, format of "fa" or "sp", and then last 2 digits of year
+     * @param query Current semester, format of "fa" or "sp", and then last 2 digits of year
      * @param limit The limit of how many magazines to query for.
      */
-    fun querySemesterMagazines (semester: String, limit: Double? = NUMBER_OF_SEMESTER_MAGAZINES) {
+    fun queryMoreMagazines (query: String, limit: Double? = NUMBER_OF_SEMESTER_MAGAZINES) {
         magazineUiState = magazineUiState.copy(
-            semesterMagazinesState = MagazinesRetrievalState.Loading
+            moreMagazinesState = MagazinesRetrievalState.Loading
         )
         viewModelScope.launch {
             try {
-                magazineUiState = magazineUiState.copy(
-                    semesterMagazinesState = MagazinesRetrievalState.Success(
-                        magazineRepository.fetchMagazinesBySemester(
-                            limit = limit,
-                            semester = semester
+                if (query == "View all") {
+                    magazineUiState = magazineUiState.copy(
+                        moreMagazinesState = MagazinesRetrievalState.Success(
+                            magazineRepository.fetchAllMagazines(
+                                limit = limit
+                            )
                         )
                     )
-                )
+                } else
+                    magazineUiState = magazineUiState.copy(
+                        moreMagazinesState = MagazinesRetrievalState.Success(
+                            magazineRepository.fetchMagazinesBySemester(
+                                limit = limit,
+                                semester = query
+                            )
+                        )
+                    )
             } catch (e: Exception) {
                 magazineUiState = magazineUiState.copy(
                     featuredMagazinesState = MagazinesRetrievalState.Error
@@ -116,16 +124,3 @@ class MagazinesViewModel @Inject constructor(
         }
     }
 }
-
-/**
- * Gets the current semester that the user is in based on the year and month.
- * @return string in the form of "faXX" or "spXX", depending on semester and year
- */
-fun getCurrentSemester(): String {
-    val calendar = Calendar.getInstance()
-    val currentYear: Int = calendar.get(Calendar.YEAR) - 2000
-    val season: String = if (calendar.get(Calendar.MONTH) <= 9) "sp" else "fa"
-    return "$season$currentYear"
-}
-
-

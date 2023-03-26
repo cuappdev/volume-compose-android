@@ -6,11 +6,9 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
+import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 
 // General components that have been abstracted for use throughout the Volume app
@@ -122,3 +121,43 @@ private val HorizontalScrollConsumer = object : NestedScrollConnection {
 }
 fun Modifier.disabledHorizontalPointerInputScroll(disabled: Boolean = true) =
     if (disabled) this.nestedScroll(HorizontalScrollConsumer) else this
+
+@Composable
+fun VolumeLinearProgressBar(progress: Float, modifier: Modifier = Modifier.height(15.dp)){
+    Column(modifier = Modifier.fillMaxWidth()) {
+        LinearProgressIndicator(
+            modifier = modifier,
+            backgroundColor = Color.LightGray,
+            color = VolumeOrange,
+            progress = progress
+        )
+    }
+}
+
+@Composable
+fun NothingToShowText(message: String) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_volume_bars_orange_large),
+            contentDescription = null
+        )
+
+        Text(
+            text = "Nothing to see here!",
+            fontFamily = notoserif,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Medium
+        )
+
+        Text(
+            text = message,
+            fontFamily = lato,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}

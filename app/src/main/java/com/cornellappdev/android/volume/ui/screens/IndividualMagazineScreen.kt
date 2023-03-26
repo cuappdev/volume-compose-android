@@ -12,9 +12,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -24,10 +26,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.analytics.EventType
 import com.cornellappdev.android.volume.analytics.VolumeEvent
 import com.cornellappdev.android.volume.navigation.Routes
+import com.cornellappdev.android.volume.ui.components.general.VolumeLinearProgressBar
 import com.cornellappdev.android.volume.ui.components.general.shimmerEffect
 import com.cornellappdev.android.volume.ui.states.MagazineRetrievalState
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
@@ -44,52 +48,65 @@ private const val TAG = "IndividualMagazineScreen"
 fun IndividualMagazineScreen(
     magazineId: String,
     individualMagazineViewModel: IndividualMagazineViewModel = hiltViewModel(),
+    navController: NavController
 ) {
     individualMagazineViewModel.queryMagazineById(magazineId)
     val magazineUiState = individualMagazineViewModel.magazineUiState
+    var showProgressBar by remember { mutableStateOf(false)}
 
     Scaffold(
         bottomBar = {
             MakeBottomBar(magazineUiState)
         }, topBar = {
-            MakeTopBar(magazineUiState)
+            MakeTopBar(magazineUiState, navController)
         },
         content = {
             PdfReader(
                 magazineUiState = magazineUiState,
-                modifier = Modifier.padding(
-                    top = it.calculateTopPadding(),
-                    bottom = it.calculateBottomPadding()
-                )
+                showProgressBar = showProgressBar,
+                modifier = Modifier
+                    .padding(
+                        top = it.calculateTopPadding(),
+                        bottom = it.calculateBottomPadding()
+                    )
+                    .fillMaxWidth()
             )
         }
     )
 }
 @Composable
-fun MakeTopBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState) {
+fun MakeTopBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState,
+                navController: NavController) {
     when (val magazineState = magazineUiState.magazineState) {
         MagazineRetrievalState.Loading -> {
-            TopBar()
+            TopBar(navController = navController)
         }
         MagazineRetrievalState.Error -> {
-            TopBar()
+            TopBar(navController = navController)
         }
         is MagazineRetrievalState.Success -> {
-            TopBar(magazineState.magazine.publication.name)
+            TopBar(magazineState.magazine.publication.name, navController = navController)
         }
     }
 
 }
 
 @Composable
-fun TopBar(publisher: String = "Magazine") {
+fun TopBar(publisher: String = "Magazine",
+           navController: NavController) {
     Row (modifier = Modifier.background(Color(0xFFF9F9F9))) {
         Icon(painter = painterResource(id = R.drawable.ic_arrow_left),
             contentDescription = null,
-            modifier = Modifier.padding(start = 16.dp, top = 8.dp))
-        Spacer(modifier = Modifier.weight(1f))
+            modifier = Modifier
+                .offset(x = 16.dp, y = 8.dp)
+                .clickable {
+                    navController.navigate(Routes.MAGAZINES.route)
+                })
         Column(horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(top = 8.dp)) {
+
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .weight(1F)) {
             Text(
                 fontSize = 15.sp,
                 fontFamily = notoserif,
@@ -105,12 +122,6 @@ fun TopBar(publisher: String = "Magazine") {
                 text = "Reading in Volume"
             )
         }
-        Spacer(modifier = Modifier.weight(1f))
-        Icon(painter = painterResource(id = R.drawable.ic_menu),
-            contentDescription = null,
-            modifier = Modifier.padding(end = 20.dp, top = 16.dp).clickable {
-                // TODO implement table of contents
-            })
     }
 }
 
@@ -120,7 +131,8 @@ fun TopBar(publisher: String = "Magazine") {
  * properly, otherwise they will have default values.
  */
 @Composable
-fun MakeBottomBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState) {
+fun MakeBottomBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState, )
+{
     when (val magazineState = magazineUiState.magazineState) {
         MagazineRetrievalState.Loading -> {
             BottomBar()
@@ -239,7 +251,9 @@ private fun shareMagazine(context: Context, id: String) {
 
 
 @Composable
-fun PdfReader(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState, modifier: Modifier) {
+fun PdfReader(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState,
+              modifier: Modifier,
+              showProgressBar: Boolean) {
     when (val magazineByIdState = magazineUiState.magazineState) {
         MagazineRetrievalState.Loading -> {
             Box(modifier = Modifier
@@ -255,13 +269,22 @@ fun PdfReader(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiS
                 resource = ResourceType.Remote(magazine.pdfURL),
                 isZoomEnable = true
             )
-
             HorizontalPDFReader(
                 state = pdfState,
-                modifier = if (pdfState.isLoaded) modifier.fillMaxSize() else modifier
-                    .fillMaxSize()
-                    .shimmerEffect()
+                modifier = if (pdfState.isLoaded) Modifier.fillMaxSize() else Modifier.alpha(0F)
             )
+
+
+            if (!pdfState.isLoaded) {
+                VolumeLinearProgressBar(
+                    progress = (pdfState.loadPercent / 100f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                        .shadow(5.dp)
+                )
+            }
         }
+        
     }
 }

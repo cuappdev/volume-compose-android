@@ -62,6 +62,9 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
         Routes.ABOUT_US.route -> {
             showBottomBar.value = false
         }
+        Routes.MAGAZINES.route -> {
+            showBottomBar.value = true
+        }
         "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}" -> {
             showBottomBar.value = false
         }
@@ -69,6 +72,9 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
             showBottomBar.value = true
         }
         "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}" -> {
+            showBottomBar.value = false
+        }
+        "${Routes.OPEN_MAGAZINE.route}/{magazineId}" -> {
             showBottomBar.value = false
         }
     }
@@ -265,7 +271,10 @@ private fun MainScreenNavigationConfigurations(
                 )
             }) {
                 entry ->
-                IndividualMagazineScreen(entry.arguments?.getString("magazineId") ?: "")
+                IndividualMagazineScreen(
+                    magazineId = entry.arguments?.getString("magazineId") ?: "",
+                    navController = navController
+                )
             }
 
         composable(Routes.PUBLICATIONS.route) {
@@ -295,7 +304,10 @@ private fun MainScreenNavigationConfigurations(
                 onArticleClick = { article, navigationSource ->
                     navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
                 },
-                onSettingsClick = { navController.navigate(Routes.SETTINGS.route) })
+                onSettingsClick = { navController.navigate(Routes.SETTINGS.route) },
+                onMagazineClick = {magazine ->
+                    navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}")
+                })
         }
         composable(Routes.SETTINGS.route,
             enterTransition = {

@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val TAG = "IndividualPublicationViewModel"
 @HiltViewModel
 class IndividualPublicationViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -26,7 +28,6 @@ class IndividualPublicationViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val publicationSlug: String = checkNotNull(savedStateHandle["publicationSlug"])
-
     data class PublicationUiState(
         val publicationState: PublicationRetrievalState = PublicationRetrievalState.Loading,
         val articlesByPublicationState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
@@ -59,18 +60,35 @@ class IndividualPublicationViewModel @Inject constructor(
 
     private fun queryPublication() = viewModelScope.launch {
         try {
+            Log.d(TAG, "queryPublication: No null pointers")
+            val publication = publicationRepository.fetchPublicationBySlug(publicationSlug)
+            Log.d(TAG, "queryPublication: SUCCESSFULLY QUERIED PUBLICATIONS")
+
             publicationUiState = publicationUiState.copy(
+
                 publicationState = PublicationRetrievalState.Success(
-                    publicationRepository.fetchPublicationBySlug(
-                        publicationSlug
-                    ).first()
+                    publication
                 ),
-                isFollowed = userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.contains(
+                /*isFollowed = userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.contains(
                     publicationSlug
-                )
+                )*/
             )
+
+            try {
+                publicationUiState = publicationUiState.copy(
+                    isFollowed = userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.contains(
+                        publicationSlug
+                ))
+            } catch (ignored: java.lang.Exception) {
+                Log.d(TAG, "queryPublication: Gotcha!")
+            /* If the user has not previously followed
+             any publications, the followed publication slugs will be null, and we need
+             to catch this exception so the publication can still load.*/
+            }
+            Log.d(TAG, "queryPublication: No null pointers!!!")
             queryArticleByPublication()
         } catch (e: Exception) {
+            Log.d(TAG, "queryPublication: $e")
             publicationUiState = publicationUiState.copy(
                 publicationState = PublicationRetrievalState.Error
             )
