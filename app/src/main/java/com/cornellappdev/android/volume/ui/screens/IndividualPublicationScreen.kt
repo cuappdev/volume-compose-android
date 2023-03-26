@@ -3,6 +3,7 @@ package com.cornellappdev.android.volume.ui.screens
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
@@ -22,6 +23,7 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.viewmodels.IndividualPublicationViewModel
 
 private const val TAG = "IndividualPublicationScreen"
+
 @Composable
 fun IndividualPublicationScreen(
     individualPublicationViewModel: IndividualPublicationViewModel = hiltViewModel(),
@@ -61,9 +63,9 @@ fun IndividualPublicationScreen(
                 Spacer(Modifier.weight(1f, true))
             }
         }
-        item {
-            when (val articlesByPublicationState = publicationUiState.articlesByPublicationState) {
-                ArticlesRetrievalState.Loading -> {
+        when (val articlesByPublicationState = publicationUiState.articlesByPublicationState) {
+            ArticlesRetrievalState.Loading -> {
+                item {
                     Column(
                         modifier = Modifier
                             .wrapContentHeight()
@@ -74,25 +76,27 @@ fun IndividualPublicationScreen(
                         CircularProgressIndicator(color = VolumeOrange)
                     }
                 }
-                ArticlesRetrievalState.Error -> {
+            }
+            ArticlesRetrievalState.Error -> {
 
-                }
-                is ArticlesRetrievalState.Success -> {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .padding(top = 20.dp, start = 12.dp, end = 12.dp)
+            }
+            is ArticlesRetrievalState.Success -> {
+                itemsIndexed(articlesByPublicationState.articles) { index, article ->
+                    Box(
+                        Modifier.padding(
+                            start = 12.dp,
+                            end = 12.dp,
+                            // Handles the padding between items
+                            top = if (index != 0) 20.dp else 20.dp
+                        )
                     ) {
-                        articlesByPublicationState.articles.forEach { article ->
-                            CreateArticleRow(
-                                article
-                            ) {
-                                onArticleClick(
-                                    article,
-                                    NavigationSource.OTHER_ARTICLES
-                                )
-                            }
+                        CreateArticleRow(
+                            article
+                        ) {
+                            onArticleClick(
+                                article,
+                                NavigationSource.OTHER_ARTICLES
+                            )
                         }
                     }
                 }

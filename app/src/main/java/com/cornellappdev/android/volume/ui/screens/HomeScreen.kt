@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -87,36 +88,55 @@ fun HomeScreen(
                     )
                 }
 
-                item {
-                    when (val followingArticlesState = homeUiState.followingArticlesState) {
-                        ArticlesRetrievalState.Loading -> {
+                when (val followingArticlesState = homeUiState.followingArticlesState) {
+                    ArticlesRetrievalState.Loading -> {
+                        item {
                             VolumeLoading()
                         }
-                        ArticlesRetrievalState.Error -> {
-                            // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
-                        }
-                        is ArticlesRetrievalState.Success -> {
-                            Box(modifier = Modifier.padding(top = 10.dp)) {
-                                Column(
-                                    modifier = Modifier
-                                        .wrapContentHeight()
-                                        .padding(end = 12.dp),
-                                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    }
+                    ArticlesRetrievalState.Error -> {
+                        // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
+                    }
+                    is ArticlesRetrievalState.Success -> {
+                        itemsIndexed(followingArticlesState.articles) { index, article ->
+                            Box(
+                                Modifier.padding(
+                                    end = 12.dp,
+                                    // Handles the padding between items
+                                    top = if (index != 0) 20.dp else 10.dp
+                                )
+                            ) {
+                                CreateArticleRow(
+                                    article
                                 ) {
-                                    followingArticlesState.articles.forEach { article ->
-                                        CreateArticleRow(
-                                            article
-                                        ) {
-                                            onArticleClick(
-                                                article,
-                                                NavigationSource.FOLLOWING_ARTICLES
-                                            )
-                                        }
-                                    }
+                                    onArticleClick(
+                                        article,
+                                        NavigationSource.FOLLOWING_ARTICLES
+                                    )
                                 }
-                                showPageBreak = true
                             }
                         }
+                        showPageBreak = true
+//                            Box(modifier = Modifier.padding(top = 10.dp)) {
+//                                Column(
+//                                    modifier = Modifier
+//                                        .wrapContentHeight()
+//                                        .padding(end = 12.dp),
+//                                    verticalArrangement = Arrangement.spacedBy(20.dp),
+//                                ) {
+//                                    followingArticlesState.articles.forEach { article ->
+//                                        CreateArticleRow(
+//                                            article
+//                                        ) {
+//                                            onArticleClick(
+//                                                article,
+//                                                NavigationSource.FOLLOWING_ARTICLES
+//                                            )
+//                                        }
+//                                    }
+//                                }
+//                                showPageBreak = true
+//                            }
                     }
                 }
 
@@ -213,30 +233,31 @@ fun HomeScreen(
                     )
                 }
 
-                item {
-                    when (val otherArticlesState = homeUiState.otherArticlesState) {
-                        ArticlesRetrievalState.Loading -> {
+                when (val otherArticlesState = homeUiState.otherArticlesState) {
+                    ArticlesRetrievalState.Loading -> {
+                        item {
                             VolumeLoading()
                         }
-                        ArticlesRetrievalState.Error -> {
-                            // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
-                        }
-                        is ArticlesRetrievalState.Success -> {
-                            Column(
-                                modifier = Modifier
-                                    .wrapContentHeight()
-                                    .padding(end = 12.dp, top = 25.dp),
-                                verticalArrangement = Arrangement.spacedBy(20.dp),
+                    }
+                    ArticlesRetrievalState.Error -> {
+                        // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
+                    }
+                    is ArticlesRetrievalState.Success -> {
+                        itemsIndexed(otherArticlesState.articles) { index, article ->
+                            Box(
+                                Modifier.padding(
+                                    end = 12.dp,
+                                    // Handles the padding between items
+                                    top = if (index != 0) 20.dp else 25.dp
+                                )
                             ) {
-                                otherArticlesState.articles.forEach { article ->
-                                    CreateArticleRow(
-                                        article
-                                    ) {
-                                        onArticleClick(
-                                            article,
-                                            NavigationSource.OTHER_ARTICLES
-                                        )
-                                    }
+                                CreateArticleRow(
+                                    article
+                                ) {
+                                    onArticleClick(
+                                        article,
+                                        NavigationSource.OTHER_ARTICLES
+                                    )
                                 }
                             }
                         }

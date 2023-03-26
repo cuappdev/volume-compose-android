@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -102,37 +103,39 @@ fun PublicationsScreen(
 
                 Spacer(modifier = Modifier.height(22.dp))
             }
-            item {
-                when (val morePublicationsState =
-                    publicationsUiState.morePublicationsState) {
-                    PublicationsRetrievalState.Loading -> {
+            when (val morePublicationsState =
+                publicationsUiState.morePublicationsState) {
+                PublicationsRetrievalState.Loading -> {
+                    item {
                         VolumeLoading()
                     }
-                    PublicationsRetrievalState.Error -> {
-                        // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
-                    }
-                    is PublicationsRetrievalState.Success -> {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(24.dp),
-                            modifier = Modifier
-                                .wrapContentHeight()
-                                .padding(start = 12.dp, end = 12.dp)
-                        ) {
-                            morePublicationsState.publications.forEach { publication ->
-                                if (!publication.contentTypes.contains(ContentType.MAGAZINES)) {
-                                    CreatePublicationRow(
-                                        publication = publication,
-                                        onPublicationClick
-                                    ) { publicationFromCallback, isFollowing ->
-                                        if (isFollowing) {
-                                            publicationsViewModel.followPublication(
-                                                publicationFromCallback.slug
-                                            )
-                                        } else {
-                                            publicationsViewModel.unfollowPublication(
-                                                publicationFromCallback.slug
-                                            )
-                                        }
+                }
+                PublicationsRetrievalState.Error -> {
+                    // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
+                }
+                is PublicationsRetrievalState.Success -> {
+                    itemsIndexed(morePublicationsState.publications) { index, publication ->
+                        if (!publication.contentTypes.contains(ContentType.MAGAZINES)) {
+                            Box(
+                                Modifier.padding(
+                                    end = 12.dp,
+                                    start = 12.dp,
+                                    // Handles the padding between items
+                                    top = if (index != 0) 24.dp else 0.dp
+                                )
+                            ) {
+                                CreatePublicationRow(
+                                    publication = publication,
+                                    onPublicationClick
+                                ) { publicationFromCallback, isFollowing ->
+                                    if (isFollowing) {
+                                        publicationsViewModel.followPublication(
+                                            publicationFromCallback.slug
+                                        )
+                                    } else {
+                                        publicationsViewModel.unfollowPublication(
+                                            publicationFromCallback.slug
+                                        )
                                     }
                                 }
                             }
