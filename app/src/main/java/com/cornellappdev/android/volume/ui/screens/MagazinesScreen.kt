@@ -147,9 +147,13 @@ fun MagazinesScreen(
                                             DropdownMenuItem(onClick = {
                                                 selectedIndex = index
                                                 expanded = false
-                                                magazinesViewModel.queryMoreMagazines(
-                                                    query = formatSemester(semesters[selectedIndex])
-                                                )
+                                                if (semesters[selectedIndex] == "View all") {
+                                                    magazinesViewModel.queryMoreMagazines("View all")
+                                                } else {
+                                                    magazinesViewModel.queryMoreMagazines(
+                                                        query = formatSemester(semesters[selectedIndex])
+                                                    )
+                                                }
                                             }) {
                                                 Text(
                                                     text = s,

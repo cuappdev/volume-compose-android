@@ -67,6 +67,8 @@ class MagazinesViewModel @Inject constructor(
     /**
      * Queries the backend for the magazines of the current semester. If successful, it will update
      * the ui state with the magazines retrieval state.
+     * If the query is "View all" the function will query for all magazines and update the
+     * magazine state accordingly.
      * Otherwise it will update it with a failure state.
      * @param query Current semester, format of "fa" or "sp", and then last 2 digits of year
      * @param limit The limit of how many magazines to query for.
