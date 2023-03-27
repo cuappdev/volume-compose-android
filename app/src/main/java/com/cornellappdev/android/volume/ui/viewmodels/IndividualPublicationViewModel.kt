@@ -65,26 +65,13 @@ class IndividualPublicationViewModel @Inject constructor(
             Log.d(TAG, "queryPublication: SUCCESSFULLY QUERIED PUBLICATIONS")
 
             publicationUiState = publicationUiState.copy(
-
                 publicationState = PublicationRetrievalState.Success(
                     publication
                 ),
-                /*isFollowed = userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.contains(
+                isFollowed = userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.contains(
                     publicationSlug
-                )*/
+                )
             )
-
-            try {
-                publicationUiState = publicationUiState.copy(
-                    isFollowed = userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.contains(
-                        publicationSlug
-                ))
-            } catch (ignored: java.lang.Exception) {
-                Log.d(TAG, "queryPublication: Gotcha!")
-            /* If the user has not previously followed
-             any publications, the followed publication slugs will be null, and we need
-             to catch this exception so the publication can still load.*/
-            }
             Log.d(TAG, "queryPublication: No null pointers!!!")
             queryArticleByPublication()
         } catch (e: Exception) {

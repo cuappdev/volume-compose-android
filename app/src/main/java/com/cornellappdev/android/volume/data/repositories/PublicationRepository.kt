@@ -28,7 +28,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
     suspend fun fetchPublicationsBySlugs(slugs: List<String>): List<Publication> =
         slugs.map { slug ->
             fetchPublicationBySlug(slug)
-        }
+        } //test
 
     /** Throws an exception if the publication isn't found. */
     suspend fun fetchPublicationBySlug(slug: String): Publication =
@@ -84,7 +84,6 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
 
     private fun PublicationBySlugQuery.Data.mapDataToPublication(): Publication {
         return this.getPublicationBySlug?.let { publicationData ->
-            Log.d(TAG, "mapDataToPublication: We have publication data: $publicationData")
             val pub = Publication(
                 backgroundImageURL = publicationData.backgroundImageURL,
                 bio = publicationData.bio,
