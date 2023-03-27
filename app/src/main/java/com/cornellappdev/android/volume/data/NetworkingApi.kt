@@ -48,6 +48,12 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
             semester = semester
         )).execute()
 
+    suspend fun fetchMagazinesByPublication(limit: Double? = null, slug: String): ApolloResponse<MagazinesByPublicationSlugQuery.Data> =
+        apolloClient.query(MagazinesByPublicationSlugQuery(
+            limit = Optional.presentIfNotNull(limit),
+            slug = slug
+        )).execute()
+
     suspend fun fetchMagazineById(id: String): ApolloResponse<MagazineByIdQuery.Data> =
         apolloClient.query(MagazineByIdQuery(
             id = id

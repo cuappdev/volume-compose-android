@@ -312,6 +312,41 @@ query FeaturedMagazines($limit: Float){
     }
 }
 
+query MagazinesByPublicationSlug($offset: Float, $limit: Float, $slug: String!){
+    getMagazinesByPublicationSlug(offset: $offset, limit: $limit, slug: $slug){
+        id
+        date
+        semester
+        pdfURL
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
+        publicationSlug
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
 query AllMagazines ($limit: Float) {
     getAllMagazines (limit: $limit) {
         id

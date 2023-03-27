@@ -7,11 +7,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.android.volume.data.repositories.ArticleRepository
-import com.cornellappdev.android.volume.data.repositories.PublicationRepository
-import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
-import com.cornellappdev.android.volume.data.repositories.UserRepository
+import com.cornellappdev.android.volume.data.repositories.*
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
+import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import com.cornellappdev.android.volume.ui.states.PublicationRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -23,6 +21,7 @@ class IndividualPublicationViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val articleRepository: ArticleRepository,
+    private val magazineRepository: MagazineRepository,
     private val userRepository: UserRepository,
     private val publicationRepository: PublicationRepository
 ) : ViewModel() {
@@ -31,6 +30,7 @@ class IndividualPublicationViewModel @Inject constructor(
     data class PublicationUiState(
         val publicationState: PublicationRetrievalState = PublicationRetrievalState.Loading,
         val articlesByPublicationState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+        val magazinesByPublicationState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
         val isFollowed: Boolean = false
     )
 
@@ -84,15 +84,32 @@ class IndividualPublicationViewModel @Inject constructor(
 
 
     private fun queryArticleByPublication() = viewModelScope.launch {
-        publicationUiState = try {
-            publicationUiState.copy(
+        try {
+             publicationUiState = publicationUiState.copy(
                 articlesByPublicationState = ArticlesRetrievalState.Success(
                     articleRepository.fetchArticlesByPublicationSlug(publicationSlug)
                 )
             )
+            queryMagazinesByPublication()
+        } catch (e: Exception) {
+             publicationUiState = publicationUiState.copy(
+                articlesByPublicationState = ArticlesRetrievalState.Error
+            )
+        }
+    }
+
+    private fun queryMagazinesByPublication() = viewModelScope.launch {
+        publicationUiState = try {
+            publicationUiState.copy(
+                magazinesByPublicationState = MagazinesRetrievalState.Success(
+                    magazineRepository.fetchMagazinesByPublicationSlug(publicationSlug)
+                )
+            )
         } catch (e: Exception) {
             publicationUiState.copy(
-                articlesByPublicationState = ArticlesRetrievalState.Error
+                magazinesByPublicationState = MagazinesRetrievalState.Success(
+                    magazineRepository.fetchMagazinesByPublicationSlug(publicationSlug)
+                )
             )
         }
     }
