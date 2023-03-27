@@ -196,6 +196,8 @@ private fun MainScreenNavigationConfigurations(
         ) {
             IndividualPublicationScreen(onArticleClick = { article, navigationSource ->
                 navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
+            }, onMagazineClick = { magazine ->
+                navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}")
             })
         }
         // This route should be navigated with a valid article id.

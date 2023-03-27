@@ -63,9 +63,9 @@ fun VolumeHeaderText(text: String, underline: Int, modifier: Modifier=Modifier) 
     }
 }
 @Composable
-fun VolumeLoading() {
+fun VolumeLoading(modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CircularProgressIndicator(color = VolumeOrange)
