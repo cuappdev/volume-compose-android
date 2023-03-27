@@ -143,12 +143,8 @@ fun BookmarkedMagazinesScreen(bookmarkUiState: BookmarkViewModel.BookmarkUiState
 fun BookmarkedArticlesScreen(onArticleClick: (Article, NavigationSource) -> Unit, bookmarkUiState: BookmarkViewModel.BookmarkUiState, bookmarkViewModel: BookmarkViewModel) {
     when (val articleState = bookmarkUiState.articlesState) {
         ArticlesRetrievalState.Loading -> {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator(color = VolumeOrange)
+            Box (modifier = Modifier.padding(top=20.dp)) {
+                VolumeLoading()
             }
         }
         ArticlesRetrievalState.Error -> {

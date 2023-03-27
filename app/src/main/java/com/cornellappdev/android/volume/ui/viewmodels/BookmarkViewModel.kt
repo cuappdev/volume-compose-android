@@ -33,32 +33,32 @@ class BookmarkViewModel @Inject constructor(
         getBookmarkedArticles()
     }
 
-    fun getBookmarkedArticles() = viewModelScope.launch {
-        try {
+    private fun getBookmarkedArticles() = viewModelScope.launch {
+        bookmarkUiState = try {
             val bookmarkedArticleIds = userPreferencesRepository.fetchBookmarkedArticleIds()
-            bookmarkUiState = bookmarkUiState.copy(
+            bookmarkUiState.copy(
                 articlesState = ArticlesRetrievalState.Success(
                     articleRepository.fetchArticlesByIDs(bookmarkedArticleIds)
                 )
             )
-            getBookmarkedMagazines()
         } catch (e: Exception) {
-            bookmarkUiState = bookmarkUiState.copy(
+            bookmarkUiState.copy(
                 articlesState = ArticlesRetrievalState.Error
             )
         }
+        getBookmarkedMagazines()
     }
 
-    fun getBookmarkedMagazines() = viewModelScope.launch {
-        try {
+    private fun getBookmarkedMagazines() = viewModelScope.launch {
+        bookmarkUiState = try {
             val bookmarkedMagazineIds = userPreferencesRepository.fetchBookmarkedMagazineIds()
-            bookmarkUiState = bookmarkUiState.copy(
+            bookmarkUiState.copy(
                 magazinesState = MagazinesRetrievalState.Success(
                     magazines = magazineRepository.fetchMagazinesByIds(bookmarkedMagazineIds)
                 )
             )
         } catch (e: Exception) {
-            bookmarkUiState = bookmarkUiState.copy(
+            bookmarkUiState.copy(
                 articlesState = ArticlesRetrievalState.Error
             )
         }

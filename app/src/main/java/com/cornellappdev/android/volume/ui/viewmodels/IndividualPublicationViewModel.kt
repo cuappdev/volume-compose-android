@@ -90,15 +90,16 @@ class IndividualPublicationViewModel @Inject constructor(
                     articleRepository.fetchArticlesByPublicationSlug(publicationSlug)
                 )
             )
-            queryMagazinesByPublication()
         } catch (e: Exception) {
              publicationUiState = publicationUiState.copy(
                 articlesByPublicationState = ArticlesRetrievalState.Error
             )
         }
+        queryMagazinesByPublication()
     }
 
     private fun queryMagazinesByPublication() = viewModelScope.launch {
+        Log.d(TAG, "queryMagazinesByPublication: Querying magazines")
         publicationUiState = try {
             publicationUiState.copy(
                 magazinesByPublicationState = MagazinesRetrievalState.Success(
