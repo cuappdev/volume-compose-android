@@ -37,9 +37,9 @@ fun IndividualPublicationScreen(
 
     var tabIndex by remember { mutableStateOf(0) };
 
+    // Publication heading
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
         item (span = { GridItemSpan(2)}){
-            // Publication heading
             when (val publicationState = publicationUiState.publicationState) {
                 PublicationRetrievalState.Loading -> {
                     Log.d(TAG, "IndividualPublicationScreen: Loading state reached")
@@ -140,7 +140,9 @@ fun IndividualPublicationScreen(
                         if (magazinesState.magazines.isEmpty()) {
                             item ( span = { GridItemSpan(2) } ) {
                                 Column (verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxHeight()) {
-                                    NothingToShowText(message = "This publication has no magazines.")
+                                    Box (modifier = Modifier.padding(top = 20.dp)) {
+                                        NothingToShowText(message = "This publication has no magazines.")
+                                    }
                                 }
                             }
                         }

@@ -54,6 +54,7 @@ fun IndividualMagazineScreen(
     val magazineUiState = individualMagazineViewModel.magazineUiState
     var showProgressBar by remember { mutableStateOf(false)}
 
+    // TODO fix centering for top and bottom bar :(
     Scaffold(
         bottomBar = {
             MakeBottomBar(magazineUiState)
@@ -94,19 +95,19 @@ fun MakeTopBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUi
 @Composable
 fun TopBar(publisher: String = "Magazine",
            navController: NavController) {
-    Row (modifier = Modifier.background(Color(0xFFF9F9F9))) {
+    Row (modifier = Modifier.background(Color(0xFFF9F9F9)).fillMaxWidth()
+        , horizontalArrangement = Arrangement.SpaceBetween)
+    {
+        val arrowWidth = 25.dp
         Icon(painter = painterResource(id = R.drawable.ic_arrow_left),
             contentDescription = null,
             modifier = Modifier
-                .offset(x = 16.dp, y = 8.dp)
+                .width(arrowWidth)
+                .offset(x = 16.dp, y=4.dp)
                 .clickable {
                     navController.navigate(Routes.MAGAZINES.route)
                 })
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .weight(1F)) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 fontSize = 15.sp,
                 fontFamily = notoserif,
@@ -122,6 +123,9 @@ fun TopBar(publisher: String = "Magazine",
                 text = "Reading in Volume"
             )
         }
+        /* This is to help the title column to be automatically aligned with the center by the
+         * Space between arrangement */
+        Box (modifier = Modifier.width(arrowWidth))
     }
 }
 
@@ -161,9 +165,11 @@ fun BottomBar(shoutouts: Int = 0,
               individualMagazineViewModel: IndividualMagazineViewModel = hiltViewModel())
 {
     val context = LocalContext.current
+    val space = 80.dp
 
     val bookmarkModifier = Modifier
         .padding(top = 15.dp, bottom = 29.dp, start = 19.dp)
+        .width(space)
         .clickable {
             individualMagazineViewModel.bookmarkMagazine()
         }
@@ -191,7 +197,6 @@ fun BottomBar(shoutouts: Int = 0,
             )
         }
 
-        // Share icon
         Icon(painter = painterResource(id = R.drawable.ic_share_black),
             contentDescription = null,
             modifier = Modifier
@@ -202,7 +207,7 @@ fun BottomBar(shoutouts: Int = 0,
 
         // Shoutouts icon and text
         val shoutoutsModifier = Modifier
-            .padding(bottom = 31.dp, top = 11.dp)
+            .padding(bottom = 31.dp, start = 11.dp)
             .clickable {
                 if (!hasMaxShoutouts) {
                     VolumeEvent.logEvent(
@@ -215,15 +220,16 @@ fun BottomBar(shoutouts: Int = 0,
             }
 
         Row (modifier = Modifier
-            .padding(end = 16.dp)) {
+            .padding(end = 16.dp, top = 10.dp).width(space)) {
             Image(painter = if (hasMaxShoutouts) painterResource(id = R.drawable.ic_shoutout_filled)
                                 else painterResource(id = R.drawable.ic_shoutout),
                 contentDescription = null,
-                modifier = shoutoutsModifier)
+                modifier = shoutoutsModifier
+            )
             Text(
                 text = "$shoutouts",
-                modifier = Modifier.padding(start=10.dp, bottom = 25.dp, top = 15.dp),
-                fontSize = 12.sp
+                fontSize = 12.sp,
+                modifier = Modifier.offset(x = 5.dp, y = (5).dp)
             )
         }
 
