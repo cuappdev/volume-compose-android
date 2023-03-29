@@ -47,7 +47,6 @@ fun MagazinesScreen(
     var expanded by remember { mutableStateOf(false) }
     val semesters = arrayListOf<String>()
     semesters.add("View all")
-    // TODO start by querying for all magazines, requery when this changes!
     populateSemesterList(semesters)
 
     var selectedIndex by remember { mutableStateOf(0) }
@@ -196,15 +195,12 @@ fun FillFeaturedMagazinesRow(magazineUiState: MagazinesViewModel.MagazinesUiStat
 {
     when (val magazinesState =  magazineUiState.featuredMagazinesState) {
         MagazinesRetrievalState.Loading -> {
-            Log.d(TAG, "FillFeaturedMagazinesRow: MAGAZINE LOADING")
             VolumeLoading()
         }
         MagazinesRetrievalState.Error -> {
-            // TODO Retry prompt
             Log.d(TAG, "FillFeaturedMagazinesRow: MAGAZINE ERROR")
         }
         is MagazinesRetrievalState.Success -> {
-            Log.d(TAG, "FillFeaturedMagazinesRow: MAGAZINE SUCCESS: ${magazinesState.magazines}")
             LazyRow {
                 items(magazinesState.magazines) {
                     CreateMagazineColumn(

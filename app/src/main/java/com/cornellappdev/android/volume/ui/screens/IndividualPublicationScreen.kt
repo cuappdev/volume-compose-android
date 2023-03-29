@@ -1,7 +1,6 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
@@ -24,7 +23,6 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.viewmodels.IndividualPublicationViewModel
 
-private const val TAG = "IndividualPublicationScreen"
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
@@ -42,14 +40,11 @@ fun IndividualPublicationScreen(
         item (span = { GridItemSpan(2)}){
             when (val publicationState = publicationUiState.publicationState) {
                 PublicationRetrievalState.Loading -> {
-                    Log.d(TAG, "IndividualPublicationScreen: Loading state reached")
                     VolumeLoading()
                 }
                 PublicationRetrievalState.Error -> {
-                    Log.d(TAG, "IndividualPublicationScreen: Error state reached")
                 }
                 is PublicationRetrievalState.Success -> {
-                    Log.d(TAG, "IndividualPublicationScreen: Success state reached")
                     CreateIndividualPublicationHeading(
                         publication = publicationState.publication,
                         publicationUiState.isFollowed

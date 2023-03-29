@@ -117,26 +117,6 @@ fun HomeScreen(
                             }
                         }
                         showPageBreak = true
-//                            Box(modifier = Modifier.padding(top = 10.dp)) {
-//                                Column(
-//                                    modifier = Modifier
-//                                        .wrapContentHeight()
-//                                        .padding(end = 12.dp),
-//                                    verticalArrangement = Arrangement.spacedBy(20.dp),
-//                                ) {
-//                                    followingArticlesState.articles.forEach { article ->
-//                                        CreateArticleRow(
-//                                            article
-//                                        ) {
-//                                            onArticleClick(
-//                                                article,
-//                                                NavigationSource.FOLLOWING_ARTICLES
-//                                            )
-//                                        }
-//                                    }
-//                                }
-//                                showPageBreak = true
-//                            }
                     }
                 }
 

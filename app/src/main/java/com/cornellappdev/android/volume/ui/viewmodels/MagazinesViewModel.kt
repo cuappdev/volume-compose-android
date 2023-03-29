@@ -13,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// TODO optimize loading?
 private const val TAG = "MagazinesViewModel"
 @HiltViewModel
 class MagazinesViewModel @Inject constructor(

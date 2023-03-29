@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.data.repositories
 
-import android.util.Log
 import com.cornellappdev.android.volume.CreateUserMutation
 import com.cornellappdev.android.volume.FollowPublicationMutation
 import com.cornellappdev.android.volume.GetUserQuery
@@ -34,7 +33,6 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         }
 
     suspend fun followPublication(slug: String, uuid: String): User  {
-        Log.d(TAG, "followPublication: slug: $slug, uuid: $uuid")
         return networkApi.followPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
     }
 

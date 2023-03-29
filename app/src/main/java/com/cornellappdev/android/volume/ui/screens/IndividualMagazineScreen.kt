@@ -42,8 +42,10 @@ import com.rizzi.bouquet.HorizontalPDFReader
 import com.rizzi.bouquet.ResourceType
 import com.rizzi.bouquet.rememberHorizontalPdfReaderState
 
-private const val TAG = "IndividualMagazineScreen"
-
+/**
+ * This screen represents the screen for viewing individual magazines using the PDF reader
+ * from the Bouquet library. It supports shoutouts, bookmarks, and sharing.
+ */
 @Composable
 fun IndividualMagazineScreen(
     magazineId: String,

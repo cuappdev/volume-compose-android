@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -60,10 +59,7 @@ class IndividualPublicationViewModel @Inject constructor(
 
     private fun queryPublication() = viewModelScope.launch {
         try {
-            Log.d(TAG, "queryPublication: No null pointers")
             val publication = publicationRepository.fetchPublicationBySlug(publicationSlug)
-            Log.d(TAG, "queryPublication: SUCCESSFULLY QUERIED PUBLICATIONS")
-
             publicationUiState = publicationUiState.copy(
                 publicationState = PublicationRetrievalState.Success(
                     publication
@@ -72,10 +68,8 @@ class IndividualPublicationViewModel @Inject constructor(
                     publicationSlug
                 )
             )
-            Log.d(TAG, "queryPublication: No null pointers!!!")
             queryArticleByPublication()
         } catch (e: Exception) {
-            Log.d(TAG, "queryPublication: $e")
             publicationUiState = publicationUiState.copy(
                 publicationState = PublicationRetrievalState.Error
             )
@@ -99,7 +93,6 @@ class IndividualPublicationViewModel @Inject constructor(
     }
 
     private fun queryMagazinesByPublication() = viewModelScope.launch {
-        Log.d(TAG, "queryMagazinesByPublication: Querying magazines")
         publicationUiState = try {
             publicationUiState.copy(
                 magazinesByPublicationState = MagazinesRetrievalState.Success(
