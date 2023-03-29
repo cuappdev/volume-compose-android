@@ -37,6 +37,12 @@ query AllArticles ($limit: Float) {
     }
 }
 
+query AllPublicationSlugs {
+    getAllPublications {
+        slug
+    }
+}
+
 query AllPublications {
     getAllPublications {
         backgroundImageURL
@@ -170,6 +176,41 @@ query ArticlesByPublicationSlug($slug: String!) {
         nsfw
     }
 
+}
+
+query ShuffledArticlesByPublicationSlugs($timeRange: Float, $offset: Float, $limit: Float, $slugs: [String!]!){
+    getShuffledArticlesByPublicationSlugs(timeRange: $timeRange, offset: $offset, limit: $limit, slugs: $slugs){
+        id
+        articleURL
+        date
+        imageURL
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
+        publicationSlug
+        shoutouts
+        title
+        nsfw
+        isTrending
+        trendiness
+        isFiltered
+    }
 }
 
 query MagazinesBySemester($offset: Float, $limit: Float, $semester: String!){

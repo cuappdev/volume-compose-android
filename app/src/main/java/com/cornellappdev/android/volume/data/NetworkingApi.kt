@@ -21,11 +21,17 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     suspend fun fetchAllPublications(): ApolloResponse<AllPublicationsQuery.Data> =
         apolloClient.query(AllPublicationsQuery()).execute()
 
+    suspend fun fetchAllPublicationSlugs(): ApolloResponse<AllPublicationSlugsQuery.Data> =
+        apolloClient.query(AllPublicationSlugsQuery()).execute()
+
     suspend fun fetchArticleByPublicationSlug(slug: String): ApolloResponse<ArticlesByPublicationSlugQuery.Data> =
         apolloClient.query(ArticlesByPublicationSlugQuery(slug)).execute()
 
     suspend fun fetchArticlesByPublicationSlugs(slugs: List<String>): ApolloResponse<ArticlesByPublicationSlugsQuery.Data> =
         apolloClient.query(ArticlesByPublicationSlugsQuery(slugs)).execute()
+
+    suspend fun fetchShuffledArticlesByPublicationSlugs(slugs: List<String>): ApolloResponse<ShuffledArticlesByPublicationSlugsQuery.Data> =
+        apolloClient.query(ShuffledArticlesByPublicationSlugsQuery(slugs = slugs)).execute()
 
     suspend fun fetchPublicationBySlug(slug: String): ApolloResponse<PublicationBySlugQuery.Data> =
         apolloClient.query(PublicationBySlugQuery(slug)).execute()

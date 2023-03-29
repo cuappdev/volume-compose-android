@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,6 +13,7 @@ import com.cornellappdev.android.volume.data.repositories.PublicationRepository
 import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.volume.data.repositories.UserRepository
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
+import com.cornellappdev.android.volume.ui.states.PublicationSlugsRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -19,6 +21,7 @@ import javax.inject.Inject
 
 // TODO add refreshing if user follows new publications?
 // TODO optimize loading?
+private const val TAG = "HomeViewModel"
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -26,7 +29,6 @@ class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val publicationRepository: PublicationRepository
 ) : ViewModel() {
-
     companion object {
         const val NUMBER_OF_TRENDING_ARTICLES = 7.0
         const val NUMBER_OF_FOLLOWING_ARTICLES = 20
@@ -37,6 +39,7 @@ class HomeViewModel @Inject constructor(
         val trendingArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
         val otherArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
         val followingArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+        val publicationsState: PublicationSlugsRetrievalState = PublicationSlugsRetrievalState.Loading,
 
         /**
          * State that holds information on whether the user has any followed articles
@@ -122,12 +125,29 @@ class HomeViewModel @Inject constructor(
 
                 remainingFollowing = ArticlesRetrievalState.Success(followingArticles)
 
-                queryOtherArticles()
+                queryAllPublications()
             } catch (e: Exception) {
                 homeUiState = homeUiState.copy(
                     followingArticlesState = ArticlesRetrievalState.Error
                 )
             }
+        }
+
+    fun queryAllPublications() =
+        viewModelScope.launch {
+             try {
+                homeUiState = homeUiState.copy(
+                    publicationsState = PublicationSlugsRetrievalState.Success(publicationRepository.fetchAllPublicationSlugs())
+                )
+                 Log.d(TAG, "queryAllPublications: PUBLICATIONS SUCCESS")
+                queryShuffledArticlesByPublicationSlugs()
+            } catch (e: Exception) {
+                 Log.d(TAG, "queryAllPublications: PUBLICATIONS FAILURE")
+                homeUiState = homeUiState.copy(
+                    publicationsState = PublicationSlugsRetrievalState.Error
+                )
+                queryOtherArticles()
+             }
         }
 
     /**
@@ -139,7 +159,8 @@ class HomeViewModel @Inject constructor(
      *
      * @param limit how much other articles to fetch
      */
-    fun queryOtherArticles(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
+    private fun queryOtherArticles(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
+        Log.d(TAG, "queryOtherArticles: QUERYING OTHER ARTICLES")
         try {
             val followedPublications =
                 userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.toHashSet()
@@ -185,6 +206,30 @@ class HomeViewModel @Inject constructor(
             homeUiState = homeUiState.copy(
                 otherArticlesState = ArticlesRetrievalState.Error
             )
+        }
+    }
+
+    private fun queryShuffledArticlesByPublicationSlugs(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
+        when (val publicationsState = homeUiState.publicationsState) {
+            PublicationSlugsRetrievalState.Loading -> {
+                Log.d(TAG, "queryOtherArticles: PUBLICATIONS STILL LOADING")
+            }
+            PublicationSlugsRetrievalState.Error -> {
+                Log.d(TAG, "queryOtherArticles: PUBLICATIONS ERROR")
+            }
+            is PublicationSlugsRetrievalState.Success -> {
+                try {
+                    Log.d(TAG, "queryShuffledArticlesByPublicationSlugs: PUBLICATIONS SUCCESS 2")
+                    homeUiState = homeUiState.copy(
+                        otherArticlesState = ArticlesRetrievalState.Success(
+                            articleRepository.fetchArticlesByShuffledPublicationSlugs(publicationsState.slugs)
+                        )
+                    )
+                    Log.d(TAG, "queryShuffledArticlesByPublicationSlugs: SHUFFLED SUCCESS")
+                } catch (e: Exception) {
+                    Log.d(TAG, "queryOtherArticles: LOADING SHUFFLED ARTICLES FAILED")
+                }
+            }
         }
     }
 }
