@@ -46,6 +46,30 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun addBookmarkedMagazine(magazineId: String) {
+        userPreferencesStore.updateData { currentPreferences ->
+            val currentBookmarks = currentPreferences.bookmarkedMagazinesList.toHashSet()
+            if (!currentBookmarks.contains(magazineId)) {
+                currentPreferences.toBuilder().addBookmarkedMagazines(magazineId).build()
+            } else {
+                currentPreferences
+            }
+        }
+    }
+
+    suspend fun removeBookmarkedMagazine(magazineId: String) {
+        userPreferencesStore.updateData { currentPreferences ->
+            val currentBookmarks = currentPreferences.bookmarkedMagazinesList.toHashSet()
+            if (currentBookmarks.contains(magazineId)) {
+                currentBookmarks.remove(magazineId)
+                currentPreferences.toBuilder().clearBookmarkedMagazines()
+                    .addAllBookmarkedMagazines(currentBookmarks).build()
+            } else {
+                currentPreferences
+            }
+        }
+    }
+
     suspend fun removeBookmarkedArticle(articleId: String) {
         userPreferencesStore.updateData { currentPreferences ->
             val currentBookmarks = currentPreferences.bookmarkedArticlesList.toHashSet()
@@ -69,7 +93,8 @@ class UserPreferencesRepository @Inject constructor(
             }
         }
     }
-
+    suspend fun fetchBookmarkedMagazineIds(): List<String> =
+        userPreferencesFlow.first().bookmarkedMagazinesList
     suspend fun fetchBookmarkedArticleIds(): List<String> =
         userPreferencesFlow.first().bookmarkedArticlesList
 

@@ -17,6 +17,7 @@ import javax.inject.Singleton
  *
  * @see Article
  */
+private const val TAG = "UserRepository"
 @Singleton
 class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
 
@@ -31,8 +32,9 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
             followPublication(it, uuid)
         }
 
-    suspend fun followPublication(slug: String, uuid: String): User =
-        networkApi.followPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
+    suspend fun followPublication(slug: String, uuid: String): User  {
+        return networkApi.followPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
+    }
 
     suspend fun unfollowPublication(
         slug: String,
@@ -93,10 +95,10 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
     private fun FollowPublicationMutation.Data.mapDataToUser(): User {
         return this.followPublication.let { userData ->
             User(
-                uuid = userData!!.uuid,
-                followedPublicationSlugs = userData.followedPublications.map {
+                uuid = userData?.uuid ?: "", // TODO figure out why user data is initially null
+                followedPublicationSlugs = userData?.followedPublications?.map {
                     it.slug
-                }
+                } ?: listOf()
             )
         }
     }

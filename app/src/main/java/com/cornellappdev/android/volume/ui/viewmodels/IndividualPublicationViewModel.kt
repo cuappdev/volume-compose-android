@@ -6,30 +6,30 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.android.volume.data.repositories.ArticleRepository
-import com.cornellappdev.android.volume.data.repositories.PublicationRepository
-import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
-import com.cornellappdev.android.volume.data.repositories.UserRepository
+import com.cornellappdev.android.volume.data.repositories.*
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
+import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import com.cornellappdev.android.volume.ui.states.PublicationRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val TAG = "IndividualPublicationViewModel"
 @HiltViewModel
 class IndividualPublicationViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val articleRepository: ArticleRepository,
+    private val magazineRepository: MagazineRepository,
     private val userRepository: UserRepository,
     private val publicationRepository: PublicationRepository
 ) : ViewModel() {
 
     private val publicationSlug: String = checkNotNull(savedStateHandle["publicationSlug"])
-
     data class PublicationUiState(
         val publicationState: PublicationRetrievalState = PublicationRetrievalState.Loading,
         val articlesByPublicationState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+        val magazinesByPublicationState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
         val isFollowed: Boolean = false
     )
 
@@ -59,11 +59,10 @@ class IndividualPublicationViewModel @Inject constructor(
 
     private fun queryPublication() = viewModelScope.launch {
         try {
+            val publication = publicationRepository.fetchPublicationBySlug(publicationSlug)
             publicationUiState = publicationUiState.copy(
                 publicationState = PublicationRetrievalState.Success(
-                    publicationRepository.fetchPublicationBySlug(
-                        publicationSlug
-                    ).first()
+                    publication
                 ),
                 isFollowed = userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.contains(
                     publicationSlug
@@ -79,15 +78,32 @@ class IndividualPublicationViewModel @Inject constructor(
 
 
     private fun queryArticleByPublication() = viewModelScope.launch {
-        publicationUiState = try {
-            publicationUiState.copy(
+        try {
+             publicationUiState = publicationUiState.copy(
                 articlesByPublicationState = ArticlesRetrievalState.Success(
                     articleRepository.fetchArticlesByPublicationSlug(publicationSlug)
                 )
             )
         } catch (e: Exception) {
-            publicationUiState.copy(
+             publicationUiState = publicationUiState.copy(
                 articlesByPublicationState = ArticlesRetrievalState.Error
+            )
+        }
+        queryMagazinesByPublication()
+    }
+
+    private fun queryMagazinesByPublication() = viewModelScope.launch {
+        publicationUiState = try {
+            publicationUiState.copy(
+                magazinesByPublicationState = MagazinesRetrievalState.Success(
+                    magazineRepository.fetchMagazinesByPublicationSlug(publicationSlug)
+                )
+            )
+        } catch (e: Exception) {
+            publicationUiState.copy(
+                magazinesByPublicationState = MagazinesRetrievalState.Success(
+                    magazineRepository.fetchMagazinesByPublicationSlug(publicationSlug)
+                )
             )
         }
     }

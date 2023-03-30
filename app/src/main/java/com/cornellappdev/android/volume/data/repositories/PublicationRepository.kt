@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.data.repositories
 
+import android.util.Log
 import com.cornellappdev.android.volume.AllPublicationsQuery
 import com.cornellappdev.android.volume.PublicationBySlugQuery
 import com.cornellappdev.android.volume.data.NetworkApi
@@ -16,23 +17,24 @@ import javax.inject.Singleton
  *
  * @see Article
  */
+private const val TAG = "PublicationRepository"
 @Singleton
 class PublicationRepository @Inject constructor(private val networkApi: NetworkApi) {
     class PublicationNotFound : Exception()
 
     suspend fun fetchAllPublications(): List<Publication> =
-        networkApi.fetchAllPublications().dataAssertNoErrors.mapDataToPublications()
+        networkApi.fetchAllPublications().dataAssertNoErrors.mapDataToPublication()
 
     suspend fun fetchPublicationsBySlugs(slugs: List<String>): List<Publication> =
         slugs.map { slug ->
-            fetchPublicationBySlug(slug).first()
-        }
+            fetchPublicationBySlug(slug)
+        } //test
 
     /** Throws an exception if the publication isn't found. */
-    suspend fun fetchPublicationBySlug(slug: String): List<Publication> =
-        networkApi.fetchPublicationBySlug(slug).dataAssertNoErrors.mapDataToPublications()
+    suspend fun fetchPublicationBySlug(slug: String): Publication =
+        networkApi.fetchPublicationBySlug(slug).dataAssertNoErrors.mapDataToPublication()
 
-    private fun AllPublicationsQuery.Data.mapDataToPublications(): List<Publication> {
+    private fun AllPublicationsQuery.Data.mapDataToPublication(): List<Publication> {
         return this.getAllPublications.map { publicationData ->
             Publication(
                 backgroundImageURL = publicationData.backgroundImageURL,
@@ -80,54 +82,54 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
         }
     }
 
-    private fun PublicationBySlugQuery.Data.mapDataToPublications(): List<Publication> {
+    private fun PublicationBySlugQuery.Data.mapDataToPublication(): Publication {
         return this.getPublicationBySlug?.let { publicationData ->
-            listOf(
-                Publication(
-                    backgroundImageURL = publicationData.backgroundImageURL,
-                    bio = publicationData.bio,
-                    name = publicationData.name,
-                    profileImageURL = publicationData.profileImageURL,
-                    rssName = publicationData.rssName,
-                    rssURL = publicationData.rssURL,
-                    slug = publicationData.slug,
-                    shoutouts = publicationData.shoutouts,
-                    contentTypes = publicationData.contentTypes.map {
-                        ContentType.valueOf(it.uppercase())
-                    },
-                    numArticles = publicationData.numArticles,
-                    websiteURL = publicationData.websiteURL,
-                    mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
-                        Article(
-                            publicationData.mostRecentArticle.id,
-                            publicationData.mostRecentArticle.title,
-                            publicationData.mostRecentArticle.articleURL,
-                            publicationData.mostRecentArticle.imageURL,
-                            Publication(
+            val pub = Publication(
+                backgroundImageURL = publicationData.backgroundImageURL,
+                bio = publicationData.bio,
+                name = publicationData.name,
+                profileImageURL = publicationData.profileImageURL,
+                rssName = publicationData.rssName,
+                rssURL = publicationData.rssURL,
+                slug = publicationData.slug,
+                shoutouts = publicationData.shoutouts,
+                contentTypes = publicationData.contentTypes.map {
+                    ContentType.valueOf(it.uppercase())
+                },
+                numArticles = publicationData.numArticles,
+                websiteURL = publicationData.websiteURL,
+                mostRecentArticle = publicationData.mostRecentArticle?.nsfw?.let { isNSFW ->
+                    Article(
+                        publicationData.mostRecentArticle.id,
+                        publicationData.mostRecentArticle.title,
+                        publicationData.mostRecentArticle.articleURL,
+                        publicationData.mostRecentArticle.imageURL,
+                        Publication(
 
-                                backgroundImageURL = publicationData.backgroundImageURL,
-                                bio = publicationData.bio,
-                                name = publicationData.name,
-                                profileImageURL = publicationData.profileImageURL,
-                                rssName = publicationData.rssName,
-                                rssURL = publicationData.rssURL,
-                                slug = publicationData.slug,
-                                shoutouts = publicationData.shoutouts,
-                                contentTypes = publicationData.contentTypes.map {
-                                    ContentType.valueOf(it.uppercase())
-                                },
-                                websiteURL = publicationData.websiteURL,
-                                numArticles = publicationData.numArticles,
-                                socials = publicationData.socials
-                                    .map { Social(it.social, it.url) }),
-                            publicationData.mostRecentArticle.date.toString(),
-                            publicationData.mostRecentArticle.shoutouts,
-                            isNSFW,
-                        )
-                    },
-                    socials = publicationData.socials
-                        .map { Social(it.social, it.url) })
-            )
+                            backgroundImageURL = publicationData.backgroundImageURL,
+                            bio = publicationData.bio,
+                            name = publicationData.name,
+                            profileImageURL = publicationData.profileImageURL,
+                            rssName = publicationData.rssName,
+                            rssURL = publicationData.rssURL,
+                            slug = publicationData.slug,
+                            shoutouts = publicationData.shoutouts,
+                            contentTypes = publicationData.contentTypes.map {
+                                ContentType.valueOf(it.uppercase())
+                            },
+                            websiteURL = publicationData.websiteURL,
+                            numArticles = publicationData.numArticles,
+                            socials = publicationData.socials
+                                .map { Social(it.social, it.url) }),
+                        publicationData.mostRecentArticle.date.toString(),
+                        publicationData.mostRecentArticle.shoutouts,
+                        isNSFW,
+                    )
+                },
+                socials = publicationData.socials
+                    .map { Social(it.social, it.url) })
+            Log.d(TAG, "mapDataToPublication: Successfully processed $pub")
+            pub
         } ?: throw PublicationNotFound()
     }
 }

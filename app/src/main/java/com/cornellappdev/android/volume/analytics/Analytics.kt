@@ -25,7 +25,11 @@ enum class VolumeEvent(val event: String) {
     SHARE_ARTICLE("share_article"),
     SHOUTOUT_ARTICLE("shoutout_article"),
     BOOKMARK_ARTICLE("bookmark_article"),
-    UNBOOKMARK_ARTICLE("unbookmark_article");
+    UNBOOKMARK_ARTICLE("unbookmark_article"),
+
+    // Magazine-specific events
+    OPEN_MAGAZINE("open_magazine"),
+    SHOUTOUT_MAGAZINE("shoutout_magazine");
 
     companion object {
         fun logEvent(
@@ -84,4 +88,5 @@ enum class EventType(val type: String) {
     ARTICLE("article"),
     GENERAL("general"),
     PUBLICATION("publication"),
+    MAGAZINE("magazine"),
 }

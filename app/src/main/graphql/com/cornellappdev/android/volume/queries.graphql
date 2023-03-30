@@ -207,6 +207,76 @@ query MagazinesBySemester($offset: Float, $limit: Float, $semester: String!){
     }
 }
 
+query MagazineById($id: String!){
+    getMagazineByID(id: $id){
+        id
+        date
+        semester
+        pdfURL
+        publicationSlug
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
+query MagazinesByIDs($ids: [String!]!){
+    getMagazinesByIDs(ids: $ids){
+        id
+        date
+        semester
+        pdfURL
+        publication {
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
+        publicationSlug
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
 query FeaturedMagazines($limit: Float){
     getFeaturedMagazines(limit: $limit){
         id
@@ -233,6 +303,76 @@ query FeaturedMagazines($limit: Float){
             }
         }
         publicationSlug
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
+query MagazinesByPublicationSlug($offset: Float, $limit: Float, $slug: String!){
+    getMagazinesByPublicationSlug(offset: $offset, limit: $limit, slug: $slug){
+        id
+        date
+        semester
+        pdfURL
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
+        publicationSlug
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
+query AllMagazines ($limit: Float) {
+    getAllMagazines (limit: $limit) {
+        id
+        date
+        semester
+        pdfURL
+        publicationSlug
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials{
+                social
+                url:URL
+            }
+        }
         shoutouts
         title
         nsfw
@@ -455,6 +595,13 @@ mutation UnfollowPublication($slug: String!, $uuid: String!) {
 
 mutation IncrementShoutout($id: String!, $uuid: String!) {
     incrementShoutouts(id: $id, uuid: $uuid) {
+        id
+        shoutouts
+    }
+}
+
+mutation IncrementMagazineShoutouts($id: String!, $uuid: String!){
+    incrementMagazineShoutouts(id: $id, uuid: $uuid){
         id
         shoutouts
     }

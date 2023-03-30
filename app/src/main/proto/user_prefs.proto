@@ -21,4 +21,7 @@ message UserPreferences {
 
   // Keeps track of when the user is first presented with the PermissionRequestDialog
   bool notification_flow_completed = 7;
+
+  // The list of magazine ids the user has bookmarked.
+  repeated string bookmarked_magazines = 8;
 }
