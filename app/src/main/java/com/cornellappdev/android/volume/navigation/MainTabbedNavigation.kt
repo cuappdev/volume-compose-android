@@ -170,7 +170,7 @@ private fun MainScreenNavigationConfigurations(
                     animationSpec = tween(durationMillis = 2500)
                 )
             }) {
-            HomeScreen(
+            ArticlesScreen(
                 onArticleClick = { article, navigationSource ->
                     FirstTimeShown.firstTimeShown = false
                     navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")

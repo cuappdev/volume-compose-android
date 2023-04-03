@@ -161,3 +161,13 @@ fun NothingToShowText(message: String) {
         )
     }
 }
+
+@Composable
+fun VolumePeriod(modifier: Modifier = Modifier) {
+    Image(
+        painter = painterResource(R.drawable.ic_period),
+        contentDescription = null,
+        modifier = modifier
+            .scale(1.05F)
+    )
+}

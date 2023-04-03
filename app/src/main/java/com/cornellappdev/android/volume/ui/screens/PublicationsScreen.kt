@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -10,8 +9,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -20,10 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.data.models.ContentType
 import com.cornellappdev.android.volume.data.models.Publication
-import com.cornellappdev.android.volume.ui.components.general.CreatePublicationColumn
-import com.cornellappdev.android.volume.ui.components.general.CreatePublicationRow
-import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
-import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
+import com.cornellappdev.android.volume.ui.components.general.*
 import com.cornellappdev.android.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.PublicationsViewModel
@@ -45,12 +39,8 @@ fun PublicationsScreen(
                 fontSize = 28.sp,
                 textAlign = TextAlign.Left
             )
-            Image(
-                painter = painterResource(R.drawable.ic_period),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 3.dp, top = 43.5.dp)
-                    .scale(1.05F)
+            VolumePeriod(
+                modifier = Modifier.padding(start = 3.dp, top = 43.5.dp)
             )
         }
 

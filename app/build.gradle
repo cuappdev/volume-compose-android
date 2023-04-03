@@ -39,11 +39,13 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "false")
             buildConfigField("String", "ENDPOINT", secretsProperties['PROD_ENDPOINT'])
         }
         debug {
+            debuggable true
             resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "true")
             buildConfigField("String", "ENDPOINT", secretsProperties['DEV_ENDPOINT'])
         }

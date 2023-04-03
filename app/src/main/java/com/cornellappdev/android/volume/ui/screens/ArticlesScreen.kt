@@ -31,7 +31,7 @@ import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.HomeViewModel
 
 @Composable
-fun HomeScreen(
+fun ArticlesScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     onArticleClick: (Article, NavigationSource) -> Unit,
     showBottomBar: MutableState<Boolean>,
