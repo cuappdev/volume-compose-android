@@ -26,12 +26,12 @@ sealed class NavigationItem(
         selectedRoutes = setOf(Routes.HOME.route, Routes.WEEKLY_DEBRIEF.route)
     )
 
-    object Magazines : NavigationItem(
-        route = Routes.MAGAZINES.route,
+    object Reads : NavigationItem(
+        route = Routes.READS.route,
         unselectedIconId = R.drawable.ic_magazine_icon_unselected,
         selectedIconId = R.drawable.ic_magazine_icon_selected,
-        title = "Magazines",
-        selectedRoutes = setOf(Routes.MAGAZINES.route)
+        title = "Reads",
+        selectedRoutes = setOf(Routes.READS.route)
     )
 
     object Publications : NavigationItem(
@@ -56,8 +56,8 @@ sealed class NavigationItem(
     companion object {
         val bottomNavTabList = listOf(
             Home,
-            Magazines,
             Publications,
+            Reads,
             Bookmarks
         )
     }
@@ -78,6 +78,7 @@ interface NavUnit {
 enum class Routes(override var route: String) : NavUnit {
     HOME("home"),
     MAGAZINES("magazine"),
+    READS("reads"),
     PUBLICATIONS("publications"),
     BOOKMARKS("bookmarks"),
     ONBOARDING("onboarding"),

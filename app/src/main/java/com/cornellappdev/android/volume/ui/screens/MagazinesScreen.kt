@@ -30,7 +30,6 @@ import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
-import com.cornellappdev.android.volume.ui.components.general.VolumeLogo
 import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.viewmodels.MagazinesViewModel
@@ -53,138 +52,129 @@ fun MagazinesScreen(
     val magazineUiState = magazinesViewModel.magazineUiState
 
     Box {
-        Scaffold(
-            // Volume Logo
-            topBar = {
-                VolumeLogo()
-            },
+        LazyVerticalGrid( modifier = Modifier
+            .fillMaxSize()
+            .padding(start = 12.dp),
+            columns = GridCells.Fixed(2)) {
+            // Featured header
+            item (span = { GridItemSpan(2)}) {
+                VolumeHeaderText(
+                    text = "Featured",
+                    underline = com.cornellappdev.android.volume.R.drawable.ic_underline_featured,
+                    modifier = Modifier.padding(top = 15.dp)
+                )
+            }
 
-            content = { innerPadding ->
-                LazyVerticalGrid( modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
-                    columns = GridCells.Fixed(2)) {
-                    // Featured header
-                    item (span = { GridItemSpan(2)}) {
-                        VolumeHeaderText(
-                            text = "Featured",
-                            underline = com.cornellappdev.android.volume.R.drawable.ic_underline_featured,
-                            modifier = Modifier.padding(top = 15.dp)
-                        )
-                    }
+            // Featured magazines row
+            item (span = { GridItemSpan(2)}) {
+                FillFeaturedMagazinesRow(
+                    magazineUiState = magazineUiState,
+                    onMagazineClick = onMagazineClick
+                )
+            }
 
-                    // Featured magazines row
-                    item (span = { GridItemSpan(2)}) {
-                        FillFeaturedMagazinesRow(
-                            magazineUiState = magazineUiState,
-                            onMagazineClick = onMagazineClick
-                        )
-                    }
+            // Semester magazines text and dropdown menu
+            item (span = { GridItemSpan(2)}) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 15.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                )
+                {
+                    // More magazines text
+                    VolumeHeaderText(
+                        text = "More magazines",
+                        underline = com.cornellappdev.android.volume.R.drawable.ic_underline_more_magazines
+                    )
 
-                    // Semester magazines text and dropdown menu
-                    item (span = { GridItemSpan(2)}) {
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(top = 15.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        )
-                        {
-                            // More magazines text
-                            VolumeHeaderText(
-                                text = "More magazines",
-                                underline = com.cornellappdev.android.volume.R.drawable.ic_underline_more_magazines
+                    // Dropdown menu
+                    Column(modifier = Modifier.padding(end = 54.3.dp)) {
+                        Row(modifier = Modifier.drawWithContent {
+                            drawContent()
+                            drawRoundRect(
+                                color = VolumeOrange,
+                                style = Stroke(width = 1.5.dp.toPx()),
+                                cornerRadius = CornerRadius(
+                                    x = 5.dp.toPx(),
+                                    y = 5.dp.toPx()
+                                ),
+                                size = Size(
+                                    width = 115.49.dp.toPx(),
+                                    height = 31.dp.toPx()
+                                ),
+                                topLeft = Offset(x = 8.dp.toPx(), y = 0.dp.toPx())
                             )
+                        }) {
+                            Text(
+                                text = semesters[selectedIndex],
+                                color = VolumeOrange,
+                                modifier = Modifier
+                                    .clickable {
+                                        expanded = true
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .size(width = 72.dp, height = 16.dp),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Image(
+                                painter = painterResource(id = com.cornellappdev.android.volume.R.drawable.ic_dropdown),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(top = 12.dp)
+                                    .clickable {
+                                        expanded = true
+                                    }
+                            )
+                        }
 
-                            // Dropdown menu
-                            Column(modifier = Modifier.padding(end = 54.3.dp)) {
-                                Row(modifier = Modifier.drawWithContent {
-                                    drawContent()
-                                    drawRoundRect(
-                                        color = VolumeOrange,
-                                        style = Stroke(width = 1.5.dp.toPx()),
-                                        cornerRadius = CornerRadius(
-                                            x = 5.dp.toPx(),
-                                            y = 5.dp.toPx()
-                                        ),
-                                        size = Size(
-                                            width = 115.49.dp.toPx(),
-                                            height = 31.dp.toPx()
-                                        ),
-                                        topLeft = Offset(x = 8.dp.toPx(), y = 0.dp.toPx())
-                                    )
-                                }) {
-                                    Text(
-                                        text = semesters[selectedIndex],
-                                        color = VolumeOrange,
-                                        modifier = Modifier
-                                            .clickable {
-                                                expanded = true
-                                            }
-                                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                                            .size(width = 72.dp, height = 16.dp),
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Medium,
-                                    )
-                                    Image(
-                                        painter = painterResource(id = com.cornellappdev.android.volume.R.drawable.ic_dropdown),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .padding(top = 12.dp)
-                                            .clickable {
-                                                expanded = true
-                                            }
-                                    )
-                                }
-
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false }) {
-                                    semesters.forEachIndexed { index, s ->
-                                        if (index != selectedIndex) {
-                                            DropdownMenuItem(onClick = {
-                                                selectedIndex = index
-                                                expanded = false
-                                                if (semesters[selectedIndex] == "View all") {
-                                                    magazinesViewModel.queryMoreMagazines("View all")
-                                                } else {
-                                                    magazinesViewModel.queryMoreMagazines(
-                                                        query = formatSemester(semesters[selectedIndex])
-                                                    )
-                                                }
-                                            }) {
-                                                Text(
-                                                    text = s,
-                                                    color = VolumeOrange,
-                                                    fontWeight = FontWeight.Medium,
-                                                    fontSize = 12.sp,
-                                                )
-                                            }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }) {
+                            semesters.forEachIndexed { index, s ->
+                                if (index != selectedIndex) {
+                                    DropdownMenuItem(onClick = {
+                                        selectedIndex = index
+                                        expanded = false
+                                        if (semesters[selectedIndex] == "View all") {
+                                            magazinesViewModel.queryMoreMagazines("View all")
+                                        } else {
+                                            magazinesViewModel.queryMoreMagazines(
+                                                query = formatSemester(semesters[selectedIndex])
+                                            )
                                         }
+                                    }) {
+                                        Text(
+                                            text = s,
+                                            color = VolumeOrange,
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 12.sp,
+                                        )
                                     }
                                 }
                             }
                         }
                     }
+                }
+            }
 
-                    // Semester magazines view
-                    when (val magazinesState = magazineUiState.moreMagazinesState) {
-                        MagazinesRetrievalState.Loading -> {
-                            item (span = { GridItemSpan(2) }) {
-                                VolumeLoading()
-                            }
-                        }
-                        MagazinesRetrievalState.Error -> { /* TODO */ }
-                        is MagazinesRetrievalState.Success -> {
-                            items(magazinesState.magazines) {
-                                CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
-                            }
-                        }
+            // Semester magazines view
+            when (val magazinesState = magazineUiState.moreMagazinesState) {
+                MagazinesRetrievalState.Loading -> {
+                    item (span = { GridItemSpan(2) }) {
+                        VolumeLoading()
                     }
                 }
-            },
-        )
+                MagazinesRetrievalState.Error -> { /* TODO */ }
+                is MagazinesRetrievalState.Success -> {
+                    items(magazinesState.magazines) {
+                        CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
+                    }
+                }
+            }
+        }
     }
 }
 

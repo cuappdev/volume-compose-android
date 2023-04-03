@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.ui.components.general.*
@@ -40,18 +38,15 @@ fun ArticlesScreen(
     var showPageBreak by remember { mutableStateOf(false) }
 
     Box {
-        Scaffold(topBar = {
-            VolumeLogo()
-        }, content = { innerPadding ->
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
+                    .padding(start = 12.dp),
             ) {
                 item {
                     VolumeHeaderText(
                         text = "The Big Read",
-                        underline = R.drawable.ic_underline_big_read,
+                        underline = com.cornellappdev.android.volume.R.drawable.ic_underline_big_read,
                         modifier = Modifier.padding(top = 15.dp)
                     )
                     Spacer(modifier = Modifier.height(25.dp))
@@ -84,7 +79,7 @@ fun ArticlesScreen(
                 item {
                     VolumeHeaderText(
                         text = "Following",
-                        underline = R.drawable.ic_underline_following
+                        underline = com.cornellappdev.android.volume.R.drawable.ic_underline_following
                     )
                 }
 
@@ -135,7 +130,7 @@ fun ArticlesScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Image(
-                                    painter = painterResource(id = R.drawable.ic_volume_bars_orange),
+                                    painter = painterResource(id = com.cornellappdev.android.volume.R.drawable.ic_volume_bars_orange),
                                     contentDescription = null,
                                 )
                                 Column(modifier = Modifier.padding(top = 10.dp)) {
@@ -147,7 +142,7 @@ fun ArticlesScreen(
                                         textAlign = TextAlign.Center
                                     )
                                     Image(
-                                        painter = painterResource(R.drawable.ic_underline_nothing_new),
+                                        painter = painterResource(com.cornellappdev.android.volume.R.drawable.ic_underline_nothing_new),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .padding(start = 5.dp)
@@ -174,7 +169,7 @@ fun ArticlesScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Image(
-                                    painter = painterResource(id = R.drawable.ic_volume_bars_orange),
+                                    painter = painterResource(id = com.cornellappdev.android.volume.R.drawable.ic_volume_bars_orange),
                                     contentDescription = null,
                                 )
                                 Column(modifier = Modifier.padding(top = 10.dp)) {
@@ -185,7 +180,7 @@ fun ArticlesScreen(
                                         fontWeight = FontWeight.Medium
                                     )
                                     Image(
-                                        painter = painterResource(R.drawable.ic_underline_up_to_date),
+                                        painter = painterResource(com.cornellappdev.android.volume.R.drawable.ic_underline_up_to_date),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .padding(start = 1.dp)
@@ -209,7 +204,7 @@ fun ArticlesScreen(
                 item {
                     VolumeHeaderText(
                         text = "Other Articles",
-                        underline = R.drawable.ic_underline_other_article
+                        underline = com.cornellappdev.android.volume.R.drawable.ic_underline_other_article
                     )
                 }
 
@@ -244,7 +239,7 @@ fun ArticlesScreen(
                     }
                 }
             }
-        })
+
 
         if (FirstTimeShown.firstTimeShown) {
             PermissionRequestDialog(

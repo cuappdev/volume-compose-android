@@ -77,6 +77,9 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
         "${Routes.OPEN_MAGAZINE.route}/{magazineId}" -> {
             showBottomBar.value = false
         }
+        Routes.READS.route -> {
+            showBottomBar.value = true
+        }
     }
 
     Scaffold(
@@ -242,7 +245,7 @@ private fun MainScreenNavigationConfigurations(
                 }
             )
         }
-        composable(route = Routes.MAGAZINES.route,
+        composable(route = Routes.READS.route,
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
@@ -253,9 +256,18 @@ private fun MainScreenNavigationConfigurations(
                 fadeOut(
                     animationSpec = tween(durationMillis = 1500)
                 )
-            }) { MagazinesScreen( onMagazineClick = { magazine: Magazine ->
+            }) { ReadsScreen(
+            onMagazineClick = { magazine: Magazine ->
                 navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}")
-        } ) }
+        }, onArticleClick = { article, navigationSource ->
+            FirstTimeShown.firstTimeShown = false
+            navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
+        }, showBottomBar = showBottomBar,
+            onPublicationClick =
+            { publication ->
+                navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")
+            }) }
+
         composable(
             route = "${Routes.OPEN_MAGAZINE.route}/{magazineId}",
             deepLinks = listOf(
@@ -280,7 +292,7 @@ private fun MainScreenNavigationConfigurations(
             }
 
         composable(Routes.PUBLICATIONS.route) {
-            PublicationsScreen(
+            PublicationsMenu(
                 onPublicationClick =
                 { publication ->
                     navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")

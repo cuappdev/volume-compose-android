@@ -107,7 +107,7 @@ fun TopBar(publisher: String = "Magazine",
                 .width(arrowWidth)
                 .offset(x = 16.dp, y=4.dp)
                 .clickable {
-                    navController.navigate(Routes.MAGAZINES.route)
+                    navController.navigate(Routes.READS.route)
                 })
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
