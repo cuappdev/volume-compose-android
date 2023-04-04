@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,6 +20,7 @@ import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
 import com.cornellappdev.android.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.android.volume.ui.viewmodels.PublicationsViewModel
 
+private const val TAG = "PublicationsMenu"
 @Composable
 fun PublicationsMenu(
     publicationsViewModel: PublicationsViewModel = hiltViewModel(),
@@ -26,87 +28,88 @@ fun PublicationsMenu(
 ) {
     val publicationsUiState = publicationsViewModel.publicationsUiState
 
-        LazyColumn(
-            modifier =
-            Modifier
-                .fillMaxSize()
-        ) {
-            item {
-                VolumeHeaderText(
-                    text = "Following",
-                    underline = R.drawable.ic_underline_following,
-                    modifier = Modifier.padding(start = 12.dp, top = 25.dp)
-                )
+    LazyColumn(
+        modifier =
+        Modifier
+            .fillMaxSize()
+    ) {
+        item {
+            VolumeHeaderText(
+                text = "Following",
+                underline = R.drawable.ic_underline_following,
+                modifier = Modifier.padding(start = 12.dp, top = 25.dp)
+            )
 
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-            item {
-                when (val followingPublicationsState =
-                    publicationsUiState.followedPublicationsState) {
-                    PublicationsRetrievalState.Loading -> {
-                        VolumeLoading()
-                    }
-                    PublicationsRetrievalState.Error -> {
-                        // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
-                    }
-                    is PublicationsRetrievalState.Success -> {
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(24.dp),
-                            modifier = Modifier.padding(start = 12.dp)
-                        ) {
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+        item {
+            when (val followingPublicationsState =
+                publicationsUiState.followedPublicationsState) {
+                PublicationsRetrievalState.Loading -> {
+                    VolumeLoading()
+                }
+                PublicationsRetrievalState.Error -> {
+                    // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
+                    Log.d(TAG, "PublicationsMenu: Error state")
+                }
+                is PublicationsRetrievalState.Success -> {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(24.dp),
+                        modifier = Modifier.padding(start = 12.dp)
+                    ) {
 
-                            items(followingPublicationsState.publications) { publication ->
-                                CreatePublicationColumn(publication) {
-                                    onPublicationClick(publication)
-                                }
+                        items(followingPublicationsState.publications) { publication ->
+                            CreatePublicationColumn(publication) {
+                                onPublicationClick(publication)
                             }
                         }
                     }
                 }
             }
-            item {
-                VolumeHeaderText(
-                    text = "More Publications",
-                    underline = R.drawable.ic_underline_more_publications,
-                    modifier = Modifier.padding(start = 12.dp, top = 30.dp)
-                )
+        }
+        item {
+            VolumeHeaderText(
+                text = "More Publications",
+                underline = R.drawable.ic_underline_more_publications,
+                modifier = Modifier.padding(start = 12.dp, top = 30.dp)
+            )
 
-                Spacer(modifier = Modifier.height(22.dp))
+            Spacer(modifier = Modifier.height(22.dp))
+        }
+        when (val morePublicationsState =
+            publicationsUiState.morePublicationsState) {
+            PublicationsRetrievalState.Loading -> {
+                item {
+                    VolumeLoading()
+                }
             }
-            when (val morePublicationsState =
-                publicationsUiState.morePublicationsState) {
-                PublicationsRetrievalState.Loading -> {
-                    item {
-                        VolumeLoading()
-                    }
-                }
-                PublicationsRetrievalState.Error -> {
-                    // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
-                }
-                is PublicationsRetrievalState.Success -> {
-                    itemsIndexed(morePublicationsState.publications) { index, publication ->
-                        if (!publication.contentTypes.contains(ContentType.MAGAZINES)) {
-                            Box(
-                                Modifier.padding(
-                                    end = 12.dp,
-                                    start = 12.dp,
-                                    // Handles the padding between items
-                                    top = if (index != 0) 24.dp else 0.dp
-                                )
-                            ) {
-                                CreatePublicationRow(
-                                    publication = publication,
-                                    onPublicationClick
-                                ) { publicationFromCallback, isFollowing ->
-                                    if (isFollowing) {
-                                        publicationsViewModel.followPublication(
-                                            publicationFromCallback.slug
-                                        )
-                                    } else {
-                                        publicationsViewModel.unfollowPublication(
-                                            publicationFromCallback.slug
-                                        )
-                                    }
+            PublicationsRetrievalState.Error -> {
+                // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
+                Log.d(TAG, "PublicationsMenu: Error2")
+            }
+            is PublicationsRetrievalState.Success -> {
+                itemsIndexed(morePublicationsState.publications) { index, publication ->
+                    if (!publication.contentTypes.contains(ContentType.MAGAZINES)) {
+                        Box(
+                            Modifier.padding(
+                                end = 12.dp,
+                                start = 12.dp,
+                                // Handles the padding between items
+                                top = if (index != 0) 24.dp else 0.dp
+                            )
+                        ) {
+                            CreatePublicationRow(
+                                publication = publication,
+                                onPublicationClick
+                            ) { publicationFromCallback, isFollowing ->
+                                if (isFollowing) {
+                                    publicationsViewModel.followPublication(
+                                        publicationFromCallback.slug
+                                    )
+                                } else {
+                                    publicationsViewModel.unfollowPublication(
+                                        publicationFromCallback.slug
+                                    )
                                 }
                             }
                         }
@@ -114,4 +117,5 @@ fun PublicationsMenu(
                 }
             }
         }
+    }
 }

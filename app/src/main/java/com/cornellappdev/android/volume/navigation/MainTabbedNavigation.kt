@@ -291,14 +291,8 @@ private fun MainScreenNavigationConfigurations(
                 )
             }
 
-        composable(Routes.PUBLICATIONS.route) {
-            PublicationsMenu(
-                onPublicationClick =
-                { publication ->
-                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")
-                }
-            )
-
+        composable(Routes.FLYERS.route) {
+            FlyersScreen()
         }
         composable(
             Routes.BOOKMARKS.route,

@@ -33,6 +33,7 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 
+
 // General components that have been abstracted for use throughout the Volume app
 @Composable
 fun VolumeLogo(modifier: Modifier=Modifier) {
@@ -171,3 +172,4 @@ fun VolumePeriod(modifier: Modifier = Modifier) {
             .scale(1.05F)
     )
 }
+

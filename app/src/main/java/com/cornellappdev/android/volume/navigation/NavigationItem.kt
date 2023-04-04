@@ -35,13 +35,13 @@ sealed class NavigationItem(
     )
 
     object Publications : NavigationItem(
-        route = Routes.PUBLICATIONS.route,
-        unselectedIconId = R.drawable.ic_publications_icon_unselected,
-        selectedIconId = R.drawable.ic_publications_icon_selected,
-        title = "Publications",
+        route = Routes.FLYERS.route,
+        unselectedIconId = R.drawable.ic_flyers_unselected,
+        selectedIconId = R.drawable.ic_flyers_selected,
+        title = "Flyers",
         selectedRoutes = setOf(
-            Routes.PUBLICATIONS.route,
-            "${Routes.INDIVIDUAL_PUBLICATION.route}/{publicationSlug}"
+            Routes.FLYERS.route,
+            "${Routes.FLYERS.route}/{flyerId}"
         )
     )
 
@@ -80,6 +80,7 @@ enum class Routes(override var route: String) : NavUnit {
     MAGAZINES("magazine"),
     READS("reads"),
     PUBLICATIONS("publications"),
+    FLYERS("flyers"),
     BOOKMARKS("bookmarks"),
     ONBOARDING("onboarding"),
     INDIVIDUAL_PUBLICATION("individual"),
