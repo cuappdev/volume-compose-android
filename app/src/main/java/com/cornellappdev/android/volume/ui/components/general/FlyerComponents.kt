@@ -8,7 +8,10 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,7 +58,7 @@ fun BigFlyer() {
         }
 
         // Organization and icon row
-        OrganizationAndIconsRow(organizationName = "Break Free")
+        OrganizationAndIconsRow(organizationName = "Break Free", inBigFlyer = true)
 
         // Event title text
         Text(
@@ -72,17 +75,22 @@ fun BigFlyer() {
 
 @Composable
 fun SmallFlyer(inUpcoming: Boolean) {
-    var modifier = Modifier.size(width = 361.dp, height = 123.dp)
+    var modifier = Modifier
+        .fillMaxWidth()
+        .padding(bottom = 16.dp, end = 16.dp)
+        .offset(x = (-8).dp)
     if (inUpcoming) {
-        modifier = Modifier.size(height = 92.dp, width = 352.dp)
+        modifier = Modifier
+            .width(352.dp)
+            .padding(bottom = 16.dp, end = 16.dp)
     }
-    Row (modifier = modifier.padding(bottom = 16.dp, end = 16.dp)) {
+    Row (modifier = modifier) {
         AsyncImage(
             model = "https://images.squarespace-cdn.com/content/v1/60eb5b94ffc5d0139c894a84/1651730346785-XR81CQIRLK0KWIWL9EJV/Extra+Logos.png?format=1000w",
             contentDescription = null,
-            modifier = if (inUpcoming) Modifier.size(width = 123.dp, height = 123.dp) else Modifier
+            modifier = if (inUpcoming) Modifier else Modifier.size(width = 130.dp, height = 130.dp)
         )
-        Column (modifier = Modifier.padding(start = 8.dp))  {
+        Column (modifier = Modifier.padding(start = 8.dp)) {
             OrganizationAndIconsRow(organizationName = "Break Free")
             Text(
                 text = "New Destinations",
@@ -90,15 +98,57 @@ fun SmallFlyer(inUpcoming: Boolean) {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
             )
+            Spacer(
+                modifier = Modifier
+                    .height(8.dp)
+                    .fillMaxWidth()
+            )
             IconTextRow(text = "Sat, March 25th  4PM - 5:30PM", iconId = R.drawable.ic_calendar)
-            IconTextRow(text = "Physical Sciences Building", iconId = R.drawable.ic_location_pin)
+            Spacer(
+                modifier = Modifier
+                    .height(8.dp)
+                    .fillMaxWidth()
+            )
+            IconTextRow(text = "Physical Sciences Building", iconId = R.drawable.ic_location_pin,
+                textModifier = if (inUpcoming) Modifier.offset(y = (-2).dp) else Modifier)
+            if (!inUpcoming) {
+                Spacer(modifier = Modifier
+                    .height(8.dp)
+                    .fillMaxWidth())
+                Box(modifier = Modifier.drawWithContent {
+                    drawContent()
+                    drawRoundRect(
+                        color = VolumeOrange,
+                        style = Stroke(width = 1.5.dp.toPx()),
+                        cornerRadius = CornerRadius(
+                            x = 5.dp.toPx(),
+                            y = 5.dp.toPx()
+                        ),
+                    )
+                }) {
+                    Text(
+                        text = "Dance",
+                        color = VolumeOrange,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun OrganizationAndIconsRow(organizationName: String) {
-    Row(modifier = Modifier.padding(top = 8.dp).fillMaxWidth()) {
+fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = false) {
+    if (inBigFlyer) {
+        Spacer(modifier = Modifier
+            .height(8.dp)
+            .fillMaxWidth())
+    }
+    Row(modifier = Modifier
+        .fillMaxWidth()) {
         Text(
             text = organizationName,
             fontFamily = notoserif,
@@ -121,10 +171,11 @@ fun OrganizationAndIconsRow(organizationName: String) {
 }
 
 @Composable
-fun IconTextRow(text: String, iconId: Int) {
+fun IconTextRow(text: String, iconId: Int, textModifier: Modifier = Modifier) {
     Row {
         Icon(painter = painterResource(id = iconId), contentDescription = null)
         Spacer(modifier = Modifier.width(4.dp))
-        Text(text = text, fontFamily = lato, fontWeight = FontWeight.Normal, fontSize = 12.sp)
+        Text(text = text, fontFamily = lato, fontWeight = FontWeight.Normal, fontSize = 12.sp, modifier = textModifier)
+
     }
 }

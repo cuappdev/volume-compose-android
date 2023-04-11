@@ -38,16 +38,16 @@ fun FlyersScreen() {
     LazyColumn (modifier = Modifier.padding(start = 16.dp)) {
         item {
             Row {
-                Text(text = "Flyers", fontFamily = notoserif, fontSize = 28.sp, fontWeight = FontWeight.Medium)
-                VolumePeriod(modifier = Modifier.padding(top=25.dp, start = 7.dp))
+                Text(text = "Flyers", fontFamily = notoserif, fontSize = 28.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 16.dp))
+                VolumePeriod(modifier = Modifier.padding(top=39.dp, start = 7.dp))
             }
-        }
-        item {
-            Spacer(modifier = Modifier.height(32.dp))
         }
         // This week header
         item {
+            Spacer(modifier = Modifier.height(32.dp).fillMaxWidth())
             VolumeHeaderText(text = "This Week", underline = R.drawable.ic_underline_this_week)
+            Spacer(modifier = Modifier.height(8.dp).fillMaxWidth())
+
         }
 
         // Big flyer row
@@ -59,18 +59,18 @@ fun FlyersScreen() {
                 }
             }
         }
-        item {
-            Spacer(modifier = Modifier.height(40.dp))
-        }
+
         // Upcoming and dropdown menu
         item {
+            Spacer(modifier = Modifier.height(40.dp))
+
             Row {
                 VolumeHeaderText(text = "Upcoming", underline = R.drawable.ic_underline_upcoming)
 
                 Spacer(modifier = Modifier.weight(1F))
 
                 // Dropdown menu
-                Column(modifier = Modifier.padding(end = 54.3.dp)) {
+                Column(modifier = Modifier.padding(end = 16.dp)) {
                     Row(modifier = Modifier.drawWithContent {
                         drawContent()
                         drawRoundRect(
@@ -136,12 +136,9 @@ fun FlyersScreen() {
                     }
                 }
             }
-        }
-
-        item {
             Spacer(modifier = Modifier.height(8.dp))
-        }
 
+        }
         // Small flyer display
         item {
             LazyHorizontalGrid(rows = GridCells.Fixed(3), modifier = Modifier.height(308.dp)) {

@@ -90,7 +90,7 @@ fun MagazinesScreen(
                     )
 
                     // Dropdown menu
-                    Column(modifier = Modifier.padding(end = 54.3.dp)) {
+                    Column(modifier = Modifier.padding(end = 16.dp)) {
                         Row(modifier = Modifier.drawWithContent {
                             drawContent()
                             drawRoundRect(
