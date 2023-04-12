@@ -54,6 +54,7 @@ fun BigFlyer() {
                 modifier = Modifier
                     .size(width = 256.dp, height = 256.dp)
                     .zIndex(0F)
+                    .shimmerEffect()
             )
         }
 
@@ -88,7 +89,7 @@ fun SmallFlyer(inUpcoming: Boolean) {
         AsyncImage(
             model = "https://images.squarespace-cdn.com/content/v1/60eb5b94ffc5d0139c894a84/1651730346785-XR81CQIRLK0KWIWL9EJV/Extra+Logos.png?format=1000w",
             contentDescription = null,
-            modifier = if (inUpcoming) Modifier else Modifier.size(width = 130.dp, height = 130.dp)
+            modifier = if (inUpcoming) Modifier.shimmerEffect() else Modifier.size(width = 130.dp, height = 130.dp).shimmerEffect()
         )
         Column (modifier = Modifier.padding(start = 8.dp)) {
             OrganizationAndIconsRow(organizationName = "Break Free")
