@@ -22,7 +22,7 @@ sealed class NavigationItem(
         route = Routes.HOME.route,
         unselectedIconId = R.drawable.ic_volume_bars_gray,
         selectedIconId = R.drawable.ic_volume_bars_orange,
-        title = "For You",
+        title = "Trending",
         selectedRoutes = setOf(Routes.HOME.route, Routes.WEEKLY_DEBRIEF.route)
     )
 

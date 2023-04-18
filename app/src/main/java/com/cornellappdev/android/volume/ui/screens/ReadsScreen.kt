@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +38,7 @@ fun ReadsScreen(onArticleClick: (Article, NavigationSource) -> Unit,
                 onPublicationClick: (Publication) -> Unit){
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Scaffold(
             scaffoldState = scaffoldState,
@@ -67,11 +69,11 @@ fun ReadsScreen(onArticleClick: (Article, NavigationSource) -> Unit,
                         val tabs = listOf("Articles", "Magazines")
                         Row {
                             Spacer(modifier = Modifier.weight(1F))
-                            Column(modifier = Modifier.width(255.dp)) {
+                            Column (modifier = Modifier.width(screenWidthDp * 3 / 4)) {
 
                                 TabRow(selectedTabIndex = tabIndex, contentColor = VolumeOrange, backgroundColor = VolumeOffWhite) {
                                     tabs.forEachIndexed { index, title ->
-                                        Tab(text = { Text(title, fontFamily = lato, fontSize = 18.sp) },
+                                        Tab(text = { Text(title, fontFamily = lato, fontSize = 18.sp, maxLines = 1,) },
                                             selected = tabIndex == index,
                                             onClick = { tabIndex = index },
                                             selectedContentColor = VolumeOrange,
@@ -80,17 +82,17 @@ fun ReadsScreen(onArticleClick: (Article, NavigationSource) -> Unit,
                                     }
                                 }
                             }
-                            Spacer(modifier = Modifier.weight(7F))
+                            Spacer(modifier = Modifier.weight(8F))
                             Image(painter = painterResource(id = R.drawable.ic_hamburger),
                                 contentDescription = null,
                                 modifier = Modifier
-                                    .padding(top = 20.dp)
+                                    .padding(top = 20.dp, end = 32.dp)
                                     .clickable {
                                         coroutineScope.launch {
                                             scaffoldState.drawerState.open()
                                         }
                                     })
-                            Spacer(modifier = Modifier.weight(1F))
+                            Spacer(modifier = Modifier.weight(2F))
                         }
 
                         when (tabIndex) {

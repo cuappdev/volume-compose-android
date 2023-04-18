@@ -23,7 +23,7 @@ import javax.inject.Inject
 // TODO optimize loading?
 private const val TAG = "HomeViewModel"
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class ArticlesViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val articleRepository: ArticleRepository,
     private val userRepository: UserRepository,

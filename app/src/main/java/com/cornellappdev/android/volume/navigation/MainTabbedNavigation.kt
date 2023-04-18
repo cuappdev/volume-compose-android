@@ -74,7 +74,7 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
         "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}" -> {
             showBottomBar.value = false
         }
-        "${Routes.OPEN_MAGAZINE.route}/{magazineId}" -> {
+        "${Routes.OPEN_MAGAZINE.route}/{magazineId}/{navigationSourceName}" -> {
             showBottomBar.value = false
         }
         Routes.READS.route -> {
@@ -173,13 +173,12 @@ private fun MainScreenNavigationConfigurations(
                     animationSpec = tween(durationMillis = 2500)
                 )
             }) {
-            ArticlesScreen(
-                onArticleClick = { article, navigationSource ->
-                    FirstTimeShown.firstTimeShown = false
-                    navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
-                },
-                showBottomBar = showBottomBar,
-            )
+            TrendingScreen(onArticleClick = { article, navigationSource ->
+                FirstTimeShown.firstTimeShown = false
+                navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource}")
+            }, onMagazineClick = { magazine ->
+                navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.HOME.route}")
+            })
         }
         composable(route = Routes.WEEKLY_DEBRIEF.route, deepLinks = listOf(
             navDeepLink { uriPattern = "volume://${Routes.WEEKLY_DEBRIEF.route}" }
@@ -200,7 +199,7 @@ private fun MainScreenNavigationConfigurations(
             IndividualPublicationScreen(onArticleClick = { article, navigationSource ->
                 navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
             }, onMagazineClick = { magazine ->
-                navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}")
+                navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.INDIVIDUAL_PUBLICATION.route}")
             })
         }
         // This route should be navigated with a valid article id.
@@ -258,7 +257,7 @@ private fun MainScreenNavigationConfigurations(
                 )
             }) { ReadsScreen(
             onMagazineClick = { magazine: Magazine ->
-                navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}")
+                navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.READS.route}")
         }, onArticleClick = { article, navigationSource ->
             FirstTimeShown.firstTimeShown = false
             navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
@@ -267,9 +266,8 @@ private fun MainScreenNavigationConfigurations(
             { publication ->
                 navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")
             }) }
-
         composable(
-            route = "${Routes.OPEN_MAGAZINE.route}/{magazineId}",
+            route = "${Routes.OPEN_MAGAZINE.route}/{magazineId}/{navigationSourceName}",
             deepLinks = listOf(
                 navDeepLink { uriPattern = "volume://${Routes.OPEN_MAGAZINE.route}/{magazineId}" }
             ),
@@ -285,9 +283,13 @@ private fun MainScreenNavigationConfigurations(
                 )
             }) {
                 entry ->
+                val navSource = entry.arguments?.getString("navigationSourceName") ?:
+                    Routes.READS.route
+
                 IndividualMagazineScreen(
                     magazineId = entry.arguments?.getString("magazineId") ?: "",
-                    navController = navController
+                    navController = navController,
+                    navSource = navSource
                 )
             }
 
@@ -314,7 +316,7 @@ private fun MainScreenNavigationConfigurations(
                 },
                 onSettingsClick = { navController.navigate(Routes.SETTINGS.route) },
                 onMagazineClick = {magazine ->
-                    navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}")
+                    navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.BOOKMARKS.route}")
                 })
         }
         composable(Routes.SETTINGS.route,

@@ -4,13 +4,27 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -22,19 +36,24 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
-import com.cornellappdev.android.volume.ui.components.general.*
+import com.cornellappdev.android.volume.ui.components.general.BigReadShimmeringArticle
+import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
+import com.cornellappdev.android.volume.ui.components.general.CreateBigReadRow
+import com.cornellappdev.android.volume.ui.components.general.PermissionRequestDialog
+import com.cornellappdev.android.volume.ui.components.general.ShimmeringArticle
+import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
-import com.cornellappdev.android.volume.ui.viewmodels.HomeViewModel
+import com.cornellappdev.android.volume.ui.viewmodels.ArticlesViewModel
 
 @Composable
 fun ArticlesScreen(
-    homeViewModel: HomeViewModel = hiltViewModel(),
+    articlesViewModel: ArticlesViewModel = hiltViewModel(),
     onArticleClick: (Article, NavigationSource) -> Unit,
     showBottomBar: MutableState<Boolean>,
 ) {
-    val homeUiState = homeViewModel.homeUiState
+    val homeUiState = articlesViewModel.homeUiState
     var showPageBreak by remember { mutableStateOf(false) }
 
     Box {
@@ -55,7 +74,11 @@ fun ArticlesScreen(
                 item {
                     when (val trendingArticlesState = homeUiState.trendingArticlesState) {
                         ArticlesRetrievalState.Loading -> {
-                            VolumeLoading()
+                            LazyRow {
+                                items(5) {
+                                    BigReadShimmeringArticle()
+                                }
+                            }
                         }
                         ArticlesRetrievalState.Error -> {
                             // TODO Prompt to try again, queryTrendingArticles manually (it's public). Could be that internet is down.
@@ -85,8 +108,8 @@ fun ArticlesScreen(
 
                 when (val followingArticlesState = homeUiState.followingArticlesState) {
                     ArticlesRetrievalState.Loading -> {
-                        item {
-                            VolumeLoading()
+                        items(10) {
+                            ShimmeringArticle()
                         }
                     }
                     ArticlesRetrievalState.Error -> {
@@ -210,8 +233,8 @@ fun ArticlesScreen(
 
                 when (val otherArticlesState = homeUiState.otherArticlesState) {
                     ArticlesRetrievalState.Loading -> {
-                        item {
-                            VolumeLoading()
+                        items(3) {
+                            ShimmeringArticle()
                         }
                     }
                     ArticlesRetrievalState.Error -> {
@@ -244,9 +267,9 @@ fun ArticlesScreen(
         if (FirstTimeShown.firstTimeShown) {
             PermissionRequestDialog(
                 showBottomBar = showBottomBar,
-                notificationFlowStatus = homeViewModel.getNotificationPermissionFlowStatus(),
+                notificationFlowStatus = articlesViewModel.getNotificationPermissionFlowStatus(),
                 updateNotificationFlowStatus = {
-                    homeViewModel.updateNotificationPermissionFlowStatus(it)
+                    articlesViewModel.updateNotificationPermissionFlowStatus(it)
                 })
         }
     }

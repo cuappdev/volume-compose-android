@@ -2,7 +2,16 @@ package com.cornellappdev.android.volume.ui.components.general
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -14,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -24,10 +33,11 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 
-@Preview
 @Composable
-fun BigFlyer() {
-    Column (modifier = Modifier.width(256.dp)) {
+fun BigFlyer(imgSize: Dp) {
+    val iconSize = if (imgSize > 256.dp) 24.dp else 16.dp
+
+    Column (modifier = Modifier.width(imgSize)) {
         // Image and tag
         Box {
 
@@ -52,14 +62,14 @@ fun BigFlyer() {
                 model = "https://images.squarespace-cdn.com/content/v1/60eb5b94ffc5d0139c894a84/1651730346785-XR81CQIRLK0KWIWL9EJV/Extra+Logos.png?format=1000w",
                 contentDescription = null,
                 modifier = Modifier
-                    .size(width = 256.dp, height = 256.dp)
+                    .size(size = imgSize)
                     .zIndex(0F)
                     .shimmerEffect()
             )
         }
 
         // Organization and icon row
-        OrganizationAndIconsRow(organizationName = "Break Free", inBigFlyer = true)
+        OrganizationAndIconsRow(organizationName = "Break Free", inBigFlyer = true, iconSize = iconSize)
 
         // Event title text
         Text(
@@ -79,7 +89,6 @@ fun SmallFlyer(inUpcoming: Boolean) {
     var modifier = Modifier
         .fillMaxWidth()
         .padding(bottom = 16.dp, end = 16.dp)
-        .offset(x = (-8).dp)
     if (inUpcoming) {
         modifier = Modifier
             .width(352.dp)
@@ -92,7 +101,7 @@ fun SmallFlyer(inUpcoming: Boolean) {
             modifier = if (inUpcoming) Modifier.shimmerEffect() else Modifier.size(width = 130.dp, height = 130.dp).shimmerEffect()
         )
         Column (modifier = Modifier.padding(start = 8.dp)) {
-            OrganizationAndIconsRow(organizationName = "Break Free")
+            OrganizationAndIconsRow(organizationName = "Break Free", iconSize = 20.dp)
             Text(
                 text = "New Destinations",
                 fontFamily = notoserif,
@@ -142,7 +151,7 @@ fun SmallFlyer(inUpcoming: Boolean) {
 }
 
 @Composable
-fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = false) {
+fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = false, iconSize: Dp) {
     if (inBigFlyer) {
         Spacer(modifier = Modifier
             .height(8.dp)
@@ -160,13 +169,13 @@ fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = fals
         Image(
             painter = painterResource(id = R.drawable.ic_bookmark_orange_empty),
             contentDescription = null,
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(iconSize),
         )
         Spacer(modifier = Modifier.width(8.dp))
         Icon(
             painter = painterResource(id = R.drawable.ic_share_black),
             contentDescription = null,
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(iconSize),
         )
     }
 }

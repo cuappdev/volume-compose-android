@@ -53,15 +53,14 @@ fun MagazinesScreen(
 
     Box {
         LazyVerticalGrid( modifier = Modifier
-            .fillMaxSize()
-            .padding(start = 12.dp),
+            .fillMaxSize(),
             columns = GridCells.Fixed(2)) {
             // Featured header
             item (span = { GridItemSpan(2)}) {
                 VolumeHeaderText(
                     text = "Featured",
                     underline = com.cornellappdev.android.volume.R.drawable.ic_underline_featured,
-                    modifier = Modifier.padding(top = 15.dp)
+                    modifier = Modifier.padding(top = 15.dp, start = 16.dp)
                 )
             }
 
@@ -86,7 +85,8 @@ fun MagazinesScreen(
                     // More magazines text
                     VolumeHeaderText(
                         text = "More magazines",
-                        underline = com.cornellappdev.android.volume.R.drawable.ic_underline_more_magazines
+                        underline = com.cornellappdev.android.volume.R.drawable.ic_underline_more_magazines,
+                        modifier = Modifier.padding(start = 16.dp)
                     )
 
                     // Dropdown menu
@@ -170,7 +170,9 @@ fun MagazinesScreen(
                 MagazinesRetrievalState.Error -> { /* TODO */ }
                 is MagazinesRetrievalState.Success -> {
                     items(magazinesState.magazines) {
-                        CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
+                        Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                            CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
+                        }
                     }
                 }
             }
