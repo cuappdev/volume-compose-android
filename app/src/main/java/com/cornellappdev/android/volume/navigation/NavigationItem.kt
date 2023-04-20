@@ -77,9 +77,7 @@ interface NavUnit {
  */
 enum class Routes(override var route: String) : NavUnit {
     HOME("home"),
-    MAGAZINES("magazine"),
     READS("reads"),
-    PUBLICATIONS("publications"),
     FLYERS("flyers"),
     BOOKMARKS("bookmarks"),
     ONBOARDING("onboarding"),

@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.data.repositories
 
-import android.util.Log
 import com.cornellappdev.android.volume.AllPublicationSlugsQuery
 import com.cornellappdev.android.volume.AllPublicationsQuery
 import com.cornellappdev.android.volume.PublicationBySlugQuery
@@ -137,7 +136,6 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                 },
                 socials = publicationData.socials
                     .map { Social(it.social, it.url) })
-            Log.d(TAG, "mapDataToPublication: Successfully processed $pub")
             pub
         } ?: throw PublicationRepository.PublicationNotFound()
     }

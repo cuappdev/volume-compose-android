@@ -50,9 +50,6 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
         Routes.ONBOARDING.route -> {
             showBottomBar.value = false
         }
-        Routes.PUBLICATIONS.route -> {
-            showBottomBar.value = true
-        }
         Routes.BOOKMARKS.route -> {
             showBottomBar.value = true
         }
@@ -61,9 +58,6 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
         }
         Routes.ABOUT_US.route -> {
             showBottomBar.value = false
-        }
-        Routes.MAGAZINES.route -> {
-            showBottomBar.value = true
         }
         "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}" -> {
             showBottomBar.value = false

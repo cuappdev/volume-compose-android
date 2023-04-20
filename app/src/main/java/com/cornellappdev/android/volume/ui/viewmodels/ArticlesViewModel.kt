@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -139,10 +138,8 @@ class ArticlesViewModel @Inject constructor(
                 homeUiState = homeUiState.copy(
                     publicationsState = PublicationSlugsRetrievalState.Success(publicationRepository.fetchAllPublicationSlugs())
                 )
-                 Log.d(TAG, "queryAllPublications: PUBLICATIONS SUCCESS")
                 queryShuffledArticlesByPublicationSlugs()
             } catch (e: Exception) {
-                 Log.d(TAG, "queryAllPublications: PUBLICATIONS FAILURE")
                 homeUiState = homeUiState.copy(
                     publicationsState = PublicationSlugsRetrievalState.Error
                 )
@@ -160,7 +157,6 @@ class ArticlesViewModel @Inject constructor(
      * @param limit how much other articles to fetch
      */
     private fun queryOtherArticles(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
-        Log.d(TAG, "queryOtherArticles: QUERYING OTHER ARTICLES")
         try {
             val followedPublications =
                 userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.toHashSet()
@@ -211,24 +207,16 @@ class ArticlesViewModel @Inject constructor(
 
     private fun queryShuffledArticlesByPublicationSlugs(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
         when (val publicationsState = homeUiState.publicationsState) {
-            PublicationSlugsRetrievalState.Loading -> {
-                Log.d(TAG, "queryOtherArticles: PUBLICATIONS STILL LOADING")
-            }
-            PublicationSlugsRetrievalState.Error -> {
-                Log.d(TAG, "queryOtherArticles: PUBLICATIONS ERROR")
-            }
+            PublicationSlugsRetrievalState.Loading -> {}
+            PublicationSlugsRetrievalState.Error -> {}
             is PublicationSlugsRetrievalState.Success -> {
                 try {
-                    Log.d(TAG, "queryShuffledArticlesByPublicationSlugs: PUBLICATIONS SUCCESS 2")
                     homeUiState = homeUiState.copy(
                         otherArticlesState = ArticlesRetrievalState.Success(
                             articleRepository.fetchArticlesByShuffledPublicationSlugs(publicationsState.slugs)
                         )
                     )
-                    Log.d(TAG, "queryShuffledArticlesByPublicationSlugs: SHUFFLED SUCCESS")
-                } catch (e: Exception) {
-                    Log.d(TAG, "queryOtherArticles: LOADING SHUFFLED ARTICLES FAILED")
-                }
+                } catch (ignored: Exception) {}
             }
         }
     }
