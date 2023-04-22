@@ -6,6 +6,7 @@ data class Flyer(
     val date: String,
     val imageURL: String,
     val organization: Organization,
+    val location: String,
     val organizationSlug: String,
     val shoutouts: Double,
     val title: String,

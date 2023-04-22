@@ -29,12 +29,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import com.cornellappdev.android.volume.R
+import com.cornellappdev.android.volume.data.models.Flyer
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 
 @Composable
-fun BigFlyer(imgSize: Dp) {
+fun BigFlyer(imgSize: Dp, flyer: Flyer) {
     val iconSize = if (imgSize > 256.dp) 24.dp else 16.dp
 
     Column (modifier = Modifier.width(imgSize)) {
@@ -52,40 +53,40 @@ fun BigFlyer(imgSize: Dp) {
                         .zIndex(1F)
                 ) {
                     Text(
-                        text = "Dance",
+                        text = TODO(),
                         color = Color.White,
                         modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp)
                     )
                 }
             }
             AsyncImage(
-                model = "https://images.squarespace-cdn.com/content/v1/60eb5b94ffc5d0139c894a84/1651730346785-XR81CQIRLK0KWIWL9EJV/Extra+Logos.png?format=1000w",
+                model = flyer.imageURL,
                 contentDescription = null,
                 modifier = Modifier
                     .size(size = imgSize)
                     .zIndex(0F)
-                    .shimmerEffect()
+                    .shimmerEffect(),
             )
         }
 
         // Organization and icon row
-        OrganizationAndIconsRow(organizationName = "Break Free", inBigFlyer = true, iconSize = iconSize)
+        OrganizationAndIconsRow(organizationName = flyer.organization.name, inBigFlyer = true, iconSize = iconSize)
 
         // Event title text
         Text(
-            text = "New Destinations",
+            text = flyer.title,
             fontFamily = notoserif,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
-        IconTextRow(text = "Fri, April 14th  4PM - 6PM", iconId = R.drawable.ic_calendar)
+        IconTextRow(text = flyer.date, iconId = R.drawable.ic_calendar)
         Spacer(modifier = Modifier.height(5.dp))
-        IconTextRow(text = "Bailey Hall", iconId = R.drawable.ic_location_pin)
+        IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin)
     }
 }
 
 @Composable
-fun SmallFlyer(inUpcoming: Boolean) {
+fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
     var modifier = Modifier
         .fillMaxWidth()
         .padding(bottom = 16.dp, end = 16.dp)
@@ -96,14 +97,14 @@ fun SmallFlyer(inUpcoming: Boolean) {
     }
     Row (modifier = modifier) {
         AsyncImage(
-            model = "https://images.squarespace-cdn.com/content/v1/60eb5b94ffc5d0139c894a84/1651730346785-XR81CQIRLK0KWIWL9EJV/Extra+Logos.png?format=1000w",
+            model = flyer.imageURL,
             contentDescription = null,
             modifier = if (inUpcoming) Modifier.shimmerEffect() else Modifier.size(width = 130.dp, height = 130.dp).shimmerEffect()
         )
         Column (modifier = Modifier.padding(start = 8.dp)) {
-            OrganizationAndIconsRow(organizationName = "Break Free", iconSize = 20.dp)
+            OrganizationAndIconsRow(organizationName = flyer.organization.name, iconSize = 20.dp)
             Text(
-                text = "New Destinations",
+                text = flyer.title,
                 fontFamily = notoserif,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
@@ -113,14 +114,14 @@ fun SmallFlyer(inUpcoming: Boolean) {
                     .height(8.dp)
                     .fillMaxWidth()
             )
-            IconTextRow(text = "Sat, March 25th  4PM - 5:30PM", iconId = R.drawable.ic_calendar)
+            IconTextRow(text = flyer.date, iconId = R.drawable.ic_calendar)
             Spacer(
                 modifier = Modifier
                     .height(8.dp)
                     .fillMaxWidth()
             )
-            IconTextRow(text = "Physical Sciences Building", iconId = R.drawable.ic_location_pin,
-                textModifier = if (inUpcoming) Modifier.offset(y = (-2).dp) else Modifier)
+            IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin,
+                modifier = if (inUpcoming) Modifier.offset(y = (-2).dp) else Modifier)
             if (!inUpcoming) {
                 Spacer(modifier = Modifier
                     .height(8.dp)
@@ -137,7 +138,7 @@ fun SmallFlyer(inUpcoming: Boolean) {
                     )
                 }) {
                     Text(
-                        text = "Dance",
+                        text = TODO(),
                         color = VolumeOrange,
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -181,11 +182,11 @@ fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = fals
 }
 
 @Composable
-fun IconTextRow(text: String, iconId: Int, textModifier: Modifier = Modifier) {
+fun IconTextRow(text: String, iconId: Int, modifier: Modifier = Modifier) {
     Row {
         Icon(painter = painterResource(id = iconId), contentDescription = null)
         Spacer(modifier = Modifier.width(4.dp))
-        Text(text = text, fontFamily = lato, fontWeight = FontWeight.Normal, fontSize = 12.sp, modifier = textModifier)
+        Text(text = text, fontFamily = lato, fontWeight = FontWeight.Normal, fontSize = 12.sp, modifier = modifier)
 
     }
 }
