@@ -11,6 +11,7 @@ data class Organization(
     val rssURL: String,
     val slug: String,
     val shoutouts: String,
+    val categorySlug: String,
     val websiteURL: String,
     val contentTypes: List<String>
 )

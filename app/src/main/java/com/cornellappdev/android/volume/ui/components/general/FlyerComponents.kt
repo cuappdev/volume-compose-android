@@ -52,13 +52,15 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
                         .background(VolumeOrange, shape = RoundedCornerShape(8.dp))
                         .zIndex(1F)
                 ) {
+                    // Tag
                     Text(
-                        text = TODO(),
+                        text = flyer.organization.categorySlug,
                         color = Color.White,
                         modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp)
                     )
                 }
             }
+            // Image
             AsyncImage(
                 model = flyer.imageURL,
                 contentDescription = null,
@@ -123,6 +125,7 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
             IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin,
                 modifier = if (inUpcoming) Modifier.offset(y = (-2).dp) else Modifier)
             if (!inUpcoming) {
+                // Show the tag:
                 Spacer(modifier = Modifier
                     .height(8.dp)
                     .fillMaxWidth())
@@ -138,7 +141,7 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
                     )
                 }) {
                     Text(
-                        text = TODO(),
+                        text = flyer.organization.categorySlug,
                         color = VolumeOrange,
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 4.dp),

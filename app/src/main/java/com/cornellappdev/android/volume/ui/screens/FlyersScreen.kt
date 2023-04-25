@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
+import com.cornellappdev.android.volume.data.models.Flyer
 import com.cornellappdev.android.volume.ui.components.general.BigFlyer
 import com.cornellappdev.android.volume.ui.components.general.SmallFlyer
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
@@ -166,7 +167,7 @@ fun FlyersScreen() {
         }
 
         items (10) {
-            SmallFlyer(inUpcoming = false)
+            SmallFlyer(false)
         }
     }
 }
