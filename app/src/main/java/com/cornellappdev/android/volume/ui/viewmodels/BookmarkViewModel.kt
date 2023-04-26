@@ -64,6 +64,10 @@ class BookmarkViewModel @Inject constructor(
         }
     }
 
+    private fun getBookmarkedFlyers() = viewModelScope.launch {
+        TODO()
+    }
+
     fun removeArticle(id: String) = viewModelScope.launch {
         if (bookmarkUiState.articlesState is ArticlesRetrievalState.Success) {
             val currentList =
