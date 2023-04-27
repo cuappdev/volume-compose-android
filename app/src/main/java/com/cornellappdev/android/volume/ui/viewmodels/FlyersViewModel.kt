@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,11 +44,12 @@ class FlyersViewModel @Inject constructor(
      * Otherwise it will update it with a failure state.
      */
     private fun queryWeeklyFlyers() {
+        Log.d(TAG, "queryWeeklyFlyers: Method called")
         viewModelScope.launch {
             try {
                 flyersUiState = flyersUiState.copy(
                     weeklyFlyersState = FlyersRetrievalState.Success(
-                        flyerRepository.fetchFlyersAfterDate(getToday())
+                        flyerRepository.fetchWeeklyFlyers() ?: listOf()
                     )
                 )
                 queryUpcomingFlyers("All")
@@ -56,6 +58,7 @@ class FlyersViewModel @Inject constructor(
                     weeklyFlyersState = FlyersRetrievalState.Error
                 )
             }
+
         }
     }
 
@@ -66,7 +69,6 @@ class FlyersViewModel @Inject constructor(
      * magazine state accordingly.
      * Otherwise it will update it with a failure state.
      * @param query Current semester, format of "fa" or "sp", and then last 2 digits of year
-     * @param limit The limit of how many magazines to query for.
      */
     fun queryUpcomingFlyers (query: String) {
         flyersUiState = flyersUiState.copy(
@@ -77,20 +79,17 @@ class FlyersViewModel @Inject constructor(
                 if (query.lowercase() == "all") {
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
-                            flyerRepository.fetchFlyersAfterDate(
-                                getWeekAfter()
-                            )
+                            flyerRepository.fetchWeeklyFlyers() ?: listOf()
                         )
                     )
-                } else
+                } else {
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
-                            flyerRepository.fetchFlyersByCategorySlug(
-                                limit = NUMBER_OF_UPCOMING_FLYERS,
-                                slug = query
-                            )
+                            flyerRepository.fetchWeeklyFlyers()?.filter { f -> f.organizations.first().type == query.lowercase() } ?: listOf()
                         )
                     )
+                }
+                queryPastFlyers()
             } catch (ignored: Exception) {
                 flyersUiState = flyersUiState.copy(
                     upcomingFlyersState = FlyersRetrievalState.Error
@@ -102,7 +101,7 @@ class FlyersViewModel @Inject constructor(
         viewModelScope.launch {
             flyersUiState = try {
                 flyersUiState.copy(
-                    pastFlyersState = FlyersRetrievalState.Success(flyerRepository.fetchPastFlyers(limit = NUMBER_OF_PAST_FLYERS))
+                    pastFlyersState = FlyersRetrievalState.Success(flyerRepository.fetchPastFlyers(limit = NUMBER_OF_PAST_FLYERS) ?: listOf())
                 )
             } catch (ignored: Exception) {
                 flyersUiState.copy(

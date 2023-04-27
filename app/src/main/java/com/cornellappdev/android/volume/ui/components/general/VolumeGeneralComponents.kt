@@ -173,3 +173,11 @@ fun VolumePeriod(modifier: Modifier = Modifier) {
     )
 }
 
+fun Int.toComposeColor(): androidx.compose.ui.graphics.Color {
+    val alpha = (this shr 24 and 0xFF) / 255f
+    val red = (this shr 16 and 0xFF) / 255f
+    val green = (this shr 8 and 0xFF) / 255f
+    val blue = (this and 0xFF) / 255f
+    return Color(red, green, blue, alpha)
+}
+

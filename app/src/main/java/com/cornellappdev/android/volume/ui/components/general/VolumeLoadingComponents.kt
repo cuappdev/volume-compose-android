@@ -23,11 +23,17 @@ fun BigReadShimmeringArticle() {
             .shimmerEffect()
             .requiredSize(180.dp, 180.dp))
         Spacer(modifier = Modifier.height(16.dp))
-        Box(modifier = Modifier.shimmerEffect().requiredSize(180.dp, 20.dp))
+        Box(modifier = Modifier
+            .shimmerEffect()
+            .requiredSize(180.dp, 20.dp))
         Spacer(modifier = Modifier.height(8.dp))
-        Box(modifier = Modifier.shimmerEffect().requiredSize(60.dp, 20.dp))
+        Box(modifier = Modifier
+            .shimmerEffect()
+            .requiredSize(60.dp, 20.dp))
         Spacer(modifier = Modifier.height(8.dp))
-        Box(modifier = Modifier.shimmerEffect().requiredSize(100.dp, 20.dp))
+        Box(modifier = Modifier
+            .shimmerEffect()
+            .requiredSize(100.dp, 20.dp))
     }
 }
 

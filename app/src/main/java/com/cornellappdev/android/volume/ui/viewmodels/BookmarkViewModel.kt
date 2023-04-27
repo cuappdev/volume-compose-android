@@ -65,7 +65,7 @@ class BookmarkViewModel @Inject constructor(
     }
 
     private fun getBookmarkedFlyers() = viewModelScope.launch {
-        TODO()
+        // TODO
     }
 
     fun removeArticle(id: String) = viewModelScope.launch {

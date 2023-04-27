@@ -30,7 +30,6 @@ import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
-import com.cornellappdev.android.volume.ui.components.general.BigFlyer
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
 import com.cornellappdev.android.volume.ui.components.general.MainArticleComponent
@@ -127,10 +126,9 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
         // Flyers
         items(2, span = { GridItemSpan(2)}) {
             Box (modifier = Modifier.padding(bottom = 40.dp, start = 16.dp, end = 16.dp)) {
-                BigFlyer(screenWidthDp - 32.dp)
+//                BigFlyer(screenWidthDp - 32.dp)
             }
         }
-
 
         // Magazines
         when (val magazineUiState = uiState.featuredMagazinesRetrievalState) {
@@ -139,7 +137,9 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
                      VolumeLoading()
                  }
             }
-            MagazinesRetrievalState.Error -> { /* ignored */ }
+            MagazinesRetrievalState.Error -> {
+                Log.d(TAG, "TrendingScreen: Magazine retrieval failed")
+            }
 
             is MagazinesRetrievalState.Success -> {
                 val magazines = magazineUiState.magazines

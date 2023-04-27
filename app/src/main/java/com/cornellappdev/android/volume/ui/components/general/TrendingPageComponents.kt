@@ -58,7 +58,7 @@ fun MainArticleComponent(article: Article, onArticleClick:
     val time = article.getTimeSinceArticlePublished()
     val imageURL = article.imageURL
     var imageBitmap by remember(imageURL) { mutableStateOf<Bitmap?>(null) }
-    var bottomAverageColor by remember { mutableStateOf<Color>(Color.Transparent) }
+    var bottomAverageColor by remember { mutableStateOf(Color.Transparent) }
     // Let the default linear gradient just be a transparent gradient.
     val defaultGradient = LinearGradientShader(
         colors = listOf(
@@ -83,7 +83,7 @@ fun MainArticleComponent(article: Article, onArticleClick:
     // Launch a coroutine scope to asynchronously fetch image bitmap and update gradient:
     LaunchedEffect (context) {
         imageBitmap = getBitmap(imageURL, context)
-        bottomAverageColor = getAverageColor(imageBitmap!!).toComposeColor()
+        bottomAverageColor = getAverageBottomColor(imageBitmap!!).toComposeColor()
         linearGradient =
             object : ShaderBrush() {
                 override fun createShader(size: Size): Shader {
@@ -179,7 +179,7 @@ private suspend fun getBitmap(imageUrl: String, context: Context): Bitmap? {
     }
 }
 
-private fun getAverageColor(immutableBitmap: Bitmap): Int {
+private fun getAverageBottomColor(immutableBitmap: Bitmap): Int {
     Log.d(TAG, "getAverageColor: Called")
     // Calculate the height of the bottom 20% of the image
     val bitmap = immutableBitmap.copy(Bitmap.Config.RGBA_F16, true)
@@ -210,13 +210,4 @@ private fun getAverageColor(immutableBitmap: Bitmap): Int {
 
     // Return the average color in RGB format
     return rgb(averageRed, averageGreen, averageBlue)
-}
-
-
-private fun Int.toComposeColor(): androidx.compose.ui.graphics.Color {
-    val alpha = (this shr 24 and 0xFF) / 255f
-    val red = (this shr 16 and 0xFF) / 255f
-    val green = (this shr 8 and 0xFF) / 255f
-    val blue = (this and 0xFF) / 255f
-    return Color(red, green, blue, alpha)
 }

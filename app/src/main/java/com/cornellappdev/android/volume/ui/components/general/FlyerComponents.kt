@@ -1,5 +1,9 @@
 package com.cornellappdev.android.volume.ui.components.general
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -8,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,27 +19,50 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.data.models.Flyer
+import com.cornellappdev.android.volume.data.models.Organization
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun BigFlyer(imgSize: Dp, flyer: Flyer) {
     val iconSize = if (imgSize > 256.dp) 24.dp else 16.dp
+    val imageURL = flyer.imageURL
+    val context = LocalContext.current
+    var imageBitmap by remember(imageURL) { mutableStateOf<Bitmap?>(null) }
+    var averageColor by remember { mutableStateOf(Color.Gray) }
+//      TODO uncomment after testing
+//    LaunchedEffect(key1 = flyer.imageURL) {
+//        imageBitmap = getBitmap(imageURL, context)
+//        averageColor = getAverageColor(imageBitmap!!).toComposeColor()
+//    }
 
     Column (modifier = Modifier.width(imgSize)) {
         // Image and tag
@@ -54,7 +80,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
                 ) {
                     // Tag
                     Text(
-                        text = flyer.organization.categorySlug,
+                        text = flyer.organizations.formatTypes(),
                         color = Color.White,
                         modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp)
                     )
@@ -67,21 +93,25 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
                 modifier = Modifier
                     .size(size = imgSize)
                     .zIndex(0F)
-                    .shimmerEffect(),
+                    .background(color = averageColor),
             )
         }
 
         // Organization and icon row
-        OrganizationAndIconsRow(organizationName = flyer.organization.name, inBigFlyer = true, iconSize = iconSize)
+        OrganizationAndIconsRow(organizationName = flyer.organizations
+            .joinToString(transform = {o -> o.name.replaceFirstChar { c -> c.uppercase() }},
+                separator = ", "), inBigFlyer = true, iconSize = iconSize)
 
         // Event title text
         Text(
             text = flyer.title,
             fontFamily = notoserif,
             fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
-        IconTextRow(text = flyer.date, iconId = R.drawable.ic_calendar)
+        IconTextRow(text = formatDateString(flyer.startDate, flyer.endDate), iconId = R.drawable.ic_calendar)
         Spacer(modifier = Modifier.height(5.dp))
         IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin)
     }
@@ -89,6 +119,16 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
 
 @Composable
 fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
+    val imageURL = flyer.imageURL
+    val context = LocalContext.current
+
+    var imageBitmap by remember(imageURL) { mutableStateOf<Bitmap?>(null) }
+    var averageColor by remember { mutableStateOf(Color.Gray) }
+//      TODO uncomment after testing
+//    LaunchedEffect(key1 = flyer.imageURL) {
+//        imageBitmap = getBitmap(imageURL, context)
+//        averageColor = getAverageColor(imageBitmap!!).toComposeColor()
+//    }
     var modifier = Modifier
         .fillMaxWidth()
         .padding(bottom = 16.dp, end = 16.dp)
@@ -101,10 +141,16 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
         AsyncImage(
             model = flyer.imageURL,
             contentDescription = null,
-            modifier = if (inUpcoming) Modifier.shimmerEffect() else Modifier.size(width = 130.dp, height = 130.dp).shimmerEffect()
+            modifier = if (inUpcoming) Modifier
+                .background(color = averageColor)
+                .size(123.dp) else Modifier
+                .size(width = 130.dp, height = 130.dp)
+                .background(color = averageColor)
         )
         Column (modifier = Modifier.padding(start = 8.dp)) {
-            OrganizationAndIconsRow(organizationName = flyer.organization.name, iconSize = 20.dp)
+            OrganizationAndIconsRow(organizationName = flyer.organizations
+                .toSet()
+                .joinToString(transform = {o -> o.name}, separator = ", "), iconSize = 20.dp)
             Text(
                 text = flyer.title,
                 fontFamily = notoserif,
@@ -113,17 +159,16 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
             )
             Spacer(
                 modifier = Modifier
-                    .height(8.dp)
+                    .height(4.dp)
                     .fillMaxWidth()
             )
-            IconTextRow(text = flyer.date, iconId = R.drawable.ic_calendar)
+            IconTextRow(text = formatDateString(flyer.startDate, flyer.endDate), iconId = R.drawable.ic_calendar)
             Spacer(
                 modifier = Modifier
-                    .height(8.dp)
+                    .height(4.dp)
                     .fillMaxWidth()
             )
-            IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin,
-                modifier = if (inUpcoming) Modifier.offset(y = (-2).dp) else Modifier)
+            IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin)
             if (!inUpcoming) {
                 // Show the tag:
                 Spacer(modifier = Modifier
@@ -141,7 +186,7 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
                     )
                 }) {
                     Text(
-                        text = flyer.organization.categorySlug,
+                        text = flyer.organizations.formatTypes(),
                         color = VolumeOrange,
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -153,6 +198,12 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
         }
     }
 }
+
+fun List<Organization>.formatTypes(): String {
+    Log.d("TAG", "formatTypes: ${this.toSet()}")
+    return  this.map { o -> o.type.replaceFirstChar { c -> c.uppercase() } }.toSet().joinToString(separator = ", ")
+}
+
 
 @Composable
 fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = false, iconSize: Dp) {
@@ -186,10 +237,77 @@ fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = fals
 
 @Composable
 fun IconTextRow(text: String, iconId: Int, modifier: Modifier = Modifier) {
-    Row {
+    Row (modifier = Modifier) {
         Icon(painter = painterResource(id = iconId), contentDescription = null)
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = text, fontFamily = lato, fontWeight = FontWeight.Normal, fontSize = 12.sp, modifier = modifier)
-
     }
+}
+
+private suspend fun getBitmap(imageUrl: String, context: Context): Bitmap? {
+    val loading = ImageLoader(context)
+    val request = ImageRequest.Builder(context)
+        .data(imageUrl)
+        .build()
+
+    return when (val res = loading.execute(request)) {
+        is SuccessResult -> {
+            val bitDrawable = res.drawable
+            (bitDrawable as BitmapDrawable).bitmap
+        }
+        else -> {
+            null
+        }
+    }
+}
+
+private fun getAverageColor(immutableBitmap: Bitmap): Int {
+    // Scale bitmap to make it go faster :)
+    val bitmap = Bitmap.createScaledBitmap(immutableBitmap.copy(Bitmap.Config.RGBA_F16, true), 120 , 120, false)
+
+
+    // Calculate the total sum of red, green, and blue values
+    var totalRed = 0
+    var totalGreen = 0
+    var totalBlue = 0
+
+    for (y in 0 until bitmap.height) {
+        for (x in 0 until bitmap.width) {
+            val color = bitmap.getPixel(x, y)
+            totalRed += android.graphics.Color.red(color)
+            totalGreen += android.graphics.Color.green(color)
+            totalBlue += android.graphics.Color.blue(color)
+        }
+    }
+
+    // Calculate the average red, green, and blue values
+    val averageRed = totalRed / (bitmap.width * bitmap.height)
+    val averageGreen = totalGreen / (bitmap.width * bitmap.height)
+    val averageBlue = totalBlue / (bitmap.width * bitmap.height)
+
+    // Return the average color in RGB format
+    return android.graphics.Color.rgb(averageRed, averageGreen, averageBlue)
+}
+
+private fun formatDateString(startDate: String, endDate: String): String {
+    val startDateTime = LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
+    val endDateTime = LocalDateTime.parse(endDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
+
+    val dayOfWeek = startDateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US)
+    val month = startDateTime.month.getDisplayName(TextStyle.SHORT, Locale.US)
+    val dayOfMonth = startDateTime.dayOfMonth
+
+    val startTime = if (startDateTime.minute == 0) {
+        startDateTime.format(DateTimeFormatter.ofPattern("ha"))
+    } else {
+        startDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
+    }
+
+    val endTime = if (endDateTime.minute == 0) {
+        endDateTime.format(DateTimeFormatter.ofPattern("ha"))
+    } else {
+        endDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
+    }
+
+    return "$dayOfWeek, $month $dayOfMonth $startTime - $endTime"
 }

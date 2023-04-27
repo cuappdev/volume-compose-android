@@ -1,15 +1,15 @@
 package com.cornellappdev.android.volume.data.models
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class Flyer(
     val id: String,
-    val flyerURL: String,
-    val date: String,
-    val imageURL: String,
-    val organization: Organization,
-    val location: String,
-    val organizationSlug: String,
-    val shoutouts: Double,
     val title: String,
-    val nsfw: Boolean,
-    val isTrending: Boolean,
+    val organizations: List<Organization>,
+    val postURL: String,
+    val startDate: String,
+    val endDate: String,
+    val imageURL: String,
+    val location: String,
 )
