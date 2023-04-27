@@ -12,7 +12,6 @@ import com.cornellappdev.android.volume.data.repositories.PublicationRepository
 import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.volume.data.repositories.UserRepository
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
-import com.cornellappdev.android.volume.ui.states.PublicationSlugsRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -20,7 +19,6 @@ import javax.inject.Inject
 
 // TODO add refreshing if user follows new publications?
 // TODO optimize loading?
-private const val TAG = "HomeViewModel"
 @HiltViewModel
 class ArticlesViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -28,6 +26,7 @@ class ArticlesViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val publicationRepository: PublicationRepository
 ) : ViewModel() {
+
     companion object {
         const val NUMBER_OF_TRENDING_ARTICLES = 7.0
         const val NUMBER_OF_FOLLOWING_ARTICLES = 20
@@ -38,7 +37,6 @@ class ArticlesViewModel @Inject constructor(
         val trendingArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
         val otherArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
         val followingArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
-        val publicationsState: PublicationSlugsRetrievalState = PublicationSlugsRetrievalState.Loading,
 
         /**
          * State that holds information on whether the user has any followed articles
@@ -124,27 +122,12 @@ class ArticlesViewModel @Inject constructor(
 
                 remainingFollowing = ArticlesRetrievalState.Success(followingArticles)
 
-                queryAllPublications()
+                queryOtherArticles()
             } catch (e: Exception) {
                 homeUiState = homeUiState.copy(
                     followingArticlesState = ArticlesRetrievalState.Error
                 )
             }
-        }
-
-    fun queryAllPublications() =
-        viewModelScope.launch {
-             try {
-                homeUiState = homeUiState.copy(
-                    publicationsState = PublicationSlugsRetrievalState.Success(publicationRepository.fetchAllPublicationSlugs())
-                )
-                queryShuffledArticlesByPublicationSlugs()
-            } catch (e: Exception) {
-                homeUiState = homeUiState.copy(
-                    publicationsState = PublicationSlugsRetrievalState.Error
-                )
-                queryOtherArticles()
-             }
         }
 
     /**
@@ -156,7 +139,7 @@ class ArticlesViewModel @Inject constructor(
      *
      * @param limit how much other articles to fetch
      */
-    private fun queryOtherArticles(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
+    fun queryOtherArticles(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
         try {
             val followedPublications =
                 userRepository.getUser(userPreferencesRepository.fetchUuid()).followedPublicationSlugs.toHashSet()
@@ -202,22 +185,6 @@ class ArticlesViewModel @Inject constructor(
             homeUiState = homeUiState.copy(
                 otherArticlesState = ArticlesRetrievalState.Error
             )
-        }
-    }
-
-    private fun queryShuffledArticlesByPublicationSlugs(limit: Int = NUMBER_OF_OTHER_ARTICLES) = viewModelScope.launch {
-        when (val publicationsState = homeUiState.publicationsState) {
-            PublicationSlugsRetrievalState.Loading -> {}
-            PublicationSlugsRetrievalState.Error -> {}
-            is PublicationSlugsRetrievalState.Success -> {
-                try {
-                    homeUiState = homeUiState.copy(
-                        otherArticlesState = ArticlesRetrievalState.Success(
-                            articleRepository.fetchArticlesByShuffledPublicationSlugs(publicationsState.slugs)
-                        )
-                    )
-                } catch (ignored: Exception) {}
-            }
         }
     }
 }
