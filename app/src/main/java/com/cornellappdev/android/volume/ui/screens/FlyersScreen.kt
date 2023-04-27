@@ -93,10 +93,14 @@ fun FlyersScreen(
                 FlyersRetrievalState.Error -> {}
                 is FlyersRetrievalState.Success -> {
                     val flyers = todayFlyersState.flyers
-                    LazyRow {
-                        items(flyers) {
-                            BigFlyer(340.dp, it)
-                            Spacer(modifier = Modifier.width(16.dp))
+                    if (flyers.isEmpty()) {
+                        NoMoreText(text = "No flyers today")
+                    } else {
+                        LazyRow {
+                            items(flyers) {
+                                BigFlyer(340.dp, it)
+                                Spacer(modifier = Modifier.width(16.dp))
+                            }
                         }
                     }
                 }
@@ -126,10 +130,14 @@ fun FlyersScreen(
                 }
                 is FlyersRetrievalState.Success -> {
                     val flyers = weeklyFlyersState.flyers
-                    LazyRow {
-                        items(flyers) {
-                            BigFlyer(256.dp, it)
-                            Spacer(modifier = Modifier.width(16.dp))
+                    if (flyers.isEmpty()) {
+                        NoMoreText(text = "No flyers this week")
+                    } else {
+                        LazyRow {
+                            items(flyers) {
+                                BigFlyer(256.dp, it)
+                                Spacer(modifier = Modifier.width(16.dp))
+                            }
                         }
                     }
                 }
@@ -223,21 +231,7 @@ fun FlyersScreen(
                 is FlyersRetrievalState.Success -> {
                     val flyers = upcomingFlyerState.flyers
                     if (flyers.isEmpty()){
-                        Row {
-                            Spacer(modifier = Modifier.weight(1f))
-                            Column (modifier = Modifier.width(219.dp)) {
-                                Text(text = "No more upcoming flyers for this filter",
-                                    fontSize = 18.sp,
-                                    fontFamily = notoserif,
-                                    textAlign = TextAlign.Center)
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(text = "If you want to see your organization’s events on Volume, email us at volumeappdev@gmail.com",
-                                    fontSize = 12.sp,
-                                    textAlign = TextAlign.Center)
-                            }
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-
+                        NoMoreText(text = "No upcoming flyers for this category")
                     } else {
                         LazyHorizontalGrid(rows = GridCells.Fixed(3), modifier = Modifier.height(308.dp)) {
                             items(flyers) {
@@ -267,10 +261,35 @@ fun FlyersScreen(
             }
             is FlyersRetrievalState.Success -> {
                 val flyers = pastFlyersState.flyers
-                items(flyers) {
-                    SmallFlyer(inUpcoming = false, it)
+                if (flyers.isEmpty()) {
+                    item {
+                        NoMoreText(text = "No past flyers")
+                    }
+                    
+                }
+                else {
+                    items(flyers) {
+                        SmallFlyer(inUpcoming = false, it)
+                    }
                 }
             }
         }
+    }
+}
+@Composable
+fun NoMoreText(text: String) {
+    Row {
+        Spacer(modifier = Modifier.weight(1f))
+        Column (modifier = Modifier.width(219.dp)) {
+            Text(text = text,
+                fontSize = 18.sp,
+                fontFamily = notoserif,
+                textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "If you want to see your organization’s events on Volume, email us at volumeappdev@gmail.com",
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center)
+        }
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
