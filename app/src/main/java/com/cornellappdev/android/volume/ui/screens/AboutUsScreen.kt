@@ -1,16 +1,25 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
@@ -86,120 +95,63 @@ fun AboutUsScreen() {
                         contentDescription = null,
                         modifier = Modifier.offset(y = (-7).dp)
                     )
-                    Text(
-                        text = "The founding members that together made Volume a reality ✨",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 10.dp)
-                    )
                 }
                 item {
-
-                    Text(
-                        text = "\uD83D\uDCE3  Android",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                    Text(
-                        text = "Chris Desir, Aastha Shah, Justin Jiang, Emily Hu, Ben Harris",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(
-                            top = 4.dp,
-                            start = 25.dp
-                        )
-                    )
-                    Text(
-                        text = "\uD83D\uDCE3  Backend",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                    Text(
-                        text = "Tedi Mitiku, Orko Sinha",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(
-                            top = 4.dp,
-                            start = 25.dp
-                        )
-                    )
-                    Text(
-                        text = "\uD83D\uDCE3  Design",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                    Text(
-                        text = "Amanda He, Zixian Jia, Maggie Ying",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(
-                            top = 4.dp,
-                            start = 25.dp
-                        )
-                    )
-                    Text(
-                        text = "\uD83D\uDCE3  iOS",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                    Text(
-                        text = "Sergio Diaz, Cameron Russell, Daniel Vebman",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(
-                            top = 4.dp,
-                            start = 25.dp
-                        )
-                    )
-                    Text(
-                        text = "\uD83D\uDCE3  Marketing",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                    Text(
-                        text = "Jonna Chen, Monan Modi, Yi Hsin Wei",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(
-                            top = 4.dp,
-                            start = 25.dp
-                        )
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item {
+                    Column {
+                        SemesterPodLeadRow(semester = "Spring 2023", podLead = "Liam Du")
+                        Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                            CategoryMembersPair(category = "Android", members = "Zach Seidner")
+                            CategoryMembersPair(category = "Backend", members = "Isaac Han, Sasha Loayza")
+                            CategoryMembersPair(category = "iOS", members = "Vin Bui, Vivian Nguyen")
+                            CategoryMembersPair(category = "Design", members = "Liam Du, Amy Ge")
+                            CategoryMembersPair(category = "Marketing", members = "Jane Lee, Sanjana Kaicker")
+                        }
+                        Spacer(modifier = Modifier.height(40.dp))
+                        BodyText(text = "Previous Semesters")
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                            CategoryMembersPair(category = "Android", members = "Chris Desir, Aastha Shah, Justin Jiang, Emily Hu, Ben Harris")
+                            CategoryMembersPair(category = "Backend", members = "Tedi Mitiku, Orko Sinha")
+                            CategoryMembersPair(category = "Design", members = "Amanda He, Zixian Jia, Maggie Ying")
+                            CategoryMembersPair(category = "iOS", members = "Sergio Diaz, Cameron Russell, Daniel Vebman")
+                            CategoryMembersPair(category = "Marketing", members = "Jonna Chen, Monan Modi, Yi Hsin Wei")
+                        }
+                    }
                 }
             }
         }
     })
 }
 
-@Preview
 @Composable
-fun ComposablePreview() {
-    AboutUsScreen()
+fun SemesterPodLeadRow(semester: String, podLead: String) {
+    Row {
+        BodyText(text = semester)
+        Spacer(modifier = Modifier.weight(1F))
+        Column {
+            HeadingText(text = "Pod Lead")
+            BodyText(text = podLead)
+        }
+    }
+}
+
+@Composable
+fun CategoryMembersPair (category: String, members: String) {
+    Column {
+        HeadingText(text = category)
+        Spacer(modifier = Modifier.height(8.dp))
+        BodyText(text = members)
+    }
+}
+@Composable
+fun HeadingText(text: String, modifier: Modifier = Modifier) {
+    Text(text = text, modifier = modifier, fontFamily = notoserif, fontSize = 20.sp, fontWeight = FontWeight.Medium)
+}
+
+@Composable
+fun BodyText(text: String, modifier: Modifier = Modifier) {
+    Text(text = text, modifier = modifier, fontFamily = notoserif, fontSize = 16.sp, fontWeight = FontWeight.Normal)
 }
