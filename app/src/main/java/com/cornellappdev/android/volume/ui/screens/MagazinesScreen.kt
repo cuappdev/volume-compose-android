@@ -1,7 +1,6 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -190,7 +189,6 @@ fun FillFeaturedMagazinesRow(magazineUiState: MagazinesViewModel.MagazinesUiStat
             VolumeLoading()
         }
         MagazinesRetrievalState.Error -> {
-            Log.d(TAG, "FillFeaturedMagazinesRow: MAGAZINE ERROR")
         }
         is MagazinesRetrievalState.Success -> {
             LazyRow {

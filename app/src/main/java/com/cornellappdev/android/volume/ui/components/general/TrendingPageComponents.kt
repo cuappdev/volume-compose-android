@@ -7,7 +7,6 @@ import android.graphics.Color.green
 import android.graphics.Color.red
 import android.graphics.Color.rgb
 import android.graphics.drawable.BitmapDrawable
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -66,7 +65,7 @@ fun MainArticleComponent(article: Article, onArticleClick:
             Color.Transparent),
         from = Offset.Zero,
         to = Offset.Zero,
-        tileMode = TileMode.Clamp // TODO might be bad
+        tileMode = TileMode.Clamp
     )
     var linearGradient by remember {
         mutableStateOf<ShaderBrush?>(object : ShaderBrush() {
@@ -106,7 +105,6 @@ fun MainArticleComponent(article: Article, onArticleClick:
                 }
             }
         }
-        Log.d(TAG, "MainArticleComponent: Image bitmap after launched effect: $imageBitmap")
     }
 
     // Actual main article component content
@@ -135,11 +133,13 @@ fun MainArticleComponent(article: Article, onArticleClick:
         Column (modifier = Modifier
             .background(bottomAverageColor)
             .fillMaxWidth()) {
+            // Publisher text
             Text(text = publisher, color = Color.White, modifier = Modifier
                 .padding(horizontal = 16.dp),
                 fontFamily = notoserif,
                 fontSize = 10.sp,
             )
+            // Title text
             Text(text = title, color = Color.White, modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 4.dp),
                 fontFamily = notoserif,
@@ -147,6 +147,7 @@ fun MainArticleComponent(article: Article, onArticleClick:
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
+            // Time text
             Text(text = time, color = Color.White, modifier = Modifier
                 .padding(start = 16.dp, bottom = 16.dp),
                 fontFamily = notoserif,
@@ -157,10 +158,10 @@ fun MainArticleComponent(article: Article, onArticleClick:
 }
 
 
-
-
+/**
+ * Given an image URL, asynchronously returns the bitmap of the image contained at the URL.
+ */
 private suspend fun getBitmap(imageUrl: String, context: Context): Bitmap? {
-    Log.d(TAG, "getBitmap: Get bitmapped called")
     val loading = ImageLoader(context)
     val request = ImageRequest.Builder(context)
         .data(imageUrl)
@@ -168,19 +169,19 @@ private suspend fun getBitmap(imageUrl: String, context: Context): Bitmap? {
 
     return when (val res = loading.execute(request)) {
         is SuccessResult -> {
-            Log.d(TAG, "getBitmap: Got the bitmap")
             val bitDrawable = res.drawable
             (bitDrawable as BitmapDrawable).bitmap
         }
         else -> {
-            Log.d(TAG, "getBitmap: Loading execute failed")
             null
         }
     }
 }
 
+/**
+ * Gets the average bottom 20% of color for an image, given an image bitmap.
+ */
 private fun getAverageBottomColor(immutableBitmap: Bitmap): Int {
-    Log.d(TAG, "getAverageColor: Called")
     // Calculate the height of the bottom 20% of the image
     val bitmap = immutableBitmap.copy(Bitmap.Config.RGBA_F16, true)
 

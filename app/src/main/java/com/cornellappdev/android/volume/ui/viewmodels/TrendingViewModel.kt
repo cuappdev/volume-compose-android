@@ -1,12 +1,12 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.volume.data.repositories.ArticleRepository
+import com.cornellappdev.android.volume.data.repositories.FlyerRepository
 import com.cornellappdev.android.volume.data.repositories.MagazineRepository
 import com.cornellappdev.android.volume.ui.states.ArticleRetrievalState
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
@@ -22,6 +22,7 @@ private const val TAG = "TrendingViewModel"
 class TrendingViewModel @Inject constructor(
     private val articleRepository: ArticleRepository,
     private val magazineRepository: MagazineRepository,
+    private val flyerRepository: FlyerRepository,
 ) : ViewModel() {
     init {
         getMainFeaturedArticle()
@@ -42,7 +43,6 @@ class TrendingViewModel @Inject constructor(
         try {
             val trendingArticles = articleRepository.fetchArticlesByPublicationSlug("guac")
             val myRandom = Random(System.currentTimeMillis())
-            Log.d(TAG, "getMainFeaturedArticle: trending articles: $trendingArticles")
             val featuredArticle = trendingArticles[myRandom.nextInt(trendingArticles.size)]
             trendingUiState = trendingUiState.copy(
               mainFeaturedArticleRetrievalState = ArticleRetrievalState.Success(featuredArticle)
@@ -71,23 +71,39 @@ class TrendingViewModel @Inject constructor(
         }
     }
     private fun getFeaturedArticles() = viewModelScope.launch {
-        trendingUiState = try {
+        try {
             val potentialArticles = articleRepository.fetchTrendingArticles()
             val featuredArticles =  potentialArticles.filter {/*
                  TODO add filter before release (so we get real images)
                  it.publication.slug != "nooz" && it.publication.slug != "review" */
-            true }
-            trendingUiState.copy(
+            true }.shuffled(Random(System.currentTimeMillis()))
+            trendingUiState = trendingUiState.copy(
                 featuredArticlesRetrievalState = ArticlesRetrievalState.Success(featuredArticles)
             )
+            getFeaturedFlyers()
         } catch (e: java.lang.Exception) {
-            trendingUiState.copy(
+            trendingUiState = trendingUiState.copy(
                 featuredArticlesRetrievalState = ArticlesRetrievalState.Error
             )
         }
     }
 
     private fun getFeaturedFlyers() = viewModelScope.launch {
-
+        trendingUiState = try {
+            val flyers = flyerRepository.fetchWeeklyFlyers()?.shuffled(Random(System.currentTimeMillis()))
+            if (flyers == null) {
+                trendingUiState.copy(
+                    featuredFlyers = FlyersRetrievalState.Error
+                )
+            } else {
+                trendingUiState.copy(
+                    featuredFlyers = FlyersRetrievalState.Success(flyers)
+                )
+            }
+        } catch (e: Exception) {
+            trendingUiState.copy(
+                featuredFlyers = FlyersRetrievalState.Error
+            )
+        }
     }
 }

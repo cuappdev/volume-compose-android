@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -24,6 +23,7 @@ class FlyersViewModel @Inject constructor(
         val weeklyFlyersState: FlyersRetrievalState = FlyersRetrievalState.Loading,
         val pastFlyersState: FlyersRetrievalState = FlyersRetrievalState.Loading,
         val upcomingFlyersState: FlyersRetrievalState = FlyersRetrievalState.Loading,
+        val todayFlyersState: FlyersRetrievalState = FlyersRetrievalState.Loading,
     )
 
     companion object {
@@ -35,7 +35,31 @@ class FlyersViewModel @Inject constructor(
         private set
 
     init {
-        queryWeeklyFlyers()
+        queryTodayFlyers()
+    }
+
+    private fun queryTodayFlyers() {
+        viewModelScope.launch {
+            try {
+                val flyers = flyerRepository.fetchTodayFlyers()
+                flyersUiState = if (flyers == null) {
+                    flyersUiState.copy(
+                        todayFlyersState = FlyersRetrievalState.Error
+                    )
+                } else {
+                    flyersUiState.copy(
+                        todayFlyersState = FlyersRetrievalState.Success(
+                            flyers
+                        )
+                    )
+                }
+                queryWeeklyFlyers()
+            } catch (e: Exception) {
+                flyersUiState = flyersUiState.copy(
+                    todayFlyersState = FlyersRetrievalState.Error
+                )
+            }
+        }
     }
 
     /**
@@ -44,7 +68,6 @@ class FlyersViewModel @Inject constructor(
      * Otherwise it will update it with a failure state.
      */
     private fun queryWeeklyFlyers() {
-        Log.d(TAG, "queryWeeklyFlyers: Method called")
         viewModelScope.launch {
             try {
                 flyersUiState = flyersUiState.copy(
@@ -58,7 +81,6 @@ class FlyersViewModel @Inject constructor(
                     weeklyFlyersState = FlyersRetrievalState.Error
                 )
             }
-
         }
     }
 

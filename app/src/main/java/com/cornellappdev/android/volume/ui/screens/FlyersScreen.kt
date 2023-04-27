@@ -73,6 +73,37 @@ fun FlyersScreen(
                 VolumePeriod(modifier = Modifier.padding(top=39.dp, start = 7.dp))
             }
         }
+        // Today header
+        item {
+            Spacer(modifier = Modifier
+                .height(32.dp)
+                .fillMaxWidth())
+            VolumeHeaderText(text = "Today", underline = R.drawable.ic_today_underline)
+            Spacer(modifier = Modifier
+                .height(8.dp)
+                .fillMaxWidth())
+        }
+
+        // Big flyer row
+        item {
+            when (val todayFlyersState = uiState.todayFlyersState) {
+                FlyersRetrievalState.Loading -> {
+                    VolumeLoading()
+                }
+                FlyersRetrievalState.Error -> {}
+                is FlyersRetrievalState.Success -> {
+                    val flyers = todayFlyersState.flyers
+                    LazyRow {
+                        items(flyers) {
+                            BigFlyer(340.dp, it)
+                            Spacer(modifier = Modifier.width(16.dp))
+                        }
+                    }
+                }
+            }
+        }
+
+
         // This week header
         item {
             Spacer(modifier = Modifier
@@ -103,7 +134,6 @@ fun FlyersScreen(
                     }
                 }
             }
-
         }
 
         // Upcoming and dropdown menu

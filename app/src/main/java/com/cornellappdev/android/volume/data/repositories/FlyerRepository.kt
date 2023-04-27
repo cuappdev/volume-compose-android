@@ -12,13 +12,14 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-// TODO entire class
 private const val TAG = "FlyerRepository"
 @Singleton
 class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
@@ -29,6 +30,11 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun fetchFlyersAfterDate(date: String): List<Flyer> = listOf()
     suspend fun fetchFlyersByIds(ids: List<String>): List<Flyer> = listOf()
 
+    suspend fun fetchTodayFlyers(): List<Flyer>? {
+        return fetchFlyersFromUrl("http://34.86.84.49/api/flyers/weekly/")?.filter {
+            isToday(it.startDate)
+        }
+    }
     suspend fun fetchPastFlyers(limit: Double): List<Flyer>? {
         return fetchFlyersFromUrl("http://34.86.84.49/api/flyers/past/")
     }
@@ -65,6 +71,13 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
                 }
             })
         }
+    }
+    private fun isToday(dateString: String): Boolean {
+        val formatter = DateTimeFormatter.ofPattern("MMM d yy h:mm a")
+        val date = LocalDateTime.parse(dateString, formatter)
+        val today = LocalDateTime.now()
+
+        return date.toLocalDate() == today.toLocalDate()
     }
 
 }

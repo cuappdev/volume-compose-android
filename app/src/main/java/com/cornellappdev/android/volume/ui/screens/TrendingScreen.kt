@@ -1,7 +1,6 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -30,6 +30,7 @@ import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
+import com.cornellappdev.android.volume.ui.components.general.BigFlyer
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
 import com.cornellappdev.android.volume.ui.components.general.MainArticleComponent
@@ -39,6 +40,7 @@ import com.cornellappdev.android.volume.ui.components.general.VolumeLogo
 import com.cornellappdev.android.volume.ui.components.general.shimmerEffect
 import com.cornellappdev.android.volume.ui.states.ArticleRetrievalState
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
+import com.cornellappdev.android.volume.ui.states.FlyersRetrievalState
 import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
@@ -116,17 +118,31 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
                 }
             }
         }
-        
-        item ( span = { GridItemSpan(2) } ) {
-            Spacer(modifier = Modifier
-                .height(40.dp)
-                .fillMaxWidth())
-        }
+
 
         // Flyers
-        items(2, span = { GridItemSpan(2)}) {
-            Box (modifier = Modifier.padding(bottom = 40.dp, start = 16.dp, end = 16.dp)) {
-//                BigFlyer(screenWidthDp - 32.dp)
+        when (val flyersState = uiState.featuredFlyers) {
+            FlyersRetrievalState.Loading -> {
+                item (span = { GridItemSpan(2)} ) {
+                    VolumeLoading()
+                }
+            }
+            FlyersRetrievalState.Error -> {
+
+            }
+            is FlyersRetrievalState.Success -> {
+                val flyers = flyersState.flyers
+                items(minOf(2, flyers.size), span = { GridItemSpan(2) }) {
+                        index ->
+                    Column {
+                        Row {
+                            Spacer(modifier = Modifier.width(16.dp))
+                            BigFlyer(imgSize = screenWidthDp-32.dp, flyer = flyers[index])
+                        }
+                        Spacer(modifier = Modifier.height(40.dp))
+                    }
+
+                }
             }
         }
 
@@ -138,12 +154,10 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
                  }
             }
             MagazinesRetrievalState.Error -> {
-                Log.d(TAG, "TrendingScreen: Magazine retrieval failed")
             }
 
             is MagazinesRetrievalState.Success -> {
                 val magazines = magazineUiState.magazines
-                Log.d(TAG, "TrendingScreen: Showing ${magazines.size} magazines")
 
                 items(minOf(magazines.size, 4)) { index ->
                     Column (horizontalAlignment = Alignment.CenterHorizontally) {
