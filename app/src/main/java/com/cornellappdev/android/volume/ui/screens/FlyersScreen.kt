@@ -239,7 +239,6 @@ fun FlyersScreen(
                             }
                         }
                     }
-
                 }
             }
         }
@@ -265,7 +264,6 @@ fun FlyersScreen(
                     item {
                         NoMoreText(text = "No past flyers")
                     }
-                    
                 }
                 else {
                     items(flyers) {
