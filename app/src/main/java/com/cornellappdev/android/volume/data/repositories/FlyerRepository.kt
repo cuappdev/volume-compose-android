@@ -38,11 +38,9 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun fetchWeeklyFlyers(): List<Flyer>? {
         return fetchFlyersFromUrl("http://34.86.84.49/api/flyers/weekly/") // weekly endpoint
     }
-    suspend fun fetchUpcomingFlyersByType(type: String): List<Flyer>? {
-        if (type.lowercase() == "all") {
-            return fetchFlyersFromUrl("http://34.86.84.49/api/flyers/upcoming/")
-        }
-        return fetchFlyersFromUrl("http://34.86.84.49/api/flyers/upcoming/")?.filter { it.organizations.first().type == type }
+
+    suspend fun fetchUpcomingFlyers(): List<Flyer>? {
+        return fetchFlyersFromUrl("http://34.86.84.49/api/flyers/upcoming/")
     }
 
     private suspend fun fetchFlyersFromUrl(url: String): List<Flyer>? {

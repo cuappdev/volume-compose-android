@@ -1,14 +1,16 @@
 package com.cornellappdev.android.volume.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -38,9 +40,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.ui.components.general.BigFlyer
+import com.cornellappdev.android.volume.ui.components.general.BigShimmeringFlyer
+import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
 import com.cornellappdev.android.volume.ui.components.general.SmallFlyer
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
-import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
 import com.cornellappdev.android.volume.ui.components.general.VolumePeriod
 import com.cornellappdev.android.volume.ui.states.FlyersRetrievalState
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
@@ -56,7 +59,7 @@ fun FlyersScreen(
     val formattedTags = tags.map { s ->
         when (s) {
             "greekLife" -> "Greek Life"
-            "foodDrink" -> "Food & Drinks"
+            "foodDrink" -> "Food Drink"
             "socialJustice" -> "Social Justice"
             else -> {
                 s.replaceFirstChar { c -> c.uppercase() }
@@ -88,7 +91,12 @@ fun FlyersScreen(
         item {
             when (val todayFlyersState = uiState.todayFlyersState) {
                 FlyersRetrievalState.Loading -> {
-                    VolumeLoading()
+                    LazyRow(content = {
+                        items(5) {
+                            BigShimmeringFlyer(imgWidth = 340, imgHeight = 340)
+                            Spacer(modifier = Modifier.width(16.dp))
+                        }
+                    })
                 }
                 FlyersRetrievalState.Error -> {}
                 is FlyersRetrievalState.Success -> {
@@ -123,7 +131,12 @@ fun FlyersScreen(
         item {
             when (val weeklyFlyersState = uiState.weeklyFlyersState) {
                 FlyersRetrievalState.Loading -> {
-                    VolumeLoading()
+                    LazyRow {
+                        items(5) {
+                            BigShimmeringFlyer(imgWidth = 256, imgHeight = 256)
+                            Spacer(modifier = Modifier.width(16.dp))
+                        }
+                    }
                 }
                 FlyersRetrievalState.Error -> {
                     // TODO
@@ -155,7 +168,7 @@ fun FlyersScreen(
 
                 // Dropdown menu
                 Column(modifier = Modifier.padding(end = 24.dp /* this is 16 because offset */ )) {
-                    Row(modifier = Modifier.drawWithContent {
+                    Box(modifier = Modifier.drawWithContent {
                         drawContent()
                         drawRoundRect(
                             color = VolumeOrange,
@@ -165,33 +178,36 @@ fun FlyersScreen(
                                 y = 5.dp.toPx()
                             ),
                             size = Size(
-                                width = 115.49.dp.toPx(),
+                                width = 128.dp.toPx(),
                                 height = 31.dp.toPx()
                             ),
                             topLeft = Offset(x = 8.dp.toPx(), y = 0.dp.toPx())
                         )
                     }) {
-                        Text(
-                            text = formattedTags[selectedIndex],
-                            color = VolumeOrange,
-                            modifier = Modifier
-                                .clickable {
-                                    expanded = true
-                                }
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                .size(width = 72.dp, height = 16.dp),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                        )
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_dropdown),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(top = 12.dp)
-                                .clickable {
-                                    expanded = true
-                                }
-                        )
+                        Row {
+                            Text(
+                                text = formattedTags[selectedIndex],
+                                color = VolumeOrange,
+                                modifier = Modifier
+                                    .clickable {
+                                        expanded = true
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .height(16.dp)
+                                    .defaultMinSize(minWidth = 82.dp),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_dropdown),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(top = 12.dp)
+                                    .clickable {
+                                        expanded = true
+                                    }
+                            )
+                        }
                     }
 
                     DropdownMenu(
@@ -202,6 +218,7 @@ fun FlyersScreen(
                                 DropdownMenuItem(onClick = {
                                     selectedIndex = index
                                     expanded = false
+                                    Log.d("TAG", "FlyersScreen: Querying for tag ${tags[selectedIndex]} ")
                                     flyersViewModel.queryUpcomingFlyers(tags[selectedIndex])
                                 }) {
                                     Text(
@@ -223,7 +240,11 @@ fun FlyersScreen(
         item {
             when (val upcomingFlyerState = uiState.upcomingFlyersState) {
                 FlyersRetrievalState.Loading -> {
-                    VolumeLoading()
+                    LazyHorizontalGrid(rows = GridCells.Fixed(3), modifier = Modifier.height(308.dp)) {
+                        items(9) {
+                            ShimmeringFlyer()
+                        }
+                    }
                 }
                 FlyersRetrievalState.Error -> {
                     // TODO
@@ -251,8 +272,9 @@ fun FlyersScreen(
 
         when (val pastFlyersState = uiState.pastFlyersState) {
             FlyersRetrievalState.Loading -> {
-                item {
-                    VolumeLoading()
+                items(5) {
+                    ShimmeringFlyer()
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
             FlyersRetrievalState.Error -> {

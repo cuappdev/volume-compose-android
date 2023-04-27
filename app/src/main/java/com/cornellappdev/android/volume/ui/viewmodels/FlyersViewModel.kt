@@ -107,7 +107,7 @@ class FlyersViewModel @Inject constructor(
                 } else {
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
-                            flyerRepository.fetchWeeklyFlyers()?.filter { f -> f.organizations.first().type == query.lowercase() } ?: listOf()
+                            flyerRepository.fetchUpcomingFlyers()?.filter { f -> f.organizations.first().type.lowercase() == query.lowercase() } ?: listOf()
                         )
                     )
                 }

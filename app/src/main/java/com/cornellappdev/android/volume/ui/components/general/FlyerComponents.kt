@@ -93,7 +93,9 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
                     Text(
                         text = flyer.organizations.formatTypes(),
                         color = Color.White,
-                        modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp)
+                        modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -125,7 +127,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            overflow = TextOverflow.Ellipsis
         )
         IconTextRow(text = formatDateString(flyer.startDate, flyer.endDate), iconId = R.drawable.ic_calendar)
         Spacer(modifier = Modifier.height(5.dp))
@@ -189,7 +191,7 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
                 text = flyer.title,
                 fontFamily = notoserif,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
             Spacer(
                 modifier = Modifier
@@ -226,6 +228,8 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
                             .padding(horizontal = 16.dp, vertical = 4.dp),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -256,7 +260,9 @@ fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = fals
             text = organizationName,
             fontFamily = notoserif,
             fontWeight = FontWeight.Medium,
-            fontSize = 12.sp
+            fontSize = 12.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
         Spacer(modifier = Modifier.weight(1F))
         // Bookmark icon
@@ -282,7 +288,9 @@ fun IconTextRow(text: String, iconId: Int, modifier: Modifier = Modifier) {
     Row (modifier = Modifier) {
         Icon(painter = painterResource(id = iconId), contentDescription = null)
         Spacer(modifier = Modifier.width(4.dp))
-        Text(text = text, fontFamily = lato, fontWeight = FontWeight.Normal, fontSize = 12.sp, modifier = modifier)
+        Text(text = text, fontFamily = lato, fontWeight = FontWeight.Normal, fontSize = 12.sp, modifier = modifier,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis)
     }
 }
 
