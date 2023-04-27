@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
@@ -130,10 +131,9 @@ fun AboutUsScreen() {
 fun SemesterPodLeadRow(semester: String, podLead: String) {
     Row {
         BodyText(text = semester)
-        Spacer(modifier = Modifier.weight(1F))
         Column {
-            HeadingText(text = "Pod Lead")
-            BodyText(text = podLead)
+            HeadingText(text = "Pod Lead", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
+            BodyText(text = "Liam Du", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
         }
     }
 }
@@ -147,11 +147,11 @@ fun CategoryMembersPair (category: String, members: String) {
     }
 }
 @Composable
-fun HeadingText(text: String, modifier: Modifier = Modifier) {
-    Text(text = text, modifier = modifier, fontFamily = notoserif, fontSize = 20.sp, fontWeight = FontWeight.Medium)
+fun HeadingText(text: String, modifier: Modifier = Modifier, textAlign: TextAlign = TextAlign.Start) {
+    Text(text = text, modifier = modifier, fontFamily = notoserif, fontSize = 20.sp, fontWeight = FontWeight.Medium, textAlign = textAlign)
 }
 
 @Composable
-fun BodyText(text: String, modifier: Modifier = Modifier) {
-    Text(text = text, modifier = modifier, fontFamily = notoserif, fontSize = 16.sp, fontWeight = FontWeight.Normal)
+fun BodyText(text: String, modifier: Modifier = Modifier, textAlign: TextAlign = TextAlign.Start) {
+    Text(text = text, modifier = modifier, fontFamily = notoserif, fontSize = 16.sp, fontWeight = FontWeight.Normal, textAlign = textAlign)
 }
