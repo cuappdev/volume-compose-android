@@ -4,14 +4,27 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -21,37 +34,38 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
-import com.cornellappdev.android.volume.ui.components.general.*
+import com.cornellappdev.android.volume.ui.components.general.BigReadShimmeringArticle
+import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
+import com.cornellappdev.android.volume.ui.components.general.CreateBigReadRow
+import com.cornellappdev.android.volume.ui.components.general.PermissionRequestDialog
+import com.cornellappdev.android.volume.ui.components.general.ShimmeringArticle
+import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
-import com.cornellappdev.android.volume.ui.viewmodels.HomeViewModel
+import com.cornellappdev.android.volume.ui.viewmodels.ArticlesViewModel
 
 @Composable
-fun HomeScreen(
-    homeViewModel: HomeViewModel = hiltViewModel(),
+fun ArticlesScreen(
+    articlesViewModel: ArticlesViewModel = hiltViewModel(),
     onArticleClick: (Article, NavigationSource) -> Unit,
     showBottomBar: MutableState<Boolean>,
 ) {
-    val homeUiState = homeViewModel.homeUiState
+    val homeUiState = articlesViewModel.homeUiState
     var showPageBreak by remember { mutableStateOf(false) }
 
     Box {
-        Scaffold(topBar = {
-            VolumeLogo()
-        }, content = { innerPadding ->
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 12.dp, top = innerPadding.calculateTopPadding()),
+                    .padding(start = 12.dp),
             ) {
                 item {
                     VolumeHeaderText(
                         text = "The Big Read",
-                        underline = R.drawable.ic_underline_big_read,
+                        underline = com.cornellappdev.android.volume.R.drawable.ic_underline_big_read,
                         modifier = Modifier.padding(top = 15.dp)
                     )
                     Spacer(modifier = Modifier.height(25.dp))
@@ -60,7 +74,11 @@ fun HomeScreen(
                 item {
                     when (val trendingArticlesState = homeUiState.trendingArticlesState) {
                         ArticlesRetrievalState.Loading -> {
-                            VolumeLoading()
+                            LazyRow {
+                                items(5) {
+                                    BigReadShimmeringArticle()
+                                }
+                            }
                         }
                         ArticlesRetrievalState.Error -> {
                             // TODO Prompt to try again, queryTrendingArticles manually (it's public). Could be that internet is down.
@@ -84,14 +102,14 @@ fun HomeScreen(
                 item {
                     VolumeHeaderText(
                         text = "Following",
-                        underline = R.drawable.ic_underline_following
+                        underline = com.cornellappdev.android.volume.R.drawable.ic_underline_following
                     )
                 }
 
                 when (val followingArticlesState = homeUiState.followingArticlesState) {
                     ArticlesRetrievalState.Loading -> {
-                        item {
-                            VolumeLoading()
+                        items(10) {
+                            ShimmeringArticle()
                         }
                     }
                     ArticlesRetrievalState.Error -> {
@@ -135,7 +153,7 @@ fun HomeScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Image(
-                                    painter = painterResource(id = R.drawable.ic_volume_bars_orange),
+                                    painter = painterResource(id = com.cornellappdev.android.volume.R.drawable.ic_volume_bars_orange),
                                     contentDescription = null,
                                 )
                                 Column(modifier = Modifier.padding(top = 10.dp)) {
@@ -147,7 +165,7 @@ fun HomeScreen(
                                         textAlign = TextAlign.Center
                                     )
                                     Image(
-                                        painter = painterResource(R.drawable.ic_underline_nothing_new),
+                                        painter = painterResource(com.cornellappdev.android.volume.R.drawable.ic_underline_nothing_new),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .padding(start = 5.dp)
@@ -174,7 +192,7 @@ fun HomeScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Image(
-                                    painter = painterResource(id = R.drawable.ic_volume_bars_orange),
+                                    painter = painterResource(id = com.cornellappdev.android.volume.R.drawable.ic_volume_bars_orange),
                                     contentDescription = null,
                                 )
                                 Column(modifier = Modifier.padding(top = 10.dp)) {
@@ -185,7 +203,7 @@ fun HomeScreen(
                                         fontWeight = FontWeight.Medium
                                     )
                                     Image(
-                                        painter = painterResource(R.drawable.ic_underline_up_to_date),
+                                        painter = painterResource(com.cornellappdev.android.volume.R.drawable.ic_underline_up_to_date),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .padding(start = 1.dp)
@@ -209,14 +227,14 @@ fun HomeScreen(
                 item {
                     VolumeHeaderText(
                         text = "Other Articles",
-                        underline = R.drawable.ic_underline_other_article
+                        underline = com.cornellappdev.android.volume.R.drawable.ic_underline_other_article
                     )
                 }
 
                 when (val otherArticlesState = homeUiState.otherArticlesState) {
                     ArticlesRetrievalState.Loading -> {
-                        item {
-                            VolumeLoading()
+                        items(3) {
+                            ShimmeringArticle()
                         }
                     }
                     ArticlesRetrievalState.Error -> {
@@ -244,14 +262,14 @@ fun HomeScreen(
                     }
                 }
             }
-        })
+
 
         if (FirstTimeShown.firstTimeShown) {
             PermissionRequestDialog(
                 showBottomBar = showBottomBar,
-                notificationFlowStatus = homeViewModel.getNotificationPermissionFlowStatus(),
+                notificationFlowStatus = articlesViewModel.getNotificationPermissionFlowStatus(),
                 updateNotificationFlowStatus = {
-                    homeViewModel.updateNotificationPermissionFlowStatus(it)
+                    articlesViewModel.updateNotificationPermissionFlowStatus(it)
                 })
         }
     }

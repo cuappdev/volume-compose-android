@@ -22,26 +22,26 @@ sealed class NavigationItem(
         route = Routes.HOME.route,
         unselectedIconId = R.drawable.ic_volume_bars_gray,
         selectedIconId = R.drawable.ic_volume_bars_orange,
-        title = "For You",
+        title = "Trending",
         selectedRoutes = setOf(Routes.HOME.route, Routes.WEEKLY_DEBRIEF.route)
     )
 
-    object Magazines : NavigationItem(
-        route = Routes.MAGAZINES.route,
+    object Reads : NavigationItem(
+        route = Routes.READS.route,
         unselectedIconId = R.drawable.ic_magazine_icon_unselected,
         selectedIconId = R.drawable.ic_magazine_icon_selected,
-        title = "Magazines",
-        selectedRoutes = setOf(Routes.MAGAZINES.route)
+        title = "Reads",
+        selectedRoutes = setOf(Routes.READS.route)
     )
 
     object Publications : NavigationItem(
-        route = Routes.PUBLICATIONS.route,
-        unselectedIconId = R.drawable.ic_publications_icon_unselected,
-        selectedIconId = R.drawable.ic_publications_icon_selected,
-        title = "Publications",
+        route = Routes.FLYERS.route,
+        unselectedIconId = R.drawable.ic_flyers_unselected,
+        selectedIconId = R.drawable.ic_flyers_selected,
+        title = "Flyers",
         selectedRoutes = setOf(
-            Routes.PUBLICATIONS.route,
-            "${Routes.INDIVIDUAL_PUBLICATION.route}/{publicationSlug}"
+            Routes.FLYERS.route,
+            "${Routes.FLYERS.route}/{flyerId}"
         )
     )
 
@@ -56,8 +56,8 @@ sealed class NavigationItem(
     companion object {
         val bottomNavTabList = listOf(
             Home,
-            Magazines,
             Publications,
+            Reads,
             Bookmarks
         )
     }
@@ -77,8 +77,8 @@ interface NavUnit {
  */
 enum class Routes(override var route: String) : NavUnit {
     HOME("home"),
-    MAGAZINES("magazine"),
-    PUBLICATIONS("publications"),
+    READS("reads"),
+    FLYERS("flyers"),
     BOOKMARKS("bookmarks"),
     ONBOARDING("onboarding"),
     INDIVIDUAL_PUBLICATION("individual"),

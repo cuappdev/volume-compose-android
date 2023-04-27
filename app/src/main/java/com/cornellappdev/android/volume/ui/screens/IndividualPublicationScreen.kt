@@ -130,7 +130,7 @@ fun IndividualPublicationScreen(
                             }
                         }
                     }
-                    MagazinesRetrievalState.Error -> {  TODO()  }
+                    MagazinesRetrievalState.Error -> {   }
                     is MagazinesRetrievalState.Success -> {
                         if (magazinesState.magazines.isEmpty()) {
                             item ( span = { GridItemSpan(2) } ) {

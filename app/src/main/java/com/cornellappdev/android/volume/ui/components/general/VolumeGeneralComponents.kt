@@ -6,11 +6,20 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -32,6 +41,7 @@ import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
+
 
 // General components that have been abstracted for use throughout the Volume app
 @Composable
@@ -60,15 +70,6 @@ fun VolumeHeaderText(text: String, underline: Int, modifier: Modifier=Modifier) 
                 .padding(start = 2.dp)
                 .scale(1.05F)
         )
-    }
-}
-@Composable
-fun VolumeLoading(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        CircularProgressIndicator(color = VolumeOrange)
     }
 }
 
@@ -161,3 +162,22 @@ fun NothingToShowText(message: String) {
         )
     }
 }
+
+@Composable
+fun VolumePeriod(modifier: Modifier = Modifier) {
+    Image(
+        painter = painterResource(R.drawable.ic_period),
+        contentDescription = null,
+        modifier = modifier
+            .scale(1.05F)
+    )
+}
+
+fun Int.toComposeColor(): androidx.compose.ui.graphics.Color {
+    val alpha = (this shr 24 and 0xFF) / 255f
+    val red = (this shr 16 and 0xFF) / 255f
+    val green = (this shr 8 and 0xFF) / 255f
+    val blue = (this and 0xFF) / 255f
+    return Color(red, green, blue, alpha)
+}
+

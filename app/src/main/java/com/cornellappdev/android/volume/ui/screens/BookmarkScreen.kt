@@ -55,7 +55,7 @@ fun BookmarkScreen(
     bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
     savedStateHandle: SavedStateHandle,
     onArticleClick: (Article, NavigationSource) -> Unit,
-    onMagazineClick: (Magazine) -> Unit = TODO(),
+    onMagazineClick: (Magazine) -> Unit,
     onSettingsClick: () -> Unit
 ) {
     val bookmarkUiState = bookmarkViewModel.bookmarkUiState
@@ -120,7 +120,7 @@ fun BookmarkedMagazinesScreen(bookmarkUiState: BookmarkViewModel.BookmarkUiState
                 VolumeLoading()
             }
         }
-        MagazinesRetrievalState.Error -> {  TODO()  }
+        MagazinesRetrievalState.Error -> {  /* TODO */  }
         is MagazinesRetrievalState.Success -> {
             if (magazinesState.magazines.isEmpty()) {
                 Column (verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxHeight()) {

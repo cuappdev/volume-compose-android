@@ -1,6 +1,6 @@
 package com.cornellappdev.android.volume.data.repositories
 
-import android.util.Log
+import com.cornellappdev.android.volume.AllPublicationSlugsQuery
 import com.cornellappdev.android.volume.AllPublicationsQuery
 import com.cornellappdev.android.volume.PublicationBySlugQuery
 import com.cornellappdev.android.volume.data.NetworkApi
@@ -25,14 +25,22 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
     suspend fun fetchAllPublications(): List<Publication> =
         networkApi.fetchAllPublications().dataAssertNoErrors.mapDataToPublication()
 
+    suspend fun fetchAllPublicationSlugs(): List<String> =
+        networkApi.fetchAllPublicationSlugs().dataAssertNoErrors.mapDataToStrings()
+
     suspend fun fetchPublicationsBySlugs(slugs: List<String>): List<Publication> =
         slugs.map { slug ->
             fetchPublicationBySlug(slug)
         } //test
 
+
     /** Throws an exception if the publication isn't found. */
     suspend fun fetchPublicationBySlug(slug: String): Publication =
         networkApi.fetchPublicationBySlug(slug).dataAssertNoErrors.mapDataToPublication()
+
+    private fun AllPublicationSlugsQuery.Data.mapDataToStrings(): List<String> {
+        return this.getAllPublications.map { it.slug }
+    }
 
     private fun AllPublicationsQuery.Data.mapDataToPublication(): List<Publication> {
         return this.getAllPublications.map { publicationData ->
@@ -128,8 +136,7 @@ class PublicationRepository @Inject constructor(private val networkApi: NetworkA
                 },
                 socials = publicationData.socials
                     .map { Social(it.social, it.url) })
-            Log.d(TAG, "mapDataToPublication: Successfully processed $pub")
             pub
-        } ?: throw PublicationNotFound()
+        } ?: throw PublicationRepository.PublicationNotFound()
     }
 }

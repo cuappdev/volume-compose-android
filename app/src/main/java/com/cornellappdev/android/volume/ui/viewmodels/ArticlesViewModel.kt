@@ -20,7 +20,7 @@ import javax.inject.Inject
 // TODO add refreshing if user follows new publications?
 // TODO optimize loading?
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class ArticlesViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val articleRepository: ArticleRepository,
     private val userRepository: UserRepository,

@@ -29,6 +29,9 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
     suspend fun fetchArticlesByPublicationSlugs(slugs: List<String>): List<Article> =
         networkApi.fetchArticlesByPublicationSlugs(slugs).dataAssertNoErrors.mapDataToArticles()
 
+    suspend fun fetchArticlesByShuffledPublicationSlugs(slugs: List<String>): List<Article> =
+            networkApi.fetchShuffledArticlesByPublicationSlugs(slugs).dataAssertNoErrors.mapDataToArticles()
+
     suspend fun fetchArticlesByIDs(ids: List<String>): List<Article> =
         networkApi.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
 
@@ -137,6 +140,38 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
 
     private fun ArticlesByPublicationSlugsQuery.Data.mapDataToArticles(): List<Article> {
         return this.getArticlesByPublicationSlugs.map { articleData ->
+            val publication = articleData.publication
+            Article(
+                title = articleData.title,
+                articleURL = articleData.articleURL,
+                date = articleData.date.toString(),
+                id = articleData.id,
+                imageURL = articleData.imageURL,
+                publication = Publication(
+                    backgroundImageURL = publication.backgroundImageURL,
+                    bio = publication.bio,
+                    name = publication.name,
+                    profileImageURL = publication.profileImageURL,
+                    rssName = publication.rssName,
+                    rssURL = publication.rssURL,
+                    slug = publication.slug,
+                    shoutouts = publication.shoutouts,
+                    contentTypes = publication.contentTypes.map {
+                        ContentType.valueOf(it.uppercase())
+                    },
+                    numArticles = publication.numArticles,
+                    websiteURL = publication.websiteURL,
+                    socials = publication.socials
+                        .map { Social(it.social, it.url) }
+                ),
+                shoutouts = articleData.shoutouts,
+                nsfw = articleData.nsfw
+            )
+        }
+    }
+
+    private fun ShuffledArticlesByPublicationSlugsQuery.Data.mapDataToArticles(): List<Article> {
+        return this.getShuffledArticlesByPublicationSlugs.map { articleData ->
             val publication = articleData.publication
             Article(
                 title = articleData.title,

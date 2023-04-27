@@ -5,14 +5,26 @@ import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -50,18 +62,18 @@ import com.rizzi.bouquet.rememberHorizontalPdfReaderState
 fun IndividualMagazineScreen(
     magazineId: String,
     individualMagazineViewModel: IndividualMagazineViewModel = hiltViewModel(),
-    navController: NavController
+    navController: NavController,
+    navSource: String,
 ) {
     individualMagazineViewModel.queryMagazineById(magazineId)
     val magazineUiState = individualMagazineViewModel.magazineUiState
     var showProgressBar by remember { mutableStateOf(false)}
 
-    // TODO fix centering for top and bottom bar :(
     Scaffold(
         bottomBar = {
             MakeBottomBar(magazineUiState)
         }, topBar = {
-            MakeTopBar(magazineUiState, navController)
+            MakeTopBar(magazineUiState, navController, navSource)
         },
         content = {
             PdfReader(
@@ -79,16 +91,17 @@ fun IndividualMagazineScreen(
 }
 @Composable
 fun MakeTopBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState,
-                navController: NavController) {
+                navController: NavController, navSource: String) {
     when (val magazineState = magazineUiState.magazineState) {
         MagazineRetrievalState.Loading -> {
-            TopBar(navController = navController)
+            TopBar(navController = navController, navSource = navSource)
         }
         MagazineRetrievalState.Error -> {
-            TopBar(navController = navController)
+            TopBar(navController = navController, navSource = navSource)
         }
         is MagazineRetrievalState.Success -> {
-            TopBar(magazineState.magazine.publication.name, navController = navController)
+            TopBar(magazineState.magazine.publication.name, navController = navController,
+            navSource = navSource)
         }
     }
 
@@ -96,7 +109,8 @@ fun MakeTopBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUi
 
 @Composable
 fun TopBar(publisher: String = "Magazine",
-           navController: NavController) {
+           navController: NavController,
+            navSource: String) {
     Row (modifier = Modifier.background(Color(0xFFF9F9F9)).fillMaxWidth()
         , horizontalArrangement = Arrangement.SpaceBetween)
     {
@@ -107,7 +121,7 @@ fun TopBar(publisher: String = "Magazine",
                 .width(arrowWidth)
                 .offset(x = 16.dp, y=4.dp)
                 .clickable {
-                    navController.navigate(Routes.MAGAZINES.route)
+                    navController.navigate(navSource)
                 })
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
