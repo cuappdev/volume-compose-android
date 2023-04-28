@@ -106,11 +106,15 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
                 modifier = Modifier
                     .size(size = imgSize)
                     .zIndex(0F)
-                    .background(color = averageColor).clickable { val uri = Uri.parse(flyer.postURL)
+                    .background(color = averageColor)
+                    .clickable {
+                        val uri = Uri.parse(flyer.postURL)
                         try {
                             val intent = Intent(Intent.ACTION_VIEW, uri)
                             openLinkLauncher.launch(intent)
-                        } catch (ignored: ActivityNotFoundException) {} },
+                        } catch (ignored: ActivityNotFoundException) {
+                        }
+                    },
             )
         }
 
@@ -276,9 +280,11 @@ fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = fals
         Icon(
             painter = painterResource(id = R.drawable.ic_share_black),
             contentDescription = null,
-            modifier = Modifier.size(iconSize).clickable {
-                 shareFlyer(context = context, url = url)
-            },
+            modifier = Modifier
+                .size(iconSize)
+                .clickable {
+                    shareFlyer(context = context, url = url)
+                },
         )
     }
 }
@@ -347,7 +353,7 @@ private fun getAverageColor(immutableBitmap: Bitmap): Int {
  * Formats date string in the desired format for displaying.
  */
 private fun formatDateString(startDate: String, endDate: String): String {
-    try {
+    return try {
         val startDateTime = LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
         val endDateTime = LocalDateTime.parse(endDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
 
@@ -367,9 +373,14 @@ private fun formatDateString(startDate: String, endDate: String): String {
             endDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
         }
 
-        return "$dayOfWeek, $month $dayOfMonth $startTime - $endTime"
+        "$dayOfWeek, $month $dayOfMonth $startTime - $endTime"
     } catch (e: Exception) {
-        return startDate
+        try {
+            val dates = startDate.split(" ").toTypedArray()
+            dates.filterIndexed { index, _ -> index != 2 }.joinToString(separator = " ")
+        } catch (e: Exception) {
+            startDate
+        }
     }
 }
 
