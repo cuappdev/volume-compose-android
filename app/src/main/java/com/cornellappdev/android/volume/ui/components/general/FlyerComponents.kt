@@ -347,26 +347,30 @@ private fun getAverageColor(immutableBitmap: Bitmap): Int {
  * Formats date string in the desired format for displaying.
  */
 private fun formatDateString(startDate: String, endDate: String): String {
-    val startDateTime = LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
-    val endDateTime = LocalDateTime.parse(endDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
+    try {
+        val startDateTime = LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
+        val endDateTime = LocalDateTime.parse(endDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
 
-    val dayOfWeek = startDateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US)
-    val month = startDateTime.month.getDisplayName(TextStyle.SHORT, Locale.US)
-    val dayOfMonth = startDateTime.dayOfMonth
+        val dayOfWeek = startDateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US)
+        val month = startDateTime.month.getDisplayName(TextStyle.SHORT, Locale.US)
+        val dayOfMonth = startDateTime.dayOfMonth
 
-    val startTime = if (startDateTime.minute == 0) {
-        startDateTime.format(DateTimeFormatter.ofPattern("ha"))
-    } else {
-        startDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
+        val startTime = if (startDateTime.minute == 0) {
+            startDateTime.format(DateTimeFormatter.ofPattern("ha"))
+        } else {
+            startDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
+        }
+
+        val endTime = if (endDateTime.minute == 0) {
+            endDateTime.format(DateTimeFormatter.ofPattern("ha"))
+        } else {
+            endDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
+        }
+
+        return "$dayOfWeek, $month $dayOfMonth $startTime - $endTime"
+    } catch (e: Exception) {
+        return startDate
     }
-
-    val endTime = if (endDateTime.minute == 0) {
-        endDateTime.format(DateTimeFormatter.ofPattern("ha"))
-    } else {
-        endDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
-    }
-
-    return "$dayOfWeek, $month $dayOfMonth $startTime - $endTime"
 }
 
 /**
