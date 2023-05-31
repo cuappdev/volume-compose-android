@@ -101,24 +101,66 @@ fun AboutUsScreen() {
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 item {
-                    Column {
-                        SemesterPodLeadRow(semester = "Spring 2023", podLead = "Liam Du")
-                        Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                            CategoryMembersPair(category = "Android", members = "Zach Seidner")
-                            CategoryMembersPair(category = "Backend", members = "Isaac Han, Sasha Loayza")
-                            CategoryMembersPair(category = "iOS", members = "Vin Bui, Vivian Nguyen")
-                            CategoryMembersPair(category = "Design", members = "Liam Du, Amy Ge")
-                            CategoryMembersPair(category = "Marketing", members = "Jane Lee, Sanjana Kaicker")
+                    Column(verticalArrangement = Arrangement.spacedBy(40.dp)) {
+                        Column {
+                            SemesterPodLeadRow(semester = "Spring 2023", podLead = "Liam Du")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Zach Seidner")
+                                CategoryMembersPair(category = "Backend", members = "Isaac Han, Sasha Loayza")
+                                CategoryMembersPair(category = "iOS", members = "Vin Bui, Vivian Nguyen")
+                                CategoryMembersPair(category = "Design", members = "Liam Du, Amy Ge")
+                                CategoryMembersPair(category = "Marketing", members = "Jane Lee, Sanjana Kaicker")
+                            }
                         }
-                        Spacer(modifier = Modifier.height(40.dp))
-                        BodyText(text = "Previous Semesters")
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                            CategoryMembersPair(category = "Android", members = "Chris Desir, Aastha Shah, Justin Jiang, Emily Hu, Ben Harris")
-                            CategoryMembersPair(category = "Backend", members = "Tedi Mitiku, Orko Sinha")
-                            CategoryMembersPair(category = "Design", members = "Amanda He, Zixian Jia, Maggie Ying")
-                            CategoryMembersPair(category = "iOS", members = "Sergio Diaz, Cameron Russell, Daniel Vebman")
-                            CategoryMembersPair(category = "Marketing", members = "Jonna Chen, Monan Modi, Yi Hsin Wei")
+                        Column {
+                            SemesterPodLeadRow(semester = "Fall 2022", podLead = "Archit Mehta")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Emily Hu, Benjamin Harris")
+                                CategoryMembersPair(category = "Backend", members = "Archit Mehta, Kidus Zegeye")
+                                CategoryMembersPair(category = "iOS", members = "Jennifer Gu, Vivian Nguyen, Hanzheng Li")
+                                CategoryMembersPair(category = "Design", members = "Tise Alatise, Kayla Sprayberry")
+                                CategoryMembersPair(category = "Marketing", members = "Vivian Park, Eddie Chi")
+                            }
+                        }
+                        Column {
+                            SemesterPodLeadRow(semester = "Spring 2022", podLead = "Hanzheng Li")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Emily Hu, Benjamin Harris")
+                                CategoryMembersPair(category = "Backend", members = "Kidus Zegeye")
+                                CategoryMembersPair(category = "iOS", members = "Justin Ngai, Hanzheng Li")
+                                CategoryMembersPair(category = "Design", members = "Kayla Sprayberry, Christina Zeng")
+                                CategoryMembersPair(category = "Marketing", members = "Neha Malepati, Carnell Zhou")
+                            }
+                        }
+                        Column {
+                            SemesterPodLeadRow(semester = "Fall 2021", podLead = "Tedi Mitiku")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Benjamin Harris, Chris Desir")
+                                CategoryMembersPair(category = "Backend", members = "Kidus Zegeye, Tedi Mitiku, Orko Sinha")
+                                CategoryMembersPair(category = "iOS", members = "Hanzheng Li, Amy Huang")
+                                CategoryMembersPair(category = "Design", members = "Christina Zeng, Amanda He, Zixian Jia")
+                                CategoryMembersPair(category = "Marketing", members = "Gordon Tran, Jonna Chen")
+                            }
+                        }
+                        Column {
+                            SemesterPodLeadRow(semester = "Spring 2021", podLead = "Tedi Mitiku")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Chris Desir")
+                                CategoryMembersPair(category = "Backend", members = "Tedi Mitiku, Orko Sinha")
+                                CategoryMembersPair(category = "iOS", members = "Sergio Diaz, Cameron Russell")
+                                CategoryMembersPair(category = "Design", members = "Zixian Jia, Maggie Ying")
+                                CategoryMembersPair(category = "Marketing", members = "Jonna Chen, Monan Modi")
+                            }
+                        }
+                        Column {
+                            SemesterPodLeadRow(semester = "Fall 2020", podLead = "Maggie Ying")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Justin Jiang, Aastha Shah")
+                                CategoryMembersPair(category = "Backend", members = "Tedi Mitiku, Orko Sinha")
+                                CategoryMembersPair(category = "iOS", members = "Cameron Russell, Daniel Vebman")
+                                CategoryMembersPair(category = "Design", members = "Maggie Ying")
+                                CategoryMembersPair(category = "Marketing", members = "Yi Hsin Wei")
+                            }
                         }
                     }
                 }
@@ -133,7 +175,7 @@ fun SemesterPodLeadRow(semester: String, podLead: String) {
         BodyText(text = semester)
         Column {
             HeadingText(text = "Pod Lead", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
-            BodyText(text = "Liam Du", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
+            BodyText(text = podLead, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
         }
     }
 }

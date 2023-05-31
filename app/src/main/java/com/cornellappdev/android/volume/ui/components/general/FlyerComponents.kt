@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -52,6 +53,7 @@ import com.cornellappdev.android.volume.data.models.Organization
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
+import com.cornellappdev.android.volume.ui.viewmodels.FlyersViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -122,7 +124,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
         OrganizationAndIconsRow(organizationName = flyer.organizations
             .joinToString(transform = {o -> o.name.replaceFirstChar { c -> c.uppercase() }},
                 separator = ", "), inBigFlyer = true, iconSize = iconSize, url = flyer.postURL,
-            context = LocalContext.current)
+            context = LocalContext.current, flyerId = flyer.id)
 
         // Event title text
         Text(
@@ -189,7 +191,7 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
             OrganizationAndIconsRow(organizationName = flyer.organizations
                 .toSet()
                 .joinToString(transform = {o -> o.name}, separator = ", "), iconSize = 20.dp, url = flyer.postURL,
-                context = LocalContext.current)
+                context = LocalContext.current, flyerId = flyer.id)
             // Flyer title
             Text(
                 text = flyer.title,
@@ -251,7 +253,12 @@ fun List<Organization>.formatTypes(): String {
 
 @Composable
 fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = false, iconSize: Dp,
-    url: String, context: Context) {
+    url: String, context: Context, flyerId: String, flyersViewModel: FlyersViewModel = hiltViewModel()) {
+    var isBookmarked = false
+    // Update isBookmarked in a separate thread
+    LaunchedEffect(key1 = "check bookmarked $flyerId") {
+        isBookmarked = flyersViewModel.getIsBookmarked(flyerId)
+    }
     if (inBigFlyer) {
         Spacer(modifier = Modifier
             .height(8.dp)
@@ -271,9 +278,17 @@ fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = fals
         Spacer(modifier = Modifier.weight(1F))
         // Bookmark icon
         Image(
-            painter = painterResource(id = R.drawable.ic_bookmark_orange_empty),
+            painter = painterResource(
+                id =
+            if (isBookmarked) R.drawable.ic_bookmark_orange_filled
+            else R.drawable.ic_bookmark_orange_empty),
             contentDescription = null,
-            modifier = Modifier.size(iconSize),
+            modifier = Modifier
+                .size(iconSize)
+                .clickable {
+                    // TODO Add id to user preferences
+
+                }
         )
         Spacer(modifier = Modifier.width(8.dp))
         // Share icon

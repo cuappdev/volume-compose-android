@@ -92,6 +92,8 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         apolloClient.query(MagazinesByIDsQuery(
             ids = ids
         )).execute()
+
+
     suspend fun incrementShoutout(
         id: String,
         uuid: String

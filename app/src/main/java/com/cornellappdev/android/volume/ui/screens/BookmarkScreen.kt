@@ -92,7 +92,7 @@ fun TabbedBooksmarksView(onArticleClick: (Article, NavigationSource) -> Unit,
 ) {
     var tabIndex by remember { mutableStateOf(0) };
 
-    val tabs = listOf("Articles", "Magazines")
+    val tabs = listOf("Flyers", "Articles", "Magazines")
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex, contentColor = VolumeOrange) {
@@ -226,6 +226,11 @@ fun BookmarkedArticlesScreen(onArticleClick: (Article, NavigationSource) -> Unit
             }
         }
     }
+
+}
+
+@Composable
+fun BookmarkedFlyersScreen(bookmarkUiState: BookmarkViewModel.BookmarkUiState, bookmarkViewModel: BookmarkViewModel) {
 
 }
 

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.volume.data.repositories.FlyerRepository
+import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.volume.ui.states.FlyersRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,7 +17,8 @@ import javax.inject.Inject
 private const val TAG = "MagazinesViewModel"
 @HiltViewModel
 class FlyersViewModel @Inject constructor(
-    private val flyerRepository: FlyerRepository
+    private val flyerRepository: FlyerRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     data class FlyersUiState(
@@ -131,6 +133,10 @@ class FlyersViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    suspend fun getIsBookmarked (flyerId: String): Boolean {
+        return userPreferencesRepository.fetchBookmarkedFlyerIds().contains(flyerId)
     }
 }
 

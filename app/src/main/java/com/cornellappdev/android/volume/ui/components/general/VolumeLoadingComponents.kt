@@ -61,7 +61,7 @@ fun ShimmeringArticle(modifier: Modifier = Modifier) {
                 ShimmeringBox(width = 72, height = 8)
             }
         }
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(27.dp))
         ShimmeringBox(width = 104, height = 104)
     }
 }
