@@ -1,10 +1,178 @@
-"""Exposes a URL that specifies the behaviour of this scalar."""
-directive @specifiedBy(
-    """The URL that specifies the behaviour of this scalar."""
-    url: String!
-) on SCALAR
+type Query {
+    # Returns a single <Article> via the given <id>
+    getArticleByID(id: String!): Article
 
-"""The Article Model"""
+    # Returns a list of <Articles> via the given list of <ids>
+    getArticlesByIDs(ids: [String!]!): [Article!]!
+
+    # Returns a list of <Articles> of size <limit> with offset <offset>. Default <limit> is 25 and default <offset> is 0
+    getAllArticles(offset: Float = 0, limit: Float = 25): [Article!]!
+
+    # Returns a list of <Articles> of size <limit> via the given <publicationID>. Results can offsetted by <offset> >= 0.
+    getArticlesByPublicationID(
+        offset: Float = 0
+        limit: Float = 25
+        publicationID: String!
+    ): [Article!]!
+
+    # Returns a list of <Articles> of size <limit> via the given list of <publicationIDs>. Results offsetted by <offset> >= 0.
+    getArticlesByPublicationIDs(
+        offset: Float = 0
+        limit: Float = 25
+        publicationIDs: [String!]!
+    ): [Article!]!
+
+    # Returns a list of <Articles> of size <limit> via the given <slug>. Results can be offsetted by <offset> >= 0.
+    getArticlesByPublicationSlug(
+        offset: Float = 0
+        limit: Float = 25
+        slug: String!
+    ): [Article!]!
+
+    # Returns a list of <Articles> of size <limit> via the given list of <slugs>. Results can be offsetted by <offset> >= 0.
+    getArticlesByPublicationSlugs(
+        offset: Float = 0
+        limit: Float = 25
+        slugs: [String!]!
+    ): [Article!]!
+
+    # Returns a list of <Articles> of size <limit> via the given list of <slugs>, shuffled so that each publication apears once before appearing again in the same batch. Individual batches are sorted chronologically. Results can be offsetted by<offset> >= 0.
+    getShuffledArticlesByPublicationSlugs(
+        timeRange: Float = 12
+        offset: Float = 0
+        limit: Float = 25
+        slugs: [String!]!
+    ): [Article!]!
+
+    # Returns a list of <Articles> <since> a given date, limited by <limit>.
+    #   <since> is formatted as an compliant RFC 2822 timestamp. Valid examples include: "2019-01-31", "Aug 9, 1995", "Wed, 09 Aug 1995 00:00:00", etc. Default <limit> is 25
+    getArticlesAfterDate(limit: Float = 25, since: String!): [Article!]!
+
+    # Returns a list of trending <Articles> of size <limit>. Default <limit> is 25
+    getTrendingArticles(limit: Float = 25): [Article!]!
+
+    # Returns a list of <Articles> of size <limit> matches a particular query. Default <limit> is 25
+    searchArticles(limit: Float = 25, query: String!): [Article!]!
+
+    # Returns a single <Flyer> via the given <id>
+    getFlyerByID(id: String!): Flyer
+
+    # Returns a list of <Flyers> via the given list of <ids>
+    getFlyersByIDs(ids: [String!]!): [Flyer!]!
+
+    # Returns a list of <Flyers> of size <limit> with offset <offset>. Default <limit> is 25 and default <offset> is 0
+    getAllFlyers(offset: Float = 0, limit: Float = 25): [Flyer!]!
+
+    # Returns a list of <Flyers> of size <limit> via the given <organizationID>. Results can offsetted by <offset> >= 0.
+    getFlyersByOrganizationID(
+        offset: Float = 0
+        limit: Float = 25
+        organizationID: String!
+    ): [Flyer!]!
+
+    # Returns a list of <Flyers> of size <limit> via the given list of <organizationIDs>. Results offsetted by <offset> >= 0.
+    getFlyersByOrganizationIDs(
+        offset: Float = 0
+        limit: Float = 25
+        organizationIDs: [String!]!
+    ): [Flyer!]!
+
+    # Returns a list of <Flyers> of size <limit> via the given <slug>. Results can be offsetted by <offset> >= 0.
+    getFlyersByOrganizationSlug(
+        offset: Float = 0
+        limit: Float = 25
+        slug: String!
+    ): [Flyer!]!
+
+    # Returns a list of <Flyers> of size <limit> via the given list of <slugs>. Results can be offsetted by <offset> >= 0.
+    getFlyersByOrganizationSlugs(
+        offset: Float = 0
+        limit: Float = 25
+        slugs: [String!]!
+    ): [Flyer!]!
+
+    # Returns a list of <Flyers> <since> a given date, limited by <limit>.
+    #   <since> is formatted as an compliant RFC 2822 timestamp. Valid examples include: "2019-01-31", "Aug 9, 1995", "Wed, 09 Aug 1995 00:00:00", etc. Default <limit> is 25
+    getFlyersAfterDate(limit: Float = 25, since: String!): [Flyer!]!
+
+    # Returns a list of <Flyers> <before> a given date, limited by <limit>.
+    #   <before> is formatted as an compliant RFC 2822 timestamp. Valid examples include: "2019-01-31", "Aug 9, 1995", "Wed, 09 Aug 1995 00:00:00", etc. Default <limit> is 25
+    getFlyersBeforeDate(limit: Float = 25, before: String!): [Flyer!]!
+
+    # Returns a list of trending <Flyers> of size <limit>. Default <limit> is 25
+    getTrendingFlyers(limit: Float = 25): [Flyer!]!
+
+    # Returns a list of <Flyers> of size <limit> matches a particular query. Default <limit> is 25
+    searchFlyers(limit: Float = 25, query: String!): [Flyer!]!
+
+    # Returns a list of <Magazines> of size <limit> with offset <offset>. Default <limit> is 25 and default <offset> is 0
+    getAllMagazines(offset: Float = 0, limit: Float = 25): [Magazine!]!
+
+    # Returns a list of <Magazines> of size <limit> via a given <semester>. Results can be offsetted by <offset> >= 0. Semesters are formatted like "fa22"
+    getMagazinesBySemester(
+        offset: Float = 0
+        limit: Float = 25
+        semester: String!
+    ): [Magazine!]!
+
+    # Returns a list of <Magazines> of size <limit> via the given <slug>. Results can be offsetted by <offset> >= 0.
+    getMagazinesByPublicationSlug(
+        offset: Float = 0
+        limit: Float = 25
+        slug: String!
+    ): [Magazine!]!
+
+    # Returns a list of <Magazines> of size <limit> via the given list of <slugs>. Results can be offsetted by <offset> >= 0.
+    getMagazinesByPublicationSlugs(
+        offset: Float = 0
+        limit: Float = 25
+        slugs: [String!]!
+    ): [Magazine!]!
+
+    # Returns a single <Magazine> via the given <id>
+    getMagazineByID(id: String!): Magazine
+
+    # Returns a list of <Magazines> via the given list of <ids>
+    getMagazinesByIDs(ids: [String!]!): [Magazine!]!
+
+    # Returns a list of featured <Magazines> of size <limit>.
+    getFeaturedMagazines(limit: Float = 25): [Magazine!]
+
+    # Returns a list of <Magazines> of maximum size <limit> matching a particular query. Default <limit> is ${DEFAULT_LIMIT}
+    searchMagazines(limit: Float = 25, query: String!): [Magazine!]!
+
+    # Returns a list of all <Organizations>
+    getAllOrganizations: [Organization!]!
+
+    # Returns a list of <Organization>s via a given <categorySlug>
+    getOrganizationsByCategory(categorySlug: String!): [Organization!]
+
+    # Returns a single <Organization> via a given <id>
+    getOrganizationByID(id: String!): Organization
+
+    # Returns a list of <Organizations> via a given list of <ids>
+    getOrganizationsByIDs(ids: [String!]!): [Organization!]!
+
+    # Returns a single <Organization> via a given <slug>
+    getOrganizationBySlug(slug: String!): Organization
+
+    # Returns a list of all <Publications>
+    getAllPublications: [Publication!]!
+
+    # Returns a single <Publication> via a given <id>
+    getPublicationByID(id: String!): Publication
+
+    # Returns a single <Publication> via a given <slug>
+    getPublicationBySlug(slug: String!): Publication
+
+    # Returns a list of <Publications> via a given list of <ids>
+    getPublicationsByIDs(ids: [String!]!): [Publication!]!
+
+    # Returns a single [User] via a given [uuid]
+    getUser(uuid: String!): User
+}
+
+# The Article Model
 type Article {
     id: ID!
     articleURL: String!
@@ -20,102 +188,10 @@ type Article {
     isFiltered: Boolean!
 }
 
-"""
-The javascript `Date` as string. Type represents date and time as the ISO Date string.
-"""
+# The javascript `Date` as string. Type represents date and time as the ISO Date string.
 scalar DateTime
 
-"""The Flyer Model"""
-type Flyer {
-    id: ID!
-    flyerURL: String!
-    date: DateTime!
-    imageURL: String!
-    organization: Organization!
-    organizationSlug: String!
-    shoutouts: Float!
-    title: String!
-    nsfw: Boolean!
-    isTrending: Boolean!
-    trendiness: Float!
-    isFiltered: Boolean!
-}
-
-"""The Magazine Model"""
-type Magazine {
-    id: ID!
-    date: DateTime!
-    semester: String!
-    pdfURL: String!
-    publication: Publication!
-    publicationSlug: String!
-    shoutouts: Float!
-    title: String!
-    nsfw: Boolean!
-    isFeatured: Boolean!
-    trendiness: Float!
-    isFiltered: Boolean!
-}
-
-type Mutation {
-    """
-    Increments the shoutouts of an <Article> with the given <id>.
-    Increments the numShoutouts given of the user with the given [uuid].
-    """
-    incrementShoutouts(id: String!, uuid: String!): Article
-
-    """
-    Creates a single <User> via given <deviceToken>, <followedPublications> (slugs),
-    and <deviceType>. Given <deviceToken> must be unique for a new user to be created, otherwise does nothing.
-    """
-    createUser(deviceType: String!, followedPublications: [String!]!, deviceToken: String!): User!
-
-    """User with id <uuid> follows the <Publication> referenced by <slug>"""
-    followPublication(slug: String!, uuid: String!): User
-
-    """User with id <uuid> unfollows the <Publication> referenced by <slug>"""
-    unfollowPublication(slug: String!, uuid: String!): User
-
-    """
-    Adds the <Article> given by the <articleID> to the <User's> read articles
-    """
-    readArticle(articleID: String!, uuid: String!): User
-
-    """
-    Adds the <Magazine> given by the <magazineID> to the <User's> read magazines
-    """
-    readMagazine(magazineID: String!, uuid: String!): User
-
-    """Increments the number of bookmarks for the <User> given by <uuid>"""
-    bookmarkArticle(uuid: String!): User
-
-    """Creates Weekly Debriefs for all users"""
-    getWeeklyDebrief: [User!]!
-
-    """
-    Increments the shoutouts of an <Magazine> with the given <id>.
-    Increments the numShoutouts given of the user with the given [uuid].
-    """
-    incrementMagazineShoutouts(id: String!, uuid: String!): Magazine
-}
-
-"""The Organization Model"""
-type Organization {
-    id: ID!
-    backgroundImageURL: String!
-    bio: String!
-    bioShort: String!
-    name: String!
-    profileImageURL: String!
-    rssName: String!
-    rssURL: String
-    slug: String!
-    shoutouts: Float!
-    websiteURL: String!
-    contentTypes: [String!]!
-}
-
-"""The Publication Model"""
+# The Publication Model
 type Publication {
     id: ID!
     backgroundImageURL: String!
@@ -130,137 +206,76 @@ type Publication {
     websiteURL: String!
     contentTypes: [String!]!
 
-    """The most recent <Article> of a <Publication>"""
+    # The most recent <Article> of a <Publication>
     mostRecentArticle: Article
 
-    """The total number of <Articles> from a <Publication>"""
+    # The total number of <Articles> from a <Publication>
     numArticles: Float!
 
-    """The information about a <Publication's> social platforms."""
+    # The information about a <Publication's> social platforms.
     socials: [Social!]!
 }
 
-"""Slug of a Publication"""
-type PublicationSlug {
-    slug: String!
-}
-
-type Query {
-    """Returns a single <Article> via the given <id>"""
-    getArticleByID(id: String!): Article
-
-    """Returns a list of <Articles> via the given list of <ids>"""
-    getArticlesByIDs(ids: [String!]!): [Article!]!
-
-    """
-    Returns a list of <Articles> of size <limit> with offset <offset>. Default <limit> is 25 and default <offset> is 0
-    """
-    getAllArticles(offset: Float = 0, limit: Float = 25): [Article!]!
-
-    """
-    Returns a list of <Articles> of size <limit> via the given <publicationID>. Results can offsetted by <offset> >= 0.
-    """
-    getArticlesByPublicationID(offset: Float = 0, limit: Float = 25, publicationID: String!): [Article!]!
-
-    """
-    Returns a list of <Articles> of size <limit> via the given list of <publicationIDs>. Results offsetted by <offset> >= 0.
-    """
-    getArticlesByPublicationIDs(offset: Float = 0, limit: Float = 25, publicationIDs: [String!]!): [Article!]!
-
-    """
-    Returns a list of <Articles> of size <limit> via the given <slug>. Results can be offsetted by <offset> >= 0.
-    """
-    getArticlesByPublicationSlug(offset: Float = 0, limit: Float = 25, slug: String!): [Article!]!
-
-    """
-    Returns a list of <Articles> of size <limit> via the given list of <slugs>. Results can be offsetted by <offset> >= 0.
-    """
-    getArticlesByPublicationSlugs(offset: Float = 0, limit: Float = 25, slugs: [String!]!): [Article!]!
-
-    """
-    Returns a list of <Articles> of size <limit> via the given list of <slugs>,
-    shuffled so that each publication apears once before appearing again in the
-    same batch. Individual batches are sorted chronologically. Results can be
-    offsetted by<offset> >= 0.
-    """
-    getShuffledArticlesByPublicationSlugs(timeRange: Float = 12, offset: Float = 0, limit: Float = 25, slugs: [String!]!): [Article!]!
-
-    """
-    Returns a list of <Articles> <since> a given date, limited by <limit>.
-    <since> is formatted as an compliant RFC 2822 timestamp. Valid examples
-    include: "2019-01-31", "Aug 9, 1995", "Wed, 09 Aug 1995 00:00:00", etc.
-    Default <limit> is 25
-    """
-    getArticlesAfterDate(limit: Float = 25, since: String!): [Article!]!
-
-    """
-    Returns a list of trending <Articles> of size <limit>. Default <limit> is 25
-    """
-    getTrendingArticles(limit: Float = 25): [Article!]!
-
-    """
-    Returns a list of <Articles> of size <limit> matches a particular query. Default <limit> is 25
-    """
-    searchArticles(limit: Float = 25, query: String!): [Article!]!
-
-    """Returns a list of all <Publications>"""
-    getAllPublications: [Publication!]!
-
-    """Returns a single <Publication> via a given <id>"""
-    getPublicationByID(id: String!): Publication
-
-    """Returns a single <Publication> via a given <slug>"""
-    getPublicationBySlug(slug: String!): Publication
-
-    """Returns a list of <Publications> via a given list of <ids>"""
-    getPublicationsByIDs(ids: [String!]!): [Publication!]!
-
-    """Returns a single [User] via a given [uuid]"""
-    getUser(uuid: String!): User
-
-    """
-    Returns a list of <Magazines> of size <limit> with offset <offset>. Default <limit> is 25 and default <offset> is 0
-    """
-    getAllMagazines(offset: Float = 0, limit: Float = 25): [Magazine!]!
-
-    """
-    Returns a list of <Magazines> of size <limit> via a given <semester>. Results
-    can be offsetted by <offset> >= 0. Semesters are formatted like "fa22"
-    """
-    getMagazinesBySemester(offset: Float = 0, limit: Float = 25, semester: String!): [Magazine!]!
-
-    """
-    Returns a list of <Magazines> of size <limit> via the given <slug>. Results can be offsetted by <offset> >= 0.
-    """
-    getMagazinesByPublicationSlug(offset: Float = 0, limit: Float = 25, slug: String!): [Magazine!]!
-
-    """
-    Returns a list of <Magazines> of size <limit> via the given list of <slugs>. Results can be offsetted by <offset> >= 0.
-    """
-    getMagazinesByPublicationSlugs(offset: Float = 0, limit: Float = 25, slugs: [String!]!): [Magazine!]!
-
-    """Returns a single <Magazine> via the given <id>"""
-    getMagazineByID(id: String!): Magazine
-
-    """Returns a list of <Magazines> via the given list of <ids>"""
-    getMagazinesByIDs(ids: [String!]!): [Magazine!]!
-
-    """Returns a list of featured <Magazines> of size <limit>."""
-    getFeaturedMagazines(limit: Float = 25): [Magazine!]
-
-    """
-    Returns a list of <Magazines> of maximum size <limit> matching a particular query. Default <limit> is ${DEFAULT_LIMIT}
-    """
-    searchMagazines(limit: Float = 25, query: String!): [Magazine!]!
-}
-
-"""Holds information about social"""
+# Holds information about social
 type Social {
     social: String!
     URL: String!
 }
 
-"""The User Model"""
+# The Flyer Model
+type Flyer {
+    id: ID!
+    endDate: DateTime!
+    flyerURL: String!
+    imageURL: String!
+    isTrending: Boolean!
+    location: String!
+    nsfw: Boolean!
+    organizations: [Organization!]!
+    organizationSlugs: [String!]!
+    startDate: DateTime!
+    timesClicked: Float!
+    title: String!
+    trendiness: Float!
+}
+
+# The Organization Model
+type Organization {
+    id: ID!
+    backgroundImageURL: String!
+    bio: String!
+    categorySlug: String!
+    name: String!
+    profileImageURL: String!
+    slug: String!
+    shoutouts: Float!
+    websiteURL: String!
+
+    # Returns the most recent <Flyer> of an <Organization>
+    mostRecentFlyer: Flyer
+
+    # Returns the total number of <Flyers> from an <Organization>
+    numFlyers: Float!
+}
+
+# The Magazine Model
+type Magazine {
+    id: ID!
+    date: DateTime!
+    semester: String!
+    pdfURL: String!
+    imageURL: String!
+    publication: Publication!
+    publicationSlug: String!
+    shoutouts: Float!
+    title: String!
+    nsfw: Boolean!
+    isFeatured: Boolean!
+    trendiness: Float!
+    isFiltered: Boolean!
+}
+
+# The User Model
 type User {
     id: ID!
     uuid: String!
@@ -277,7 +292,12 @@ type User {
     weeklyDebrief: WeeklyDebrief
 }
 
-"""The Weekly Debrief Model"""
+# Slug of a Publication
+type PublicationSlug {
+    slug: String!
+}
+
+# The Weekly Debrief Model
 type WeeklyDebrief {
     id: ID!
     uuid: String!
@@ -291,3 +311,47 @@ type WeeklyDebrief {
     randomArticles: [Article!]!
 }
 
+type Mutation {
+    # Increments the shoutouts of a <Flyer> with the given <id>.
+    #   Increments the numShoutouts given of the user with the given [uuid].
+    incrementShoutouts(id: String!, uuid: String!): Flyer # FIXME this mutation is ruining things
+
+    # Increments the shoutouts of an <Magazine> with the given <id>.
+    #     Increments the numShoutouts given of the user with the given [uuid].
+    incrementMagazineShoutouts(id: String!, uuid: String!): Magazine
+
+    # Creates a single <User> via given <deviceToken>, <followedPublications> (slugs),
+    #    and <deviceType>. Given <deviceToken> must be unique for a new user to be created, otherwise does nothing.
+    createUser(
+        deviceType: String!
+        followedPublications: [String!]!
+        deviceToken: String!
+    ): User!
+
+    # User with id <uuid> follows the <Organization> referenced by <slug>
+    followOrganization(slug: String!, uuid: String!): User
+
+    # User with id <uuid> follows the <Publication> referenced by <slug>
+    followPublication(slug: String!, uuid: String!): User
+
+    # User with id <uuid> unfollows the <Organization> referenced by <slug>
+    unfollowOrganization(slug: String!, uuid: String!): User
+
+    # User with id <uuid> unfollows the <Publication> referenced by <slug>
+    unfollowPublication(slug: String!, uuid: String!): User
+
+    # Adds the <Article> given by the <articleID> to the <User's> read articles
+    readArticle(articleID: String!, uuid: String!): User
+
+    # Adds the <Magazine> given by the <magazineID> to the <User's> read magazines
+    readMagazine(magazineID: String!, uuid: String!): User
+
+    # Adds the <Flyer> given by the <flyerID> to the <User's> read flyers
+    readFlyer(flyerID: String!, uuid: String!): User
+
+    # Increments the number of bookmarks for the <User> given by <uuid>
+    bookmarkArticle(uuid: String!): User
+
+    # Creates Weekly Debriefs for all users
+    getWeeklyDebrief: [User!]!
+}

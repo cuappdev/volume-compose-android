@@ -1,6 +1,13 @@
 package com.cornellappdev.android.volume.data.repositories
 
-import com.cornellappdev.android.volume.*
+import com.cornellappdev.android.volume.AllArticlesQuery
+import com.cornellappdev.android.volume.ArticleByIDQuery
+import com.cornellappdev.android.volume.ArticlesByIDsQuery
+import com.cornellappdev.android.volume.ArticlesByPublicationSlugQuery
+import com.cornellappdev.android.volume.ArticlesByPublicationSlugsQuery
+import com.cornellappdev.android.volume.IncrementShoutoutsMutation
+import com.cornellappdev.android.volume.ShuffledArticlesByPublicationSlugsQuery
+import com.cornellappdev.android.volume.TrendingArticlesQuery
 import com.cornellappdev.android.volume.data.NetworkApi
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.ContentType
@@ -38,8 +45,8 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
     suspend fun fetchArticleByID(id: String): Article =
         networkApi.fetchArticleByID(id).dataAssertNoErrors.mapDataToArticles().first()
 
-    suspend fun incrementShoutout(id: String, uuid: String): IncrementShoutoutMutation.Data =
-        networkApi.incrementShoutout(id, uuid).dataAssertNoErrors
+    suspend fun incrementShoutout(id: String, uuid: String): IncrementShoutoutsMutation.Data =
+        networkApi.incrementMagazineShoutout(id, uuid).dataAssertNoErrors
 
     private fun AllArticlesQuery.Data.mapDataToArticles(): List<Article> {
         return this.getAllArticles.map { articleData ->

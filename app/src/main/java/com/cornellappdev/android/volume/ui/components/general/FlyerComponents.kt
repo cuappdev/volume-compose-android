@@ -110,7 +110,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
                     .zIndex(0F)
                     .background(color = averageColor)
                     .clickable {
-                        val uri = Uri.parse(flyer.postURL)
+                        val uri = Uri.parse(flyer.flyerURL)
                         try {
                             val intent = Intent(Intent.ACTION_VIEW, uri)
                             openLinkLauncher.launch(intent)
@@ -123,7 +123,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
         // Organization and icon row
         OrganizationAndIconsRow(organizationName = flyer.organizations
             .joinToString(transform = {o -> o.name.replaceFirstChar { c -> c.uppercase() }},
-                separator = ", "), inBigFlyer = true, iconSize = iconSize, url = flyer.postURL,
+                separator = ", "), inBigFlyer = true, iconSize = iconSize, url = flyer.flyerURL,
             context = LocalContext.current, flyerId = flyer.id)
 
         // Event title text
@@ -170,7 +170,7 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
         // For some reason image clickability only works when it's in a box in this case
         // This is the cover image
         Box (modifier = Modifier.clickable {
-            val uri = Uri.parse(flyer.postURL)
+            val uri = Uri.parse(flyer.flyerURL)
             try {
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 openLinkLauncher.launch(intent)
@@ -190,7 +190,7 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
         Column (modifier = Modifier.padding(start = 8.dp)) {
             OrganizationAndIconsRow(organizationName = flyer.organizations
                 .toSet()
-                .joinToString(transform = {o -> o.name}, separator = ", "), iconSize = 20.dp, url = flyer.postURL,
+                .joinToString(transform = {o -> o.name}, separator = ", "), iconSize = 20.dp, url = flyer.flyerURL,
                 context = LocalContext.current, flyerId = flyer.id)
             // Flyer title
             Text(

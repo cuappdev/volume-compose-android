@@ -14,10 +14,10 @@ import com.cornellappdev.android.volume.ArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.BookmarkArticleMutation
 import com.cornellappdev.android.volume.CreateUserMutation
 import com.cornellappdev.android.volume.FeaturedMagazinesQuery
+import com.cornellappdev.android.volume.FlyersByIDsQuery
 import com.cornellappdev.android.volume.FollowPublicationMutation
 import com.cornellappdev.android.volume.GetUserQuery
-import com.cornellappdev.android.volume.IncrementMagazineShoutoutsMutation
-import com.cornellappdev.android.volume.IncrementShoutoutMutation
+import com.cornellappdev.android.volume.IncrementShoutoutsMutation
 import com.cornellappdev.android.volume.MagazineByIdQuery
 import com.cornellappdev.android.volume.MagazinesByIDsQuery
 import com.cornellappdev.android.volume.MagazinesByPublicationSlugQuery
@@ -93,18 +93,22 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
             ids = ids
         )).execute()
 
+    suspend fun fetchFlyersByIds(ids: List<String>): ApolloResponse<FlyersByIDsQuery.Data> =
+        apolloClient.query(FlyersByIDsQuery(
+            ids = ids
+        )).execute()
 
     suspend fun incrementShoutout(
         id: String,
         uuid: String
-    ): ApolloResponse<IncrementShoutoutMutation.Data> =
-        apolloClient.mutation(IncrementShoutoutMutation(id, uuid)).execute()
+    ): ApolloResponse<IncrementShoutoutsMutation.Data> =
+        apolloClient.mutation(IncrementShoutoutsMutation(id, uuid)).execute()
 
     suspend fun incrementMagazineShoutout(
         id: String,
         uuid: String
-    ): ApolloResponse<IncrementMagazineShoutoutsMutation.Data> =
-        apolloClient.mutation(IncrementMagazineShoutoutsMutation(id, uuid)).execute()
+    ): ApolloResponse<IncrementMagazineShoutouts.Data> =
+        apolloClient.mutation(IncrementMagazineShoutouts(id, uuid)).execute()
 
     suspend fun createUser(
         followedPublications: List<String>,
@@ -142,5 +146,4 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         uuid: String
     ): ApolloResponse<BookmarkArticleMutation.Data> =
         apolloClient.mutation(BookmarkArticleMutation(uuid)).execute()
-
 }

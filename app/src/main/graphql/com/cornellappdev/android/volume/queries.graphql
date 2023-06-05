@@ -577,6 +577,64 @@ query ArticlesAfterDate($since: String!) {
     }
 }
 
+query FlyersByIDs($ids: [String!]!) {
+    getFlyersByIDs(ids: $ids) {
+        id
+        endDate
+        flyerURL
+        imageURL
+        isTrending
+        location
+        nsfw
+        organizations {
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            numFlyers
+        }
+        organizationSlugs
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
+query FlyersAfterDate($limit: Float, $since: String!) {
+    getFlyersAfterDate(limit: $limit, since: $since) {
+        id
+        endDate
+        flyerURL
+        imageURL
+        isTrending
+        location
+        nsfw
+        organizations {
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            numFlyers
+        }
+        organizationSlugs
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
 query GetUser($uuid: String!) {
     getUser(uuid: $uuid) {
         uuid
@@ -634,19 +692,68 @@ mutation UnfollowPublication($slug: String!, $uuid: String!) {
     }
 }
 
-mutation IncrementShoutout($id: String!, $uuid: String!) {
-    incrementShoutouts(id: $id, uuid: $uuid) {
+mutation incrementMagazineShoutouts($id: String!, $uuid: String!){
+    incrementMagazineShoutouts(id: $id, uuid: $uuid){
         id
+        date
+        semester
+        pdfURL
+        imageURL
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+        }
+        publicationSlug
         shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
     }
 }
 
-mutation IncrementMagazineShoutouts($id: String!, $uuid: String!){
-    incrementMagazineShoutouts(id: $id, uuid: $uuid){
+mutation incrementShoutouts($id: String!, $uuid: String!){
+    incrementShoutouts(id: $id, uuid: $uuid){
         id
-        shoutouts
+        endDate
+        flyerURL
+        imageURL
+        isTrending
+        location
+        nsfw
+        organizations{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            numFlyers
+        }
+        organizationSlugs
+        startDate
+        timesClicked
+        title
+        trendiness
     }
 }
+
+
 
 mutation ReadArticle($articleID: String!, $uuid: String!) {
     readArticle(articleID: $articleID, uuid: $uuid) {
@@ -659,3 +766,4 @@ mutation BookmarkArticle($uuid: String!) {
         uuid
     }
 }
+

@@ -1,7 +1,9 @@
 package com.cornellappdev.android.volume.data.repositories
 
+import com.cornellappdev.android.volume.FlyersByIDsQuery
 import com.cornellappdev.android.volume.data.NetworkApi
 import com.cornellappdev.android.volume.data.models.Flyer
+import com.cornellappdev.android.volume.data.models.Organization
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -26,8 +28,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun fetchTrendingFlyers(): List<Flyer> = listOf()
 
     suspend fun fetchFlyersAfterDate(date: String): List<Flyer> = listOf()
-    suspend fun fetchFlyersByIds(ids: List<String>): List<Flyer> = listOf()
-
+    suspend fun fetchFlyersByIds(ids: List<String>): List<Flyer> =
+        networkApi.fetchFlyersByIds(ids).dataAssertNoErrors.mapDataToFlyers()
     suspend fun fetchTodayFlyers(): List<Flyer>? {
         return fetchFlyersFromUrl("http://34.86.84.49/api/flyers/daily/")
     }
@@ -66,5 +68,28 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             })
         }
     }
+    private fun FlyersByIDsQuery.Data.mapDataToFlyers(): List<Flyer> =
+        this.getFlyersByIDs.map { flyer ->
+            Flyer (
+                id = flyer.id,
+                title = flyer.title,
+                organizations = flyer.organizations.mapDataToOrganizations(),
+                flyerURL = flyer.flyerURL,
+                startDate = flyer.startDate as String,
+                endDate = flyer.endDate as String,
+                imageURL = flyer.imageURL,
+                location = flyer.location
+            )
+    }
+    
+    private fun List<FlyersByIDsQuery.Organization>.mapDataToOrganizations(): List<Organization> =
+        this.map { organization -> 
+            Organization (
+                id = organization.id,
+                name = organization.name,
+                slug = organization.slug,
+                type = organization.categorySlug
+            )
+        }
 }
 

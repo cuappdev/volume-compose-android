@@ -100,14 +100,14 @@ class FlyersViewModel @Inject constructor(
         )
         viewModelScope.launch {
             try {
-                if (query.lowercase() == "all") {
-                    flyersUiState = flyersUiState.copy(
+                flyersUiState = if (query.lowercase() == "all") {
+                    flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
                             flyerRepository.fetchWeeklyFlyers() ?: listOf()
                         )
                     )
                 } else {
-                    flyersUiState = flyersUiState.copy(
+                    flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
                             flyerRepository.fetchUpcomingFlyers()?.filter { f -> f.organizations.first().type.lowercase() == query.lowercase() } ?: listOf()
                         )
