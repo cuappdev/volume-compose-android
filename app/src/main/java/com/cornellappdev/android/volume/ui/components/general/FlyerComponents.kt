@@ -77,7 +77,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
         averageColor = getAverageColor(imageBitmap!!).toComposeColor()
     }
 
-    Column (modifier = Modifier.width(imgSize)) {
+    Column(modifier = Modifier.width(imgSize)) {
         // Image and tag
         Box {
 
@@ -121,10 +121,14 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
         }
 
         // Organization and icon row
-        OrganizationAndIconsRow(organizationName = flyer.organizations
-            .joinToString(transform = {o -> o.name.replaceFirstChar { c -> c.uppercase() }},
-                separator = ", "), inBigFlyer = true, iconSize = iconSize, url = flyer.flyerURL,
-            context = LocalContext.current, flyerId = flyer.id)
+        OrganizationAndIconsRow(
+            organizationName = flyer.organizations
+                .joinToString(
+                    transform = { o -> o.name.replaceFirstChar { c -> c.uppercase() } },
+                    separator = ", "
+                ), inBigFlyer = true, iconSize = iconSize, url = flyer.flyerURL,
+            context = LocalContext.current, flyerId = flyer.id
+        )
 
         // Event title text
         Text(
@@ -135,7 +139,10 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        IconTextRow(text = formatDateString(flyer.startDate, flyer.endDate), iconId = R.drawable.ic_calendar)
+        IconTextRow(
+            text = formatDateString(flyer.startDate, flyer.endDate),
+            iconId = R.drawable.ic_calendar
+        )
         Spacer(modifier = Modifier.height(5.dp))
         IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin)
     }
@@ -166,15 +173,16 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
             .width(352.dp)
             .padding(bottom = 16.dp, end = 16.dp)
     }
-    Row (modifier = modifier) {
+    Row(modifier = modifier) {
         // For some reason image clickability only works when it's in a box in this case
         // This is the cover image
-        Box (modifier = Modifier.clickable {
+        Box(modifier = Modifier.clickable {
             val uri = Uri.parse(flyer.flyerURL)
             try {
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 openLinkLauncher.launch(intent)
-            } catch (ignored: ActivityNotFoundException) {}
+            } catch (ignored: ActivityNotFoundException) {
+            }
         }) {
             AsyncImage(
                 model = flyer.imageURL,
@@ -187,11 +195,16 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
             )
         }
 
-        Column (modifier = Modifier.padding(start = 8.dp)) {
-            OrganizationAndIconsRow(organizationName = flyer.organizations
-                .toSet()
-                .joinToString(transform = {o -> o.name}, separator = ", "), iconSize = 20.dp, url = flyer.flyerURL,
-                context = LocalContext.current, flyerId = flyer.id)
+        Column(modifier = Modifier.padding(start = 8.dp)) {
+            OrganizationAndIconsRow(
+                organizationName = flyer.organizations
+                    .toSet()
+                    .joinToString(transform = { o -> o.name }, separator = ", "),
+                iconSize = 20.dp,
+                url = flyer.flyerURL,
+                context = LocalContext.current,
+                flyerId = flyer.id
+            )
             // Flyer title
             Text(
                 text = flyer.title,
@@ -204,7 +217,10 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
                     .height(4.dp)
                     .fillMaxWidth()
             )
-            IconTextRow(text = formatDateString(flyer.startDate, flyer.endDate), iconId = R.drawable.ic_calendar)
+            IconTextRow(
+                text = formatDateString(flyer.startDate, flyer.endDate),
+                iconId = R.drawable.ic_calendar
+            )
             Spacer(
                 modifier = Modifier
                     .height(4.dp)
@@ -213,9 +229,11 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
             IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin)
             if (!inUpcoming) {
                 // Show the tag:
-                Spacer(modifier = Modifier
-                    .height(8.dp)
-                    .fillMaxWidth())
+                Spacer(
+                    modifier = Modifier
+                        .height(8.dp)
+                        .fillMaxWidth()
+                )
                 Box(modifier = Modifier.drawWithContent {
                     drawContent()
                     drawRoundRect(
@@ -247,25 +265,37 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
  * Formats the types for multiple organizations so you can see them clearly in the tag.
  */
 fun List<Organization>.formatTypes(): String {
-    return  this.map { o -> o.type.replaceFirstChar { c -> c.uppercase() } }.toSet().joinToString(separator = ", ")
+    return this.map { o -> o.categorySlug.replaceFirstChar { c -> c.uppercase() } }.toSet()
+        .joinToString(separator = ", ")
 }
 
 
 @Composable
-fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = false, iconSize: Dp,
-    url: String, context: Context, flyerId: String, flyersViewModel: FlyersViewModel = hiltViewModel()) {
+fun OrganizationAndIconsRow(
+    organizationName: String,
+    inBigFlyer: Boolean = false,
+    iconSize: Dp,
+    url: String,
+    context: Context,
+    flyerId: String,
+    flyersViewModel: FlyersViewModel = hiltViewModel()
+) {
     var isBookmarked = false
     // Update isBookmarked in a separate thread
     LaunchedEffect(key1 = "check bookmarked $flyerId") {
         isBookmarked = flyersViewModel.getIsBookmarked(flyerId)
     }
     if (inBigFlyer) {
-        Spacer(modifier = Modifier
-            .height(8.dp)
-            .fillMaxWidth())
+        Spacer(
+            modifier = Modifier
+                .height(8.dp)
+                .fillMaxWidth()
+        )
     }
-    Row(modifier = Modifier
-        .fillMaxWidth()) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
         // Org name
         Text(
             text = organizationName,
@@ -280,8 +310,9 @@ fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = fals
         Image(
             painter = painterResource(
                 id =
-            if (isBookmarked) R.drawable.ic_bookmark_orange_filled
-            else R.drawable.ic_bookmark_orange_empty),
+                if (isBookmarked) R.drawable.ic_bookmark_orange_filled
+                else R.drawable.ic_bookmark_orange_empty
+            ),
             contentDescription = null,
             modifier = Modifier
                 .size(iconSize)
@@ -306,12 +337,18 @@ fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = fals
 
 @Composable
 fun IconTextRow(text: String, iconId: Int, modifier: Modifier = Modifier) {
-    Row (modifier = Modifier) {
+    Row(modifier = Modifier) {
         Icon(painter = painterResource(id = iconId), contentDescription = null)
         Spacer(modifier = Modifier.width(4.dp))
-        Text(text = text, fontFamily = lato, fontWeight = FontWeight.Normal, fontSize = 12.sp, modifier = modifier,
+        Text(
+            text = text,
+            fontFamily = lato,
+            fontWeight = FontWeight.Normal,
+            fontSize = 12.sp,
+            modifier = modifier,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis)
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -326,6 +363,7 @@ private suspend fun getBitmap(imageUrl: String, context: Context): Bitmap? {
             val bitDrawable = res.drawable
             (bitDrawable as BitmapDrawable).bitmap
         }
+
         else -> {
             null
         }
@@ -338,7 +376,12 @@ private suspend fun getBitmap(imageUrl: String, context: Context): Bitmap? {
  */
 private fun getAverageColor(immutableBitmap: Bitmap): Int {
     // Scale bitmap to make it go faster :)
-    val bitmap = Bitmap.createScaledBitmap(immutableBitmap.copy(Bitmap.Config.RGBA_F16, true), 120 , 120, false)
+    val bitmap = Bitmap.createScaledBitmap(
+        immutableBitmap.copy(Bitmap.Config.RGBA_F16, true),
+        120,
+        120,
+        false
+    )
 
 
     // Calculate the total sum of red, green, and blue values
@@ -369,8 +412,10 @@ private fun getAverageColor(immutableBitmap: Bitmap): Int {
  */
 private fun formatDateString(startDate: String, endDate: String): String {
     return try {
-        val startDateTime = LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
-        val endDateTime = LocalDateTime.parse(endDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
+        val startDateTime =
+            LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
+        val endDateTime =
+            LocalDateTime.parse(endDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
 
         val dayOfWeek = startDateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US)
         val month = startDateTime.month.getDisplayName(TextStyle.SHORT, Locale.US)

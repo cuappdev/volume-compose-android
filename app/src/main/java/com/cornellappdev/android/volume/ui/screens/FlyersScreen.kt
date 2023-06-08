@@ -49,42 +49,54 @@ import com.cornellappdev.android.volume.ui.states.FlyersRetrievalState
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.FlyersViewModel
+import com.cornellappdev.android.volume.util.FlyerConstants
 
 @Composable
 fun FlyersScreen(
     flyersViewModel: FlyersViewModel = hiltViewModel()
 ) {
     var selectedIndex by remember { mutableStateOf(0) }
-    val tags = listOf("all", "academic", "art", "awareness", "comedy", "cultural", "dance", "foodDrink", "greekLife", "music", "socialJustice", "spiritual", "sports")
+    val tags = FlyerConstants.CATEGORY_SLUGS.split(",")
+    // Maps the category slugs to strings that are viewable on the app.
     val formattedTags = tags.map { s ->
-        when (s) {
-            "greekLife" -> "Greek Life"
-            "foodDrink" -> "Food Drink"
-            "socialJustice" -> "Social Justice"
-            else -> {
-                s.replaceFirstChar { c -> c.uppercase() }
-            }
+        // If the slug is just a single word, capitalize it.
+        if (s == s.lowercase()) {
+            s.replaceFirstChar { c -> c.uppercase() }
+            // If the slug is multiple words, split it on uppercase characters and join them, capitalizing each word.
+        } else {
+            s.split(Regex("(?<!^)(?=[A-Z])"))
+                .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
         }
     }
     var expanded by remember { mutableStateOf(false) }
     val uiState = flyersViewModel.flyersUiState
 
-    LazyColumn (modifier = Modifier.padding(start = 16.dp)) {
+    LazyColumn(modifier = Modifier.padding(start = 16.dp)) {
         item {
             Row {
-                Text(text = "Flyers", fontFamily = notoserif, fontSize = 28.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 16.dp))
-                VolumePeriod(modifier = Modifier.padding(top=39.dp, start = 7.dp))
+                Text(
+                    text = "Flyers",
+                    fontFamily = notoserif,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+                VolumePeriod(modifier = Modifier.padding(top = 39.dp, start = 7.dp))
             }
         }
         // Today header
         item {
-            Spacer(modifier = Modifier
-                .height(32.dp)
-                .fillMaxWidth())
+            Spacer(
+                modifier = Modifier
+                    .height(32.dp)
+                    .fillMaxWidth()
+            )
             VolumeHeaderText(text = "Today", underline = R.drawable.ic_today_underline)
-            Spacer(modifier = Modifier
-                .height(8.dp)
-                .fillMaxWidth())
+            Spacer(
+                modifier = Modifier
+                    .height(8.dp)
+                    .fillMaxWidth()
+            )
         }
 
         // Big flyer row
@@ -98,6 +110,7 @@ fun FlyersScreen(
                         }
                     })
                 }
+
                 FlyersRetrievalState.Error -> {}
                 is FlyersRetrievalState.Success -> {
                     val flyers = todayFlyersState.flyers
@@ -118,13 +131,17 @@ fun FlyersScreen(
 
         // This week header
         item {
-            Spacer(modifier = Modifier
-                .height(32.dp)
-                .fillMaxWidth())
+            Spacer(
+                modifier = Modifier
+                    .height(32.dp)
+                    .fillMaxWidth()
+            )
             VolumeHeaderText(text = "This Week", underline = R.drawable.ic_underline_this_week)
-            Spacer(modifier = Modifier
-                .height(8.dp)
-                .fillMaxWidth())
+            Spacer(
+                modifier = Modifier
+                    .height(8.dp)
+                    .fillMaxWidth()
+            )
         }
 
         // Big flyer row
@@ -138,9 +155,11 @@ fun FlyersScreen(
                         }
                     }
                 }
+
                 FlyersRetrievalState.Error -> {
                     // TODO
                 }
+
                 is FlyersRetrievalState.Success -> {
                     val flyers = weeklyFlyersState.flyers
                     if (flyers.isEmpty()) {
@@ -167,7 +186,7 @@ fun FlyersScreen(
                 Spacer(modifier = Modifier.weight(1F))
 
                 // Dropdown menu
-                Column(modifier = Modifier.padding(end = 24.dp /* this is 16 because offset */ )) {
+                Column(modifier = Modifier.padding(end = 24.dp /* this is 16 because offset */)) {
                     Box(modifier = Modifier.drawWithContent {
                         drawContent()
                         drawRoundRect(
@@ -218,7 +237,10 @@ fun FlyersScreen(
                                 DropdownMenuItem(onClick = {
                                     selectedIndex = index
                                     expanded = false
-                                    Log.d("TAG", "FlyersScreen: Querying for tag ${tags[selectedIndex]} ")
+                                    Log.d(
+                                        "TAG",
+                                        "FlyersScreen: Querying for tag ${tags[selectedIndex]} "
+                                    )
                                     flyersViewModel.queryUpcomingFlyers(tags[selectedIndex])
                                 }) {
                                     Text(
@@ -234,27 +256,34 @@ fun FlyersScreen(
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-
         }
         // Small flyer display
         item {
             when (val upcomingFlyerState = uiState.upcomingFlyersState) {
                 FlyersRetrievalState.Loading -> {
-                    LazyHorizontalGrid(rows = GridCells.Fixed(3), modifier = Modifier.height(308.dp)) {
+                    LazyHorizontalGrid(
+                        rows = GridCells.Fixed(3),
+                        modifier = Modifier.height(308.dp)
+                    ) {
                         items(9) {
                             ShimmeringFlyer()
                         }
                     }
                 }
+
                 FlyersRetrievalState.Error -> {
                     // TODO
                 }
+
                 is FlyersRetrievalState.Success -> {
                     val flyers = upcomingFlyerState.flyers
-                    if (flyers.isEmpty()){
+                    if (flyers.isEmpty()) {
                         NoMoreText(text = "No upcoming flyers for this category")
                     } else {
-                        LazyHorizontalGrid(rows = GridCells.Fixed(3), modifier = Modifier.height(308.dp)) {
+                        LazyHorizontalGrid(
+                            rows = GridCells.Fixed(3),
+                            modifier = Modifier.height(308.dp)
+                        ) {
                             items(flyers) {
                                 SmallFlyer(inUpcoming = true, it)
                             }
@@ -277,17 +306,18 @@ fun FlyersScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
+
             FlyersRetrievalState.Error -> {
                 // TODO
             }
+
             is FlyersRetrievalState.Success -> {
                 val flyers = pastFlyersState.flyers
                 if (flyers.isEmpty()) {
                     item {
                         NoMoreText(text = "No past flyers")
                     }
-                }
-                else {
+                } else {
                     items(flyers) {
                         SmallFlyer(inUpcoming = false, it)
                     }
@@ -296,19 +326,24 @@ fun FlyersScreen(
         }
     }
 }
+
 @Composable
 fun NoMoreText(text: String) {
     Row {
         Spacer(modifier = Modifier.weight(1f))
-        Column (modifier = Modifier.width(219.dp)) {
-            Text(text = text,
+        Column(modifier = Modifier.width(219.dp)) {
+            Text(
+                text = text,
                 fontSize = 18.sp,
                 fontFamily = notoserif,
-                textAlign = TextAlign.Center)
+                textAlign = TextAlign.Center
+            )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "If you want to see your organization’s events on Volume, email us at volumeappdev@gmail.com",
+            Text(
+                text = "If you want to see your organization’s events on Volume, email us at volumeappdev@gmail.com",
                 fontSize = 12.sp,
-                textAlign = TextAlign.Center)
+                textAlign = TextAlign.Center
+            )
         }
         Spacer(modifier = Modifier.weight(1f))
     }

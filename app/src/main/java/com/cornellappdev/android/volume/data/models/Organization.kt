@@ -7,8 +7,10 @@ data class Organization(
     val id: String,
     val name: String,
     val slug: String,
-    val type: String
+    val categorySlug: String
 )
 
-val organizationTypes = listOf("all", "academic", "art", "awareness", "comedy", "cultural",
-    "dance", "foodDrinks", "greekLife", "music", "socialJustice", "spiritual", "sports")
+val organizationTypes = listOf(
+    "all", "academic", "art", "awareness", "comedy", "cultural",
+    "dance", "foodDrinks", "greekLife", "music", "socialJustice", "spiritual", "sports"
+)

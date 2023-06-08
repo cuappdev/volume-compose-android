@@ -164,6 +164,29 @@ fun NothingToShowText(message: String) {
 }
 
 @Composable
+fun NothingToShowMessage(title: String, message: String) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            fontFamily = notoserif,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Medium
+        )
+
+        Text(
+            text = message,
+            fontFamily = lato,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Composable
 fun VolumePeriod(modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(R.drawable.ic_period),

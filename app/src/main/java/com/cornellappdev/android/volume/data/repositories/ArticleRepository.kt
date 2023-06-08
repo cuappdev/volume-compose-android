@@ -37,7 +37,7 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
         networkApi.fetchArticlesByPublicationSlugs(slugs).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByShuffledPublicationSlugs(slugs: List<String>): List<Article> =
-            networkApi.fetchShuffledArticlesByPublicationSlugs(slugs).dataAssertNoErrors.mapDataToArticles()
+        networkApi.fetchShuffledArticlesByPublicationSlugs(slugs).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByIDs(ids: List<String>): List<Article> =
         networkApi.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
@@ -46,7 +46,7 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
         networkApi.fetchArticleByID(id).dataAssertNoErrors.mapDataToArticles().first()
 
     suspend fun incrementShoutout(id: String, uuid: String): IncrementShoutoutsMutation.Data =
-        networkApi.incrementMagazineShoutout(id, uuid).dataAssertNoErrors
+        networkApi.incrementShoutout(id, uuid).dataAssertNoErrors
 
     private fun AllArticlesQuery.Data.mapDataToArticles(): List<Article> {
         return this.getAllArticles.map { articleData ->

@@ -577,8 +577,8 @@ query ArticlesAfterDate($since: String!) {
     }
 }
 
-query FlyersByIDs($ids: [String!]!) {
-    getFlyersByIDs(ids: $ids) {
+query AllFlyers($offset: Float, $limit: Float){
+    getAllFlyers(offset: $offset, limit: $limit){
         id
         endDate
         flyerURL
@@ -586,7 +586,7 @@ query FlyersByIDs($ids: [String!]!) {
         isTrending
         location
         nsfw
-        organizations {
+        organizations{
             id
             backgroundImageURL
             bio
@@ -597,6 +597,7 @@ query FlyersByIDs($ids: [String!]!) {
             shoutouts
             websiteURL
             numFlyers
+            clicks
         }
         organizationSlugs
         startDate
@@ -606,8 +607,8 @@ query FlyersByIDs($ids: [String!]!) {
     }
 }
 
-query FlyersAfterDate($limit: Float, $since: String!) {
-    getFlyersAfterDate(limit: $limit, since: $since) {
+query FlyerByID($id: String!){
+    getFlyerByID(id: $id){
         id
         endDate
         flyerURL
@@ -615,7 +616,7 @@ query FlyersAfterDate($limit: Float, $since: String!) {
         isTrending
         location
         nsfw
-        organizations {
+        organizations{
             id
             backgroundImageURL
             bio
@@ -626,6 +627,7 @@ query FlyersAfterDate($limit: Float, $since: String!) {
             shoutouts
             websiteURL
             numFlyers
+            clicks
         }
         organizationSlugs
         startDate
@@ -634,6 +636,187 @@ query FlyersAfterDate($limit: Float, $since: String!) {
         trendiness
     }
 }
+
+query FlyersAfterDate($limit: Float, $since: String!){
+    getFlyersAfterDate(limit: $limit, since: $since){
+        id
+        endDate
+        flyerURL
+        imageURL
+        isTrending
+        location
+        nsfw
+        organizations{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            numFlyers
+            clicks
+        }
+        organizationSlugs
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+query FlyersBeforeDate($limit: Float, $before: String!){
+    getFlyersBeforeDate(limit: $limit, before: $before){
+        id
+        endDate
+        flyerURL
+        imageURL
+        isTrending
+        location
+        nsfw
+        organizations{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            numFlyers
+            clicks
+        }
+        organizationSlugs
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
+query FlyersByIDs($ids: [String!]!){
+    getFlyersByIDs(ids: $ids){
+        id
+        endDate
+        flyerURL
+        imageURL
+        isTrending
+        location
+        nsfw
+        organizations{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            numFlyers
+            clicks
+        }
+        organizationSlugs
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
+query FlyersByOrganizationIDs($offset: Float, $limit: Float, $organizationIDs: [String!]!){
+    getFlyersByOrganizationIDs(offset: $offset, limit: $limit, organizationIDs: $organizationIDs){
+        id
+        endDate
+        flyerURL
+        imageURL
+        isTrending
+        location
+        nsfw
+        organizations{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            numFlyers
+            clicks
+        }
+        organizationSlugs
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
+query OrganizationsByCategory($categorySlug: String!){
+    getOrganizationsByCategory(categorySlug: $categorySlug){
+        id
+        backgroundImageURL
+        bio
+        categorySlug
+        name
+        profileImageURL
+        slug
+        shoutouts
+        websiteURL
+        mostRecentFlyer{
+            id
+            endDate
+            flyerURL
+            imageURL
+            isTrending
+            location
+            nsfw
+            organizationSlugs
+            startDate
+            timesClicked
+            title
+            trendiness
+        }
+        numFlyers
+        clicks
+    }
+}
+
+query TrendingFlyers($limit: Float){
+    getTrendingFlyers(limit: $limit){
+        id
+        endDate
+        flyerURL
+        imageURL
+        isTrending
+        location
+        nsfw
+        organizations{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            numFlyers
+            clicks
+        }
+        organizationSlugs
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
+
 
 query GetUser($uuid: String!) {
     getUser(uuid: $uuid) {
@@ -692,7 +875,7 @@ mutation UnfollowPublication($slug: String!, $uuid: String!) {
     }
 }
 
-mutation incrementMagazineShoutouts($id: String!, $uuid: String!){
+mutation IncrementMagazineShoutouts($id: String!, $uuid: String!){
     incrementMagazineShoutouts(id: $id, uuid: $uuid){
         id
         date
@@ -724,32 +907,34 @@ mutation incrementMagazineShoutouts($id: String!, $uuid: String!){
     }
 }
 
-mutation incrementShoutouts($id: String!, $uuid: String!){
+mutation IncrementShoutouts($id: String!, $uuid: String!){
     incrementShoutouts(id: $id, uuid: $uuid){
         id
-        endDate
-        flyerURL
+        articleURL
+        date
         imageURL
-        isTrending
-        location
-        nsfw
-        organizations{
+        publication{
             id
             backgroundImageURL
             bio
-            categorySlug
+            bioShort
             name
             profileImageURL
+            rssName
+            rssURL
             slug
             shoutouts
             websiteURL
-            numFlyers
+            contentTypes
+            numArticles
         }
-        organizationSlugs
-        startDate
-        timesClicked
+        publicationSlug
+        shoutouts
         title
+        nsfw
+        isTrending
         trendiness
+        isFiltered
     }
 }
 
