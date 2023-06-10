@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.ui.components.general.BigFlyer
 import com.cornellappdev.android.volume.ui.components.general.BigShimmeringFlyer
+import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
 import com.cornellappdev.android.volume.ui.components.general.SmallFlyer
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
@@ -53,7 +54,7 @@ import com.cornellappdev.android.volume.util.FlyerConstants
 
 @Composable
 fun FlyersScreen(
-    flyersViewModel: FlyersViewModel = hiltViewModel()
+    flyersViewModel: FlyersViewModel = hiltViewModel(),
 ) {
     var selectedIndex by remember { mutableStateOf(0) }
     val tags = FlyerConstants.CATEGORY_SLUGS.split(",")
@@ -70,6 +71,8 @@ fun FlyersScreen(
     }
     var expanded by remember { mutableStateOf(false) }
     val uiState = flyersViewModel.flyersUiState
+    val NO_FLYERS_MESSAGE =
+        "If you want to see your organization's events on Volume, email us at volumeappdev@gmail.com"
 
     LazyColumn(modifier = Modifier.padding(start = 16.dp)) {
         item {
@@ -115,7 +118,7 @@ fun FlyersScreen(
                 is FlyersRetrievalState.Success -> {
                     val flyers = todayFlyersState.flyers
                     if (flyers.isEmpty()) {
-                        NoMoreText(text = "No flyers today")
+                        NothingToShowMessage(title = "No flyers today", message = NO_FLYERS_MESSAGE)
                     } else {
                         LazyRow {
                             items(flyers) {
@@ -163,7 +166,10 @@ fun FlyersScreen(
                 is FlyersRetrievalState.Success -> {
                     val flyers = weeklyFlyersState.flyers
                     if (flyers.isEmpty()) {
-                        NoMoreText(text = "No flyers this week")
+                        NothingToShowMessage(
+                            title = "No flyers this week",
+                            message = NO_FLYERS_MESSAGE
+                        )
                     } else {
                         LazyRow {
                             items(flyers) {
@@ -278,7 +284,10 @@ fun FlyersScreen(
                 is FlyersRetrievalState.Success -> {
                     val flyers = upcomingFlyerState.flyers
                     if (flyers.isEmpty()) {
-                        NoMoreText(text = "No upcoming flyers for this category")
+                        NothingToShowMessage(
+                            title = "No upcoming flyers for this category",
+                            message = NO_FLYERS_MESSAGE
+                        )
                     } else {
                         LazyHorizontalGrid(
                             rows = GridCells.Fixed(3),

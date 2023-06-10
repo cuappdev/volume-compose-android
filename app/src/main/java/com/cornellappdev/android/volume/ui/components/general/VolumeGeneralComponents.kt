@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -45,7 +47,7 @@ import com.cornellappdev.android.volume.ui.theme.notoserif
 
 // General components that have been abstracted for use throughout the Volume app
 @Composable
-fun VolumeLogo(modifier: Modifier=Modifier) {
+fun VolumeLogo(modifier: Modifier = Modifier) {
     Image(
         painter = painterResource(R.drawable.volume_title),
         contentDescription = null,
@@ -53,9 +55,10 @@ fun VolumeLogo(modifier: Modifier=Modifier) {
             .scale(0.8f)
     )
 }
+
 @Composable
-fun VolumeHeaderText(text: String, underline: Int, modifier: Modifier=Modifier) {
-    Column (modifier = modifier) {
+fun VolumeHeaderText(text: String, underline: Int, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
         Text(
             text = text,
             fontFamily = notoserif,
@@ -120,11 +123,12 @@ private val HorizontalScrollConsumer = object : NestedScrollConnection {
     override fun onPreScroll(available: Offset, source: NestedScrollSource) = available.copy(y = 0f)
     override suspend fun onPreFling(available: Velocity) = available.copy(y = 0f)
 }
+
 fun Modifier.disabledHorizontalPointerInputScroll(disabled: Boolean = true) =
     if (disabled) this.nestedScroll(HorizontalScrollConsumer) else this
 
 @Composable
-fun VolumeLinearProgressBar(progress: Float, modifier: Modifier = Modifier.height(15.dp)){
+fun VolumeLinearProgressBar(progress: Float, modifier: Modifier = Modifier.height(15.dp)) {
     Column(modifier = Modifier.fillMaxWidth()) {
         LinearProgressIndicator(
             modifier = modifier,
@@ -170,20 +174,29 @@ fun NothingToShowMessage(title: String, message: String) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = title,
-            fontFamily = notoserif,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Medium
-        )
-
-        Text(
-            text = message,
-            fontFamily = lato,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium
-        )
+        Column(
+            modifier = Modifier
+                .width(250.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = title,
+                fontFamily = notoserif,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            Text(
+                text = message,
+                fontFamily = lato,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+        }
     }
+
 }
 
 @Composable
@@ -196,7 +209,7 @@ fun VolumePeriod(modifier: Modifier = Modifier) {
     )
 }
 
-fun Int.toComposeColor(): androidx.compose.ui.graphics.Color {
+fun Int.toComposeColor(): Color {
     val alpha = (this shr 24 and 0xFF) / 255f
     val red = (this shr 16 and 0xFF) / 255f
     val green = (this shr 8 and 0xFF) / 255f
