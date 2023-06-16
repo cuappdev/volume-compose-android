@@ -175,7 +175,41 @@ query ArticlesByPublicationSlug($slug: String!) {
         title
         nsfw
     }
+}
 
+query SearchArticles($limit: Float, $query: String!){
+    searchArticles(limit: $limit, query: $query){
+        id
+        articleURL
+        date
+        imageURL
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials {
+                social
+                url:URL
+            }
+        }
+        publicationSlug
+        shoutouts
+        title
+        nsfw
+        isTrending
+        trendiness
+        isFiltered
+    }
 }
 
 query ShuffledArticlesByPublicationSlugs($timeRange: Float, $offset: Float, $limit: Float, $slugs: [String!]!){
@@ -414,6 +448,42 @@ query AllMagazines ($limit: Float) {
                 url:URL
             }
         }
+        shoutouts
+        title
+        nsfw
+        isFeatured
+        trendiness
+        isFiltered
+    }
+}
+
+query SearchMagazines($limit: Float, $query: String!){
+    searchMagazines(limit: $limit, query: $query){
+        id
+        date
+        semester
+        pdfURL
+        imageURL
+        publication{
+            id
+            backgroundImageURL
+            bio
+            bioShort
+            name
+            profileImageURL
+            rssName
+            rssURL
+            slug
+            shoutouts
+            websiteURL
+            contentTypes
+            numArticles
+            socials {
+                social
+                url:URL
+            }
+        }
+        publicationSlug
         shoutouts
         title
         nsfw

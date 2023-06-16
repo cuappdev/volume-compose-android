@@ -219,7 +219,11 @@ fun SearchBar(modifier: Modifier = Modifier, value: String, onChangeValue: (Stri
             Text(text = "Search", color = GrayTwo, fontSize = 16.sp, fontFamily = lato)
         },
         shape = RoundedCornerShape(10.dp),
-        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White)
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = Color.White,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+        )
     )
 }
 

@@ -30,6 +30,8 @@ import com.cornellappdev.android.volume.MagazinesBySemesterQuery
 import com.cornellappdev.android.volume.OrganizationsByCategoryQuery
 import com.cornellappdev.android.volume.PublicationBySlugQuery
 import com.cornellappdev.android.volume.ReadArticleMutation
+import com.cornellappdev.android.volume.SearchArticlesQuery
+import com.cornellappdev.android.volume.SearchMagazinesQuery
 import com.cornellappdev.android.volume.ShuffledArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.TrendingArticlesQuery
 import com.cornellappdev.android.volume.TrendingFlyersQuery
@@ -72,6 +74,9 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     suspend fun fetchArticleByID(id: String): ApolloResponse<ArticleByIDQuery.Data> =
         apolloClient.query(ArticleByIDQuery(id)).execute()
 
+    suspend fun fetchSearchedArticles(query: String): ApolloResponse<SearchArticlesQuery.Data> =
+        apolloClient.query(SearchArticlesQuery(query = query)).execute()
+
     suspend fun fetchAllMagazines(limit: Double? = null): ApolloResponse<AllMagazinesQuery.Data> =
         apolloClient.query(AllMagazinesQuery(Optional.presentIfNotNull(limit))).execute()
 
@@ -113,6 +118,9 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
                 ids = ids
             )
         ).execute()
+
+    suspend fun fetchSearchedMagazines(query: String): ApolloResponse<SearchMagazinesQuery.Data> =
+        apolloClient.query(SearchMagazinesQuery(query = query)).execute()
 
     suspend fun fetchFlyersByIds(ids: List<String>): ApolloResponse<FlyersByIDsQuery.Data> =
         apolloClient.query(
