@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
+import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
+import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringMagazine
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
@@ -35,11 +37,12 @@ import com.cornellappdev.android.volume.ui.viewmodels.MagazinesViewModel
 import java.util.*
 
 private const val TAG = "MagazinesScreen"
+
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun MagazinesScreen(
+fun MagazinesViewer(
     magazinesViewModel: MagazinesViewModel = hiltViewModel(),
-    onMagazineClick: (magazine: Magazine) -> Unit
+    onMagazineClick: (magazine: Magazine) -> Unit,
 ) {
     // Dropdown menu variables
     var expanded by remember { mutableStateOf(false) }
@@ -51,11 +54,21 @@ fun MagazinesScreen(
     val magazineUiState = magazinesViewModel.magazineUiState
 
     Box {
-        LazyVerticalGrid( modifier = Modifier
-            .fillMaxSize(),
-            columns = GridCells.Fixed(2)) {
+        LazyVerticalGrid(
+            modifier = Modifier
+                .fillMaxSize(),
+            columns = GridCells.Fixed(2)
+        ) {
+            item(span = { GridItemSpan(2) }) {
+                Box(
+                    modifier = Modifier
+                        .padding(top = 16.dp, start = 12.dp, end = 16.dp)
+                        .clickable { /* TODO take to search screen */ }) {
+                    SearchBar(value = "", onChangeValue = {})
+                }
+            }
             // Featured header
-            item (span = { GridItemSpan(2)}) {
+            item(span = { GridItemSpan(2) }) {
                 VolumeHeaderText(
                     text = "Featured",
                     underline = com.cornellappdev.android.volume.R.drawable.ic_underline_featured,
@@ -64,7 +77,7 @@ fun MagazinesScreen(
             }
 
             // Featured magazines row
-            item (span = { GridItemSpan(2)}) {
+            item(span = { GridItemSpan(2) }) {
                 FillFeaturedMagazinesRow(
                     magazineUiState = magazineUiState,
                     onMagazineClick = onMagazineClick
@@ -72,7 +85,7 @@ fun MagazinesScreen(
             }
 
             // Semester magazines text and dropdown menu
-            item (span = { GridItemSpan(2)}) {
+            item(span = { GridItemSpan(2) }) {
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -162,16 +175,19 @@ fun MagazinesScreen(
             // Semester magazines view
             when (val magazinesState = magazineUiState.moreMagazinesState) {
                 MagazinesRetrievalState.Loading -> {
-                    items (5) {
-                        Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                    items(5) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             ShimmeringMagazine()
                         }
                     }
                 }
-                MagazinesRetrievalState.Error -> { /* TODO */ }
+
+                MagazinesRetrievalState.Error -> { /* TODO */
+                }
+
                 is MagazinesRetrievalState.Success -> {
                     items(magazinesState.magazines) {
-                        Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
                         }
                     }
@@ -184,9 +200,11 @@ fun MagazinesScreen(
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun FillFeaturedMagazinesRow(magazineUiState: MagazinesViewModel.MagazinesUiState, onMagazineClick: (magazine: Magazine) -> Unit)
-{
-    when (val magazinesState =  magazineUiState.featuredMagazinesState) {
+fun FillFeaturedMagazinesRow(
+    magazineUiState: MagazinesViewModel.MagazinesUiState,
+    onMagazineClick: (magazine: Magazine) -> Unit,
+) {
+    when (val magazinesState = magazineUiState.featuredMagazinesState) {
         MagazinesRetrievalState.Loading -> {
             LazyRow {
                 items(5) {
@@ -194,15 +212,24 @@ fun FillFeaturedMagazinesRow(magazineUiState: MagazinesViewModel.MagazinesUiStat
                 }
             }
         }
+
         MagazinesRetrievalState.Error -> {
         }
+
         is MagazinesRetrievalState.Success -> {
-            LazyRow {
-                items(magazinesState.magazines) {
-                    CreateMagazineColumn(
-                        magazine = it,
-                        onMagazineClick = onMagazineClick
-                    )
+            if (magazinesState.magazines.isEmpty()) {
+                NothingToShowMessage(
+                    title = "No featured magazines",
+                    message = "If you want to see your publication’s magazines on Volume, email us at volumeappdev@gmail.com"
+                )
+            } else {
+                LazyRow {
+                    items(magazinesState.magazines) {
+                        CreateMagazineColumn(
+                            magazine = it,
+                            onMagazineClick = onMagazineClick
+                        )
+                    }
                 }
             }
         }
@@ -235,5 +262,5 @@ fun populateSemesterList(semesters: ArrayList<String>) {
  * "fa" or "sp", and the last two characters are the digits of the year.
  */
 fun formatSemester(semester: String) =
-    semester.substring(0, 2).lowercase() + semester.substring(semester.length-2, semester.length)
+    semester.substring(0, 2).lowercase() + semester.substring(semester.length - 2, semester.length)
 

@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -36,6 +40,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
+import com.cornellappdev.android.volume.ui.theme.GrayTwo
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
@@ -193,6 +198,28 @@ fun VolumePeriod(modifier: Modifier = Modifier) {
         contentDescription = null,
         modifier = modifier
             .scale(1.05F)
+    )
+}
+
+@Composable
+fun SearchBar(modifier: Modifier = Modifier, value: String, onChangeValue: (String) -> Unit) {
+    TextField(
+        value = value,
+        onValueChange = onChangeValue,
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(4.dp, shape = RoundedCornerShape(10.dp)),
+        leadingIcon = {
+            Image(
+                painter = painterResource(id = R.drawable.ic_search),
+                contentDescription = null
+            )
+        },
+        placeholder = {
+            Text(text = "Search", color = GrayTwo, fontSize = 16.sp, fontFamily = lato)
+        },
+        shape = RoundedCornerShape(10.dp),
+        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White)
     )
 }
 
