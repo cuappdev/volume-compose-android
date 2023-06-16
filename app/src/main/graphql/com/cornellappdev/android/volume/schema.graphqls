@@ -1,232 +1,232 @@
 type Article {
-  id: ID!
-  articleURL: String!
-  date: DateTime!
-  imageURL: String!
-  publication: Publication!
-  publicationSlug: String!
-  shoutouts: Float!
-  title: String!
-  nsfw: Boolean!
-  isTrending: Boolean!
-  trendiness: Float!
-  isFiltered: Boolean!
+    id: ID!
+    articleURL: String!
+    date: DateTime!
+    imageURL: String!
+    publication: Publication!
+    publicationSlug: String!
+    shoutouts: Float!
+    title: String!
+    nsfw: Boolean!
+    isTrending: Boolean!
+    trendiness: Float!
+    isFiltered: Boolean!
 }
 
 scalar DateTime
 
 type Flyer {
-  id: ID!
-  endDate: DateTime!
-  flyerURL: String!
-  imageURL: String!
-  isTrending: Boolean!
-  location: String!
-  nsfw: Boolean!
-  organizations: [Organization!]!
-  organizationSlugs: [String!]!
-  startDate: DateTime!
-  timesClicked: Float!
-  title: String!
-  trendiness: Float!
+    id: ID!
+    endDate: DateTime!
+    flyerURL: String!
+    imageURL: String!
+    isTrending: Boolean!
+    location: String!
+    nsfw: Boolean!
+    organizations: [Organization!]!
+    organizationSlugs: [String!]!
+    startDate: DateTime!
+    timesClicked: Float!
+    title: String!
+    trendiness: Float!
 }
 
 type Magazine {
-  id: ID!
-  date: DateTime!
-  semester: String!
-  pdfURL: String!
-  imageURL: String!
-  publication: Publication!
-  publicationSlug: String!
-  shoutouts: Float!
-  title: String!
-  nsfw: Boolean!
-  isFeatured: Boolean!
-  trendiness: Float!
-  isFiltered: Boolean!
+    id: ID!
+    date: DateTime!
+    semester: String!
+    pdfURL: String!
+    imageURL: String!
+    publication: Publication!
+    publicationSlug: String!
+    shoutouts: Float!
+    title: String!
+    nsfw: Boolean!
+    isFeatured: Boolean!
+    trendiness: Float!
+    isFiltered: Boolean!
 }
 
 type Mutation {
-  incrementShoutouts(id: String!, uuid: String!): Article
-  incrementTimesClicked(id: String!, uuid: String!): Flyer
-  incrementMagazineShoutouts(id: String!, uuid: String!): Magazine
-  createUser(
-    deviceType: String!
-    followedPublications: [String!]!
-    deviceToken: String!
-  ): User!
-  followOrganization(slug: String!, uuid: String!): User
-  followPublication(slug: String!, uuid: String!): User
-  unfollowOrganization(slug: String!, uuid: String!): User
-  unfollowPublication(slug: String!, uuid: String!): User
-  readArticle(articleID: String!, uuid: String!): User
-  readMagazine(magazineID: String!, uuid: String!): User
-  readFlyer(flyerID: String!, uuid: String!): User
-  bookmarkArticle(uuid: String!): User
-  getWeeklyDebrief: [User!]!
+    incrementShoutouts(id: String!, uuid: String!): Article
+    incrementTimesClicked(id: String!): Flyer
+    incrementMagazineShoutouts(id: String!, uuid: String!): Magazine
+    createUser(
+        deviceType: String!
+        followedPublications: [String!]!
+        deviceToken: String!
+    ): User!
+    followOrganization(slug: String!, uuid: String!): User
+    followPublication(slug: String!, uuid: String!): User
+    unfollowOrganization(slug: String!, uuid: String!): User
+    unfollowPublication(slug: String!, uuid: String!): User
+    readArticle(articleID: String!, uuid: String!): User
+    readMagazine(magazineID: String!, uuid: String!): User
+    readFlyer(flyerID: String!, uuid: String!): User
+    bookmarkArticle(uuid: String!): User
+    getWeeklyDebrief: [User!]!
 }
 
 type Organization {
-  id: ID!
-  backgroundImageURL: String!
-  bio: String!
-  categorySlug: String!
-  name: String!
-  profileImageURL: String!
-  slug: String!
-  shoutouts: Float!
-  websiteURL: String!
-  mostRecentFlyer: Flyer
-  numFlyers: Float!
-  clicks: Float!
+    id: ID!
+    backgroundImageURL: String!
+    bio: String!
+    categorySlug: String!
+    name: String!
+    profileImageURL: String!
+    slug: String!
+    shoutouts: Float!
+    websiteURL: String!
+    mostRecentFlyer: Flyer
+    numFlyers: Float!
+    clicks: Float!
 }
 
 type Publication {
-  id: ID!
-  backgroundImageURL: String!
-  bio: String!
-  bioShort: String!
-  name: String!
-  profileImageURL: String!
-  rssName: String!
-  rssURL: String
-  slug: String!
-  shoutouts: Float!
-  websiteURL: String!
-  contentTypes: [String!]!
-  mostRecentArticle: Article
-  numArticles: Float!
-  socials: [Social!]!
+    id: ID!
+    backgroundImageURL: String!
+    bio: String!
+    bioShort: String!
+    name: String!
+    profileImageURL: String!
+    rssName: String!
+    rssURL: String
+    slug: String!
+    shoutouts: Float!
+    websiteURL: String!
+    contentTypes: [String!]!
+    mostRecentArticle: Article
+    numArticles: Float!
+    socials: [Social!]!
 }
 
 type PublicationSlug {
-  slug: String!
+    slug: String!
 }
 
 type Query {
-  getArticleByID(id: String!): Article
-  getArticlesByIDs(ids: [String!]!): [Article!]!
-  getAllArticles(offset: Float = 0, limit: Float = 25): [Article!]!
-  getArticlesByPublicationID(
-    offset: Float = 0
-    limit: Float = 25
-    publicationID: String!
-  ): [Article!]!
-  getArticlesByPublicationIDs(
-    offset: Float = 0
-    limit: Float = 25
-    publicationIDs: [String!]!
-  ): [Article!]!
-  getArticlesByPublicationSlug(
-    offset: Float = 0
-    limit: Float = 25
-    slug: String!
-  ): [Article!]!
-  getArticlesByPublicationSlugs(
-    offset: Float = 0
-    limit: Float = 25
-    slugs: [String!]!
-  ): [Article!]!
-  getShuffledArticlesByPublicationSlugs(
-    timeRange: Float = 12
-    offset: Float = 0
-    limit: Float = 25
-    slugs: [String!]!
-  ): [Article!]!
-  getArticlesAfterDate(limit: Float = 25, since: String!): [Article!]!
-  getTrendingArticles(limit: Float = 25): [Article!]!
-  searchArticles(limit: Float = 25, query: String!): [Article!]!
-  getFlyerByID(id: String!): Flyer
-  getFlyersByIDs(ids: [String!]!): [Flyer!]!
-  getAllFlyers(offset: Float = 0, limit: Float = 25): [Flyer!]!
-  getFlyersByOrganizationID(
-    offset: Float = 0
-    limit: Float = 25
-    organizationID: String!
-  ): [Flyer!]!
-  getFlyersByOrganizationIDs(
-    offset: Float = 0
-    limit: Float = 25
-    organizationIDs: [String!]!
-  ): [Flyer!]!
-  getFlyersByOrganizationSlug(
-    offset: Float = 0
-    limit: Float = 25
-    slug: String!
-  ): [Flyer!]!
-  getFlyersByOrganizationSlugs(
-    offset: Float = 0
-    limit: Float = 25
-    slugs: [String!]!
-  ): [Flyer!]!
-  getFlyersAfterDate(limit: Float = 25, since: String!): [Flyer!]!
-  getFlyersBeforeDate(limit: Float = 25, before: String!): [Flyer!]!
-  getTrendingFlyers(limit: Float = 25): [Flyer!]!
-  searchFlyers(limit: Float = 25, query: String!): [Flyer!]!
-  getAllMagazines(offset: Float = 0, limit: Float = 25): [Magazine!]!
-  getMagazinesBySemester(
-    offset: Float = 0
-    limit: Float = 25
-    semester: String!
-  ): [Magazine!]!
-  getMagazinesByPublicationSlug(
-    offset: Float = 0
-    limit: Float = 25
-    slug: String!
-  ): [Magazine!]!
-  getMagazinesByPublicationSlugs(
-    offset: Float = 0
-    limit: Float = 25
-    slugs: [String!]!
-  ): [Magazine!]!
-  getMagazineByID(id: String!): Magazine
-  getMagazinesByIDs(ids: [String!]!): [Magazine!]!
-  getFeaturedMagazines(limit: Float = 25): [Magazine!]
-  searchMagazines(limit: Float = 25, query: String!): [Magazine!]!
-  getAllOrganizations: [Organization!]!
-  getOrganizationsByCategory(categorySlug: String!): [Organization!]
-  getOrganizationByID(id: String!): Organization
-  getOrganizationsByIDs(ids: [String!]!): [Organization!]!
-  getOrganizationBySlug(slug: String!): Organization
-  getAllPublications: [Publication!]!
-  getPublicationByID(id: String!): Publication
-  getPublicationBySlug(slug: String!): Publication
-  getPublicationsByIDs(ids: [String!]!): [Publication!]!
-  getUser(uuid: String!): User
+    getArticleByID(id: String!): Article
+    getArticlesByIDs(ids: [String!]!): [Article!]!
+    getAllArticles(offset: Float = 0, limit: Float = 25): [Article!]!
+    getArticlesByPublicationID(
+        offset: Float = 0
+        limit: Float = 25
+        publicationID: String!
+    ): [Article!]!
+    getArticlesByPublicationIDs(
+        offset: Float = 0
+        limit: Float = 25
+        publicationIDs: [String!]!
+    ): [Article!]!
+    getArticlesByPublicationSlug(
+        offset: Float = 0
+        limit: Float = 25
+        slug: String!
+    ): [Article!]!
+    getArticlesByPublicationSlugs(
+        offset: Float = 0
+        limit: Float = 25
+        slugs: [String!]!
+    ): [Article!]!
+    getShuffledArticlesByPublicationSlugs(
+        timeRange: Float = 12
+        offset: Float = 0
+        limit: Float = 25
+        slugs: [String!]!
+    ): [Article!]!
+    getArticlesAfterDate(limit: Float = 25, since: String!): [Article!]!
+    getTrendingArticles(limit: Float = 25): [Article!]!
+    searchArticles(limit: Float = 25, query: String!): [Article!]!
+    getFlyerByID(id: String!): Flyer
+    getFlyersByIDs(ids: [String!]!): [Flyer!]!
+    getAllFlyers(offset: Float = 0, limit: Float = 25): [Flyer!]!
+    getFlyersByOrganizationID(
+        offset: Float = 0
+        limit: Float = 25
+        organizationID: String!
+    ): [Flyer!]!
+    getFlyersByOrganizationIDs(
+        offset: Float = 0
+        limit: Float = 25
+        organizationIDs: [String!]!
+    ): [Flyer!]!
+    getFlyersByOrganizationSlug(
+        offset: Float = 0
+        limit: Float = 25
+        slug: String!
+    ): [Flyer!]!
+    getFlyersByOrganizationSlugs(
+        offset: Float = 0
+        limit: Float = 25
+        slugs: [String!]!
+    ): [Flyer!]!
+    getFlyersAfterDate(limit: Float = 25, since: String!): [Flyer!]!
+    getFlyersBeforeDate(limit: Float = 25, before: String!): [Flyer!]!
+    getTrendingFlyers(limit: Float = 25): [Flyer!]!
+    searchFlyers(limit: Float = 25, query: String!): [Flyer!]!
+    getAllMagazines(offset: Float = 0, limit: Float = 25): [Magazine!]!
+    getMagazinesBySemester(
+        offset: Float = 0
+        limit: Float = 25
+        semester: String!
+    ): [Magazine!]!
+    getMagazinesByPublicationSlug(
+        offset: Float = 0
+        limit: Float = 25
+        slug: String!
+    ): [Magazine!]!
+    getMagazinesByPublicationSlugs(
+        offset: Float = 0
+        limit: Float = 25
+        slugs: [String!]!
+    ): [Magazine!]!
+    getMagazineByID(id: String!): Magazine
+    getMagazinesByIDs(ids: [String!]!): [Magazine!]!
+    getFeaturedMagazines(limit: Float = 25): [Magazine!]
+    searchMagazines(limit: Float = 25, query: String!): [Magazine!]!
+    getAllOrganizations: [Organization!]!
+    getOrganizationsByCategory(categorySlug: String!): [Organization!]
+    getOrganizationByID(id: String!): Organization
+    getOrganizationsByIDs(ids: [String!]!): [Organization!]!
+    getOrganizationBySlug(slug: String!): Organization
+    getAllPublications: [Publication!]!
+    getPublicationByID(id: String!): Publication
+    getPublicationBySlug(slug: String!): Publication
+    getPublicationsByIDs(ids: [String!]!): [Publication!]!
+    getUser(uuid: String!): User
 }
 
 type Social {
-  social: String!
-  URL: String!
+    social: String!
+    URL: String!
 }
 
 type User {
-  id: ID!
-  uuid: String!
-  followedPublications: [PublicationSlug!]!
-  deviceToken: String!
-  deviceType: String!
-  numShoutouts: Float!
-  numBookmarkedArticles: Float!
-  readArticles: [Article!]!
-  readMagazines: [Magazine!]!
-  readFlyers: [Flyer!]!
-  favoritedFlyers: [Flyer!]!
-  followedOrganizations: [Organization!]!
-  weeklyDebrief: WeeklyDebrief
+    id: ID!
+    uuid: String!
+    followedPublications: [PublicationSlug!]!
+    deviceToken: String!
+    deviceType: String!
+    numShoutouts: Float!
+    numBookmarkedArticles: Float!
+    readArticles: [Article!]!
+    readMagazines: [Magazine!]!
+    readFlyers: [Flyer!]!
+    favoritedFlyers: [Flyer!]!
+    followedOrganizations: [Organization!]!
+    weeklyDebrief: WeeklyDebrief
 }
 
 type WeeklyDebrief {
-  id: ID!
-  uuid: String!
-  creationDate: DateTime!
-  expirationDate: DateTime!
-  numShoutouts: Float!
-  numBookmarkedArticles: Float!
-  numReadArticles: Float!
-  readArticles: [Article!]!
-  readMagazines: [Magazine!]!
-  randomArticles: [Article!]!
+    id: ID!
+    uuid: String!
+    creationDate: DateTime!
+    expirationDate: DateTime!
+    numShoutouts: Float!
+    numBookmarkedArticles: Float!
+    numReadArticles: Float!
+    readArticles: [Article!]!
+    readMagazines: [Magazine!]!
+    randomArticles: [Article!]!
 }
 

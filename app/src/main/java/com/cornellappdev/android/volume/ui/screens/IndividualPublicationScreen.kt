@@ -29,7 +29,7 @@ import com.cornellappdev.android.volume.ui.viewmodels.IndividualPublicationViewM
 fun IndividualPublicationScreen(
     individualPublicationViewModel: IndividualPublicationViewModel = hiltViewModel(),
     onArticleClick: (Article, NavigationSource) -> Unit,
-    onMagazineClick: (Magazine) -> Unit
+    onMagazineClick: (Magazine) -> Unit,
 ) {
     val publicationUiState = individualPublicationViewModel.publicationUiState
 
@@ -37,13 +37,15 @@ fun IndividualPublicationScreen(
 
     // Publication heading
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-        item (span = { GridItemSpan(2)}){
+        item(span = { GridItemSpan(2) }) {
             when (val publicationState = publicationUiState.publicationState) {
                 PublicationRetrievalState.Loading -> {
                     VolumeLoading()
                 }
+
                 PublicationRetrievalState.Error -> {
                 }
+
                 is PublicationRetrievalState.Success -> {
                     CreateIndividualPublicationHeading(
                         publication = publicationState.publication,
@@ -58,21 +60,22 @@ fun IndividualPublicationScreen(
                 }
             }
         }
-        item (span = { GridItemSpan(2)}){
+        item(span = { GridItemSpan(2) }) {
             Row {
                 Spacer(Modifier.weight(1f, true))
                 Divider(Modifier.weight(1f, true), color = GrayThree, thickness = 2.dp)
                 Spacer(Modifier.weight(1f, true))
             }
         }
-        item (span = { GridItemSpan(2) }) {
+        item(span = { GridItemSpan(2) }) {
             // Tab view for viewing articles or magazines
             val tabs = listOf("Articles", "Magazines")
 
             Column(modifier = Modifier.fillMaxWidth()) {
                 TabRow(selectedTabIndex = tabIndex, contentColor = VolumeOrange) {
                     tabs.forEachIndexed { index, title ->
-                        Tab(text = { Text(title, fontFamily = lato, fontSize = 18.sp) },
+                        Tab(
+                            text = { Text(title, fontFamily = lato, fontSize = 18.sp) },
                             selected = tabIndex == index,
                             onClick = { tabIndex = index },
                             selectedContentColor = VolumeOrange,
@@ -85,18 +88,21 @@ fun IndividualPublicationScreen(
         when (tabIndex) {
             // Case: They are viewing the articles of the publication
             0 -> {
-                when (val articlesByPublicationState = publicationUiState.articlesByPublicationState) {
+                when (val articlesByPublicationState =
+                    publicationUiState.articlesByPublicationState) {
                     ArticlesRetrievalState.Loading -> {
-                        item ( span = { GridItemSpan(2) } ) {
+                        item(span = { GridItemSpan(2) }) {
                             VolumeLoading(modifier = Modifier.padding(top = 20.dp))
                         }
                     }
+
                     ArticlesRetrievalState.Error -> {
 
                     }
+
                     is ArticlesRetrievalState.Success -> {
                         articlesByPublicationState.articles.forEachIndexed { index, article ->
-                            item (span = { GridItemSpan(2)}) {
+                            item(span = { GridItemSpan(2) }) {
                                 Box(
                                     Modifier.padding(
                                         start = 12.dp,
@@ -124,26 +130,32 @@ fun IndividualPublicationScreen(
             1 -> {
                 when (val magazinesState = publicationUiState.magazinesByPublicationState) {
                     MagazinesRetrievalState.Loading -> {
-                        item ( span = { GridItemSpan(2) } ) {
-                            Box (modifier = Modifier.padding(top=20.dp)) {
+                        item(span = { GridItemSpan(2) }) {
+                            Box(modifier = Modifier.padding(top = 20.dp)) {
                                 VolumeLoading()
                             }
                         }
                     }
-                    MagazinesRetrievalState.Error -> {   }
+
+                    MagazinesRetrievalState.Error -> {}
                     is MagazinesRetrievalState.Success -> {
                         if (magazinesState.magazines.isEmpty()) {
-                            item ( span = { GridItemSpan(2) } ) {
-                                Column (verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxHeight()) {
-                                    Box (modifier = Modifier.padding(top = 20.dp)) {
-                                        NothingToShowText(message = "This publication has no magazines.")
+                            item(span = { GridItemSpan(2) }) {
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxHeight()
+                                ) {
+                                    Box(modifier = Modifier.padding(top = 20.dp)) {
+                                        OldNothingToShowMessage(message = "This publication has no magazines.")
                                     }
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             items(magazinesState.magazines) {
-                                CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
+                                CreateMagazineColumn(
+                                    magazine = it,
+                                    onMagazineClick = onMagazineClick
+                                )
                             }
                         }
                     }

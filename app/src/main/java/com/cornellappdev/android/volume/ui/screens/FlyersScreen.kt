@@ -323,8 +323,12 @@ fun FlyersScreen(
             is FlyersRetrievalState.Success -> {
                 val flyers = pastFlyersState.flyers
                 if (flyers.isEmpty()) {
+                    Log.d("TAG", "FlyersScreen: PAST FLYERS IS EMPTY")
                     item {
-                        NoMoreText(text = "No past flyers")
+                        NothingToShowMessage(
+                            title = "No past flyers",
+                            message = "If you want to see your organization’s events on Volume, email us at volumeappdev@gmail.com"
+                        )
                     }
                 } else {
                     items(flyers) {
@@ -332,6 +336,13 @@ fun FlyersScreen(
                     }
                 }
             }
+        }
+        item {
+            NothingToShowMessage(
+                title = "Are you an organization?",
+                message = "If you want to see your organization’s events on Volume, email us at volumeappdev@gmail.com",
+                showImage = true,
+            )
         }
     }
 }

@@ -45,7 +45,7 @@ import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
 import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
-import com.cornellappdev.android.volume.ui.components.general.NothingToShowText
+import com.cornellappdev.android.volume.ui.components.general.OldNothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
 import com.cornellappdev.android.volume.ui.components.general.SmallFlyer
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
@@ -70,7 +70,7 @@ fun BookmarkScreen(
     savedStateHandle: SavedStateHandle,
     onArticleClick: (Article, NavigationSource) -> Unit,
     onMagazineClick: (Magazine) -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
 ) {
     val bookmarkUiState = bookmarkViewModel.bookmarkUiState
 
@@ -145,7 +145,7 @@ fun TabbedBooksmarksView(
 @Composable
 fun BookmarkedFlyersView(
     bookmarkUiState: BookmarkViewModel.BookmarkUiState,
-    bookmarkViewModel: BookmarkViewModel
+    bookmarkViewModel: BookmarkViewModel,
 ) {
     var upcomingSelectedIndex by remember { mutableStateOf(0) }
     var upcomingExpanded by remember { mutableStateOf(false) }
@@ -409,7 +409,7 @@ fun BookmarkedFlyersView(
 @Composable
 fun BookmarkedMagazinesView(
     bookmarkUiState: BookmarkViewModel.BookmarkUiState,
-    onMagazineClick: (Magazine) -> Unit
+    onMagazineClick: (Magazine) -> Unit,
 ) {
     when (val magazinesState = bookmarkUiState.magazinesState) {
         MagazinesRetrievalState.Loading -> {
@@ -428,7 +428,7 @@ fun BookmarkedMagazinesView(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier.fillMaxHeight()
                 ) {
-                    NothingToShowText(message = "You have no saved magazines.")
+                    OldNothingToShowMessage(message = "You have no saved magazines.")
                 }
             } else {
                 LazyVerticalGrid(columns = GridCells.Fixed(2)) {
@@ -450,7 +450,7 @@ fun BookmarkedMagazinesView(
 fun BookmarkedArticlesView(
     onArticleClick: (Article, NavigationSource) -> Unit,
     bookmarkUiState: BookmarkViewModel.BookmarkUiState,
-    bookmarkViewModel: BookmarkViewModel
+    bookmarkViewModel: BookmarkViewModel,
 ) {
     when (val articleState = bookmarkUiState.articlesState) {
         ArticlesRetrievalState.Loading -> {
@@ -466,7 +466,7 @@ fun BookmarkedArticlesView(
         is ArticlesRetrievalState.Success -> {
             Column {
                 if (articleState.articles.isEmpty()) {
-                    NothingToShowText(message = "You have no saved articles.")
+                    OldNothingToShowMessage(message = "You have no saved articles.")
                 } else {
                     Column(
                         modifier = Modifier
@@ -545,7 +545,7 @@ fun BookmarkedArticlesView(
 @Composable
 fun BookmarkedFlyersScreen(
     bookmarkUiState: BookmarkViewModel.BookmarkUiState,
-    bookmarkViewModel: BookmarkViewModel
+    bookmarkViewModel: BookmarkViewModel,
 ) {
 
 }

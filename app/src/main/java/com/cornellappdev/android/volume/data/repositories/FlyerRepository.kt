@@ -56,6 +56,10 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         return fetchFlyersFromUrl("http://34.86.84.49/api/flyers/upcoming/")
     }
 
+    suspend fun incrementTimesClicked(id: String) {
+        networkApi.incrementTimesClicked(id)
+    }
+
     private suspend fun fetchFlyersFromUrl(url: String): List<Flyer>? {
         val weeklyFlyersString = fetchUrlContents(url)
         val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()

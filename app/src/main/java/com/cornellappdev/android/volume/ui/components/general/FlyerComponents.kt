@@ -59,9 +59,10 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
+private const val TAG = "FlyerComponents"
 
 @Composable
-fun BigFlyer(imgSize: Dp, flyer: Flyer) {
+fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltViewModel()) {
     val iconSize = if (imgSize > 256.dp) 24.dp else 16.dp
     val imageURL = flyer.imageURL
     val context = LocalContext.current
@@ -70,6 +71,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
     val openLinkLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {}
+
 
     // Gets the average image color for background
     LaunchedEffect(key1 = flyer.imageURL) {
@@ -110,6 +112,8 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
                     .zIndex(0F)
                     .background(color = averageColor)
                     .clickable {
+                        flyersViewModel.incrementTimesClicked(flyer.id)
+
                         val uri = Uri.parse(flyer.flyerURL)
                         try {
                             val intent = Intent(Intent.ACTION_VIEW, uri)
@@ -149,7 +153,11 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
 }
 
 @Composable
-fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
+fun SmallFlyer(
+    inUpcoming: Boolean,
+    flyer: Flyer,
+    flyersViewModel: FlyersViewModel = hiltViewModel(),
+) {
     val imageURL = flyer.imageURL
     val context = LocalContext.current
     val openLinkLauncher = rememberLauncherForActivityResult(
@@ -177,6 +185,7 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
         // For some reason image clickability only works when it's in a box in this case
         // This is the cover image
         Box(modifier = Modifier.clickable {
+            flyersViewModel.incrementTimesClicked(flyer.id)
             val uri = Uri.parse(flyer.flyerURL)
             try {
                 val intent = Intent(Intent.ACTION_VIEW, uri)
@@ -278,7 +287,7 @@ fun OrganizationAndIconsRow(
     url: String,
     context: Context,
     flyerId: String,
-    flyersViewModel: FlyersViewModel = hiltViewModel()
+    flyersViewModel: FlyersViewModel = hiltViewModel(),
 ) {
     var isBookmarked = false
     // Update isBookmarked in a separate thread

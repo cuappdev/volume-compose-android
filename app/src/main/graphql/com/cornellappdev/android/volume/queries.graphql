@@ -938,6 +938,35 @@ mutation IncrementShoutouts($id: String!, $uuid: String!){
     }
 }
 
+mutation IncrementTimesClicked($id: String!){
+    incrementTimesClicked(id: $id){
+        id
+        endDate
+        flyerURL
+        imageURL
+        isTrending
+        location
+        nsfw
+        organizations{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            numFlyers
+            clicks
+        }
+        organizationSlugs
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
 
 
 mutation ReadArticle($articleID: String!, $uuid: String!) {

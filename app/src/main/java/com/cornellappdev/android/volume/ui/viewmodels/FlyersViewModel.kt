@@ -149,7 +149,7 @@ class FlyersViewModel @Inject constructor(
                     queryPastFlyers()
                 }
             } catch (e: Exception) {
-                Log.d(TAG, "queryUpcomingFlyers: exception")
+                Log.d(TAG, "queryUpcomingFlyers: exception ${e.message}")
                 flyersUiState = flyersUiState.copy(
                     upcomingFlyersState = FlyersRetrievalState.Error
                 )
@@ -171,7 +171,7 @@ class FlyersViewModel @Inject constructor(
                     )
                 )
             } catch (e: Exception) {
-                Log.d(TAG, "queryPastFlyers: exception")
+                Log.d(TAG, "queryPastFlyers: exception ${e.message}")
                 flyersUiState.copy(
                     pastFlyersState = FlyersRetrievalState.Error
                 )
@@ -179,9 +179,18 @@ class FlyersViewModel @Inject constructor(
         }
     }
 
+    fun incrementTimesClicked(id: String) {
+        viewModelScope.launch {
+            Log.d(TAG, "incrementTimesClicked: mutation ran")
+            flyerRepository.incrementTimesClicked(id)
+        }
+    }
+
     suspend fun getIsBookmarked(flyerId: String): Boolean {
         return userPreferencesRepository.fetchBookmarkedFlyerIds().contains(flyerId)
     }
+
+
 }
 
 /**

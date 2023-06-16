@@ -22,6 +22,7 @@ import com.cornellappdev.android.volume.FollowPublicationMutation
 import com.cornellappdev.android.volume.GetUserQuery
 import com.cornellappdev.android.volume.IncrementMagazineShoutoutsMutation
 import com.cornellappdev.android.volume.IncrementShoutoutsMutation
+import com.cornellappdev.android.volume.IncrementTimesClickedMutation
 import com.cornellappdev.android.volume.MagazineByIdQuery
 import com.cornellappdev.android.volume.MagazinesByIDsQuery
 import com.cornellappdev.android.volume.MagazinesByPublicationSlugQuery
@@ -79,7 +80,7 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
 
     suspend fun fetchMagazinesBySemester(
         limit: Double? = null,
-        semester: String
+        semester: String,
     ): ApolloResponse<MagazinesBySemesterQuery.Data> =
         apolloClient.query(
             MagazinesBySemesterQuery(
@@ -90,7 +91,7 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
 
     suspend fun fetchMagazinesByPublication(
         limit: Double? = null,
-        slug: String
+        slug: String,
     ): ApolloResponse<MagazinesByPublicationSlugQuery.Data> =
         apolloClient.query(
             MagazinesByPublicationSlugQuery(
@@ -137,19 +138,24 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
 
     suspend fun incrementShoutout(
         id: String,
-        uuid: String
+        uuid: String,
     ): ApolloResponse<IncrementShoutoutsMutation.Data> =
         apolloClient.mutation(IncrementShoutoutsMutation(id, uuid)).execute()
 
     suspend fun incrementMagazineShoutout(
         id: String,
-        uuid: String
+        uuid: String,
     ): ApolloResponse<IncrementMagazineShoutoutsMutation.Data> =
         apolloClient.mutation(IncrementMagazineShoutoutsMutation(id, uuid)).execute()
 
+    suspend fun incrementTimesClicked(
+        id: String,
+    ): ApolloResponse<IncrementTimesClickedMutation.Data> =
+        apolloClient.mutation(IncrementTimesClickedMutation(id)).execute()
+
     suspend fun createUser(
         followedPublications: List<String>,
-        deviceToken: String
+        deviceToken: String,
     ): ApolloResponse<CreateUserMutation.Data> = apolloClient.mutation(
         CreateUserMutation(
             DEVICE_TYPE,
@@ -163,24 +169,24 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
 
     suspend fun followPublication(
         slug: String,
-        uuid: String
+        uuid: String,
     ): ApolloResponse<FollowPublicationMutation.Data> =
         apolloClient.mutation(FollowPublicationMutation(slug, uuid)).execute()
 
     suspend fun unfollowPublication(
         slug: String,
-        uuid: String
+        uuid: String,
     ): ApolloResponse<UnfollowPublicationMutation.Data> =
         apolloClient.mutation(UnfollowPublicationMutation(slug, uuid)).execute()
 
     suspend fun readArticle(
         articleId: String,
-        uuid: String
+        uuid: String,
     ): ApolloResponse<ReadArticleMutation.Data> =
         apolloClient.mutation(ReadArticleMutation(articleId, uuid)).execute()
 
     suspend fun bookmarkArticle(
-        uuid: String
+        uuid: String,
     ): ApolloResponse<BookmarkArticleMutation.Data> =
         apolloClient.mutation(BookmarkArticleMutation(uuid)).execute()
 }

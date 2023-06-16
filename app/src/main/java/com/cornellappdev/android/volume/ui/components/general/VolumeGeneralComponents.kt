@@ -28,15 +28,11 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
@@ -109,24 +105,6 @@ fun Modifier.shimmerEffect(): Modifier = composed {
     }
 }
 
-// Modifier extension functions that disables the scrolling ability for composables.
-
-fun Modifier.disabledVerticalPointerInputScroll(disabled: Boolean = true) =
-    if (disabled) this.nestedScroll(VerticalScrollConsumer) else this
-
-private val VerticalScrollConsumer = object : NestedScrollConnection {
-    override fun onPreScroll(available: Offset, source: NestedScrollSource) = available.copy(x = 0f)
-    override suspend fun onPreFling(available: Velocity) = available.copy(x = 0f)
-}
-
-private val HorizontalScrollConsumer = object : NestedScrollConnection {
-    override fun onPreScroll(available: Offset, source: NestedScrollSource) = available.copy(y = 0f)
-    override suspend fun onPreFling(available: Velocity) = available.copy(y = 0f)
-}
-
-fun Modifier.disabledHorizontalPointerInputScroll(disabled: Boolean = true) =
-    if (disabled) this.nestedScroll(HorizontalScrollConsumer) else this
-
 @Composable
 fun VolumeLinearProgressBar(progress: Float, modifier: Modifier = Modifier.height(15.dp)) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -140,7 +118,7 @@ fun VolumeLinearProgressBar(progress: Float, modifier: Modifier = Modifier.heigh
 }
 
 @Composable
-fun NothingToShowText(message: String) {
+fun OldNothingToShowMessage(message: String) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -168,7 +146,7 @@ fun NothingToShowText(message: String) {
 }
 
 @Composable
-fun NothingToShowMessage(title: String, message: String) {
+fun NothingToShowMessage(title: String, message: String, showImage: Boolean = false) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -179,13 +157,22 @@ fun NothingToShowMessage(title: String, message: String) {
                 .width(250.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (showImage) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_volume_bars_orange_large),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(21.dp)
+                        .height(28.dp),
+                )
+            }
             Text(
                 text = title,
                 fontFamily = notoserif,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = if (showImage) 6.dp else 16.dp)
             )
             Text(
                 text = message,
