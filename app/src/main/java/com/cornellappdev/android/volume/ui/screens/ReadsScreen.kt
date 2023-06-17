@@ -70,7 +70,7 @@ fun ReadsScreen(
                         val tabs = listOf("Articles", "Magazines")
                         Row {
                             Spacer(modifier = Modifier.weight(1F))
-                            Column(modifier = Modifier.width(screenWidthDp * 3 / 4)) {
+                            Column(modifier = Modifier.width(screenWidthDp * (3 / 4))) {
 
                                 TabRow(
                                     selectedTabIndex = tabIndex,
