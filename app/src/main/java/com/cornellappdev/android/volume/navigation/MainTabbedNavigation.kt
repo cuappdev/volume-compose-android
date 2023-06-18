@@ -44,33 +44,47 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
         Routes.HOME.route -> {
             showBottomBar.value = true
         }
+
         Routes.WEEKLY_DEBRIEF.route -> {
             showBottomBar.value = true
         }
+
         Routes.ONBOARDING.route -> {
             showBottomBar.value = false
         }
+
         Routes.BOOKMARKS.route -> {
             showBottomBar.value = true
         }
+
         Routes.SETTINGS.route -> {
             showBottomBar.value = false
         }
+
         Routes.ABOUT_US.route -> {
             showBottomBar.value = false
         }
+
         "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}" -> {
             showBottomBar.value = false
         }
+
         "${Routes.INDIVIDUAL_PUBLICATION.route}/{publicationSlug}" -> {
             showBottomBar.value = true
         }
+
         "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}" -> {
             showBottomBar.value = false
         }
+
         "${Routes.OPEN_MAGAZINE.route}/{magazineId}/{navigationSourceName}" -> {
             showBottomBar.value = false
         }
+
+        "${Routes.SEARCH.route}/{tabIndex}" -> {
+            showBottomBar.value = true
+        }
+
         Routes.READS.route -> {
             showBottomBar.value = true
         }
@@ -249,17 +263,25 @@ private fun MainScreenNavigationConfigurations(
                 fadeOut(
                     animationSpec = tween(durationMillis = 1500)
                 )
-            }) { ReadsScreen(
-            onMagazineClick = { magazine: Magazine ->
-                navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.READS.route}")
-        }, onArticleClick = { article, navigationSource ->
-            FirstTimeShown.firstTimeShown = false
-            navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
-        }, showBottomBar = showBottomBar,
-            onPublicationClick =
-            { publication ->
-                navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")
-            }) }
+            }) {
+            ReadsScreen(
+                onMagazineClick = { magazine: Magazine ->
+                    navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.READS.route}")
+                },
+                onArticleClick = { article, navigationSource ->
+                    FirstTimeShown.firstTimeShown = false
+                    navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
+                },
+                showBottomBar = showBottomBar,
+                onPublicationClick =
+                { publication ->
+                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")
+                },
+                onSearchClick = {
+                    navController.navigate("${Routes.SEARCH.route}/$it")
+                }
+            )
+        }
         composable(
             route = "${Routes.OPEN_MAGAZINE.route}/{magazineId}/{navigationSourceName}",
             deepLinks = listOf(
@@ -275,17 +297,15 @@ private fun MainScreenNavigationConfigurations(
                 fadeOut(
                     animationSpec = tween(durationMillis = 1500)
                 )
-            }) {
-                entry ->
-                val navSource = entry.arguments?.getString("navigationSourceName") ?:
-                    Routes.READS.route
+            }) { entry ->
+            val navSource = entry.arguments?.getString("navigationSourceName") ?: Routes.READS.route
 
-                IndividualMagazineScreen(
-                    magazineId = entry.arguments?.getString("magazineId") ?: "",
-                    navController = navController,
-                    navSource = navSource
-                )
-            }
+            IndividualMagazineScreen(
+                magazineId = entry.arguments?.getString("magazineId") ?: "",
+                navController = navController,
+                navSource = navSource
+            )
+        }
 
         composable(Routes.FLYERS.route) {
             FlyersScreen()
@@ -309,7 +329,7 @@ private fun MainScreenNavigationConfigurations(
                     navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
                 },
                 onSettingsClick = { navController.navigate(Routes.SETTINGS.route) },
-                onMagazineClick = {magazine ->
+                onMagazineClick = { magazine ->
                     navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.BOOKMARKS.route}")
                 })
         }
@@ -342,6 +362,26 @@ private fun MainScreenNavigationConfigurations(
                 )
             }) {
             AboutUsScreen()
+        }
+        composable(route = "${Routes.SEARCH.route}/{tabIndex}",
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            }) { entry ->
+            val tabIndex = entry.arguments?.getString("tabIndex")?.toInt()
+
+            SearchScreen(onArticleClick = { article ->
+                navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${Routes.SEARCH.route}")
+            }, onMagazineClick = { magazine ->
+                navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.SEARCH.route}")
+            }, defaultTab = tabIndex ?: 0)
         }
     }
 }

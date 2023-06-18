@@ -206,9 +206,6 @@ query SearchArticles($limit: Float, $query: String!){
         shoutouts
         title
         nsfw
-        isTrending
-        trendiness
-        isFiltered
     }
 }
 
@@ -486,10 +483,6 @@ query SearchMagazines($limit: Float, $query: String!){
         publicationSlug
         shoutouts
         title
-        nsfw
-        isFeatured
-        trendiness
-        isFiltered
     }
 }
 
@@ -657,7 +650,6 @@ query AllFlyers($offset: Float, $limit: Float){
         location
         nsfw
         organizations{
-            id
             backgroundImageURL
             bio
             categorySlug
@@ -687,7 +679,6 @@ query FlyerByID($id: String!){
         location
         nsfw
         organizations{
-            id
             backgroundImageURL
             bio
             categorySlug
@@ -717,7 +708,6 @@ query FlyersAfterDate($limit: Float, $since: String!){
         location
         nsfw
         organizations{
-            id
             backgroundImageURL
             bio
             categorySlug
@@ -746,7 +736,6 @@ query FlyersBeforeDate($limit: Float, $before: String!){
         location
         nsfw
         organizations{
-            id
             backgroundImageURL
             bio
             categorySlug
@@ -776,7 +765,6 @@ query FlyersByIDs($ids: [String!]!){
         location
         nsfw
         organizations{
-            id
             backgroundImageURL
             bio
             categorySlug
@@ -796,17 +784,15 @@ query FlyersByIDs($ids: [String!]!){
     }
 }
 
-query FlyersByOrganizationIDs($offset: Float, $limit: Float, $organizationIDs: [String!]!){
-    getFlyersByOrganizationIDs(offset: $offset, limit: $limit, organizationIDs: $organizationIDs){
+query FlyersByOrganizationSlugs($offset: Float, $limit: Float, $slugs: [String!]!){
+    getFlyersByOrganizationSlugs(offset: $offset, limit: $limit, slugs: $slugs){
         id
         endDate
         flyerURL
         imageURL
-        isTrending
         location
         nsfw
         organizations{
-            id
             backgroundImageURL
             bio
             categorySlug
@@ -828,7 +814,6 @@ query FlyersByOrganizationIDs($offset: Float, $limit: Float, $organizationIDs: [
 
 query OrganizationsByCategory($categorySlug: String!){
     getOrganizationsByCategory(categorySlug: $categorySlug){
-        id
         backgroundImageURL
         bio
         categorySlug
@@ -866,7 +851,6 @@ query TrendingFlyers($limit: Float){
         location
         nsfw
         organizations{
-            id
             backgroundImageURL
             bio
             categorySlug
@@ -1018,7 +1002,6 @@ mutation IncrementTimesClicked($id: String!){
         location
         nsfw
         organizations{
-            id
             backgroundImageURL
             bio
             categorySlug

@@ -136,10 +136,10 @@ class FlyersViewModel @Inject constructor(
                     val organizations: List<Organization> =
                         flyerRepository.fetchOrganizationsByCategorySlug(categorySlug)
                     // Step 2: Find flyers by those organizations:
-                    val organizationIds = organizations.map { it.id }
+                    val organizationSlugs = organizations.map { it.slug }
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
-                            flyerRepository.fetchFlyersByOrganizationIds(organizationIds)
+                            flyerRepository.fetchFlyersByOrganizationSlugs(organizationSlugs)
                                 .filter { !weeklyFlyers.contains(it) && !dailyFlyers.contains(it) }
                                 .sorted()
                         )
@@ -167,7 +167,8 @@ class FlyersViewModel @Inject constructor(
                     // Since we want most recent flyers to show first but we are looking at past
                     // flyers, we need to do a sorted descending here.
                     pastFlyersState = FlyersRetrievalState.Success(
-                        flyerRepository.fetchFlyersBeforeDate(getToday()).sortedDescending()
+                        flyerRepository.fetchFlyersBeforeDate("2023-04-30T21:00:00.000Z")
+                            .sortedDescending()
                     )
                 )
             } catch (e: Exception) {
@@ -197,5 +198,6 @@ class FlyersViewModel @Inject constructor(
  * Returns a string representation of today's date, formatted with the ISO local date time formatter.
  */
 private fun getToday(): String {
-    return LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+    return LocalDateTime.now()
+        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 }

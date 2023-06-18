@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +40,6 @@ import com.cornellappdev.android.volume.ui.components.general.BigReadShimmeringA
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateBigReadRow
 import com.cornellappdev.android.volume.ui.components.general.PermissionRequestDialog
-import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringArticle
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
@@ -50,7 +48,7 @@ import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.ArticlesViewModel
 
 @Composable
-fun ArticlesScreen(
+fun ArticlesViewer(
     articlesViewModel: ArticlesViewModel = hiltViewModel(),
     onArticleClick: (Article, NavigationSource) -> Unit,
     showBottomBar: MutableState<Boolean>,
@@ -64,14 +62,6 @@ fun ArticlesScreen(
                 .fillMaxSize()
                 .padding(start = 12.dp),
         ) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .padding(end = 16.dp, top = 16.dp)
-                        .clickable { /* TODO Send to next search screen */ }) {
-                    SearchBar(value = "", onChangeValue = {})
-                }
-            }
             item {
                 VolumeHeaderText(
                     text = "The Big Read",

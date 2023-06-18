@@ -3,7 +3,7 @@ package com.cornellappdev.android.volume.data.repositories
 import com.cornellappdev.android.volume.FlyersAfterDateQuery
 import com.cornellappdev.android.volume.FlyersBeforeDateQuery
 import com.cornellappdev.android.volume.FlyersByIDsQuery
-import com.cornellappdev.android.volume.FlyersByOrganizationIDsQuery
+import com.cornellappdev.android.volume.FlyersByOrganizationSlugsQuery
 import com.cornellappdev.android.volume.OrganizationsByCategoryQuery
 import com.cornellappdev.android.volume.TrendingFlyersQuery
 import com.cornellappdev.android.volume.data.NetworkApi
@@ -38,8 +38,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun fetchOrganizationsByCategorySlug(slug: String): List<Organization> =
         networkApi.fetchOrganizationsByCategory(category = slug).dataAssertNoErrors.mapOrganizationCategoryDataToOrganizations()
 
-    suspend fun fetchFlyersByOrganizationIds(ids: List<String>): List<Flyer> =
-        networkApi.fetchFlyersByOrganizationIds(ids).dataAssertNoErrors.mapDataToFlyers()
+    suspend fun fetchFlyersByOrganizationSlugs(ids: List<String>): List<Flyer> =
+        networkApi.fetchFlyersByOrganizationSlugs(ids).dataAssertNoErrors.mapDataToFlyers()
 
     suspend fun fetchFlyersByIds(ids: List<String>): List<Flyer> =
         networkApi.fetchFlyersByIds(ids).dataAssertNoErrors.mapDataToFlyers()
@@ -101,8 +101,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             )
         }
 
-    private fun FlyersByOrganizationIDsQuery.Data.mapDataToFlyers(): List<Flyer> =
-        this.getFlyersByOrganizationIDs.map { flyer ->
+    private fun FlyersByOrganizationSlugsQuery.Data.mapDataToFlyers(): List<Flyer> =
+        this.getFlyersByOrganizationSlugs.map { flyer ->
             Flyer(
                 id = flyer.id,
                 title = flyer.title,
@@ -163,7 +163,6 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     private fun List<FlyersByIDsQuery.Organization>.mapIdsDataToOrganizations(): List<Organization> =
         this.map { organization ->
             Organization(
-                id = organization.id,
                 name = organization.name,
                 slug = organization.slug,
                 categorySlug = organization.categorySlug
@@ -173,7 +172,6 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     private fun List<TrendingFlyersQuery.Organization>.mapTrendsDataToOrganizations(): List<Organization> =
         this.map { organization ->
             Organization(
-                id = organization.id,
                 name = organization.name,
                 slug = organization.slug,
                 categorySlug = organization.categorySlug
@@ -183,7 +181,6 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     private fun List<FlyersAfterDateQuery.Organization>.mapAfterDateDataToOrganizations(): List<Organization> =
         this.map { organization ->
             Organization(
-                id = organization.id,
                 name = organization.name,
                 slug = organization.slug,
                 categorySlug = organization.categorySlug
@@ -193,17 +190,15 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     private fun List<FlyersBeforeDateQuery.Organization>.mapBeforeDateDataToOrganizations(): List<Organization> =
         this.map { organization ->
             Organization(
-                id = organization.id,
                 name = organization.name,
                 slug = organization.slug,
                 categorySlug = organization.categorySlug
             )
         }
 
-    private fun List<FlyersByOrganizationIDsQuery.Organization>.mapOrganizationIdDataToOrganization(): List<Organization> =
+    private fun List<FlyersByOrganizationSlugsQuery.Organization>.mapOrganizationIdDataToOrganization(): List<Organization> =
         this.map { organization ->
             Organization(
-                id = organization.id,
                 name = organization.name,
                 slug = organization.slug,
                 categorySlug = organization.categorySlug
@@ -213,7 +208,6 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     private fun OrganizationsByCategoryQuery.Data.mapOrganizationCategoryDataToOrganizations(): List<Organization> =
         this.getOrganizationsByCategory!!.map { organization ->
             Organization(
-                id = organization.id,
                 name = organization.name,
                 slug = organization.slug,
                 categorySlug = organization.categorySlug,

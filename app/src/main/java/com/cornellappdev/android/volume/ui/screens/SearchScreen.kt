@@ -24,6 +24,7 @@ import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
+import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringArticle
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringMagazine
@@ -40,18 +41,23 @@ fun SearchScreen(
     searchViewModel: SearchViewModel = hiltViewModel(),
     onMagazineClick: (Magazine) -> Unit,
     onArticleClick: (Article) -> Unit,
+    defaultTab: Int = 0,
 ) {
     var search by remember { mutableStateOf("") }
     val tabs = listOf("Articles", "Magazines")
-    var tabIndex by remember { mutableStateOf(0) }
+    var tabIndex by remember { mutableStateOf(defaultTab) }
     val uiState = searchViewModel.searchUiState
 
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
         item(span = { GridItemSpan(2) }) {
             SearchBar(
                 value = search,
-                onChangeValue = { search = it },
-                modifier = Modifier.padding(vertical = 12.dp)
+                onValueChange = { search = it },
+                modifier = Modifier.padding(vertical = 12.dp),
+                onEnterPressed = {
+                    searchViewModel.searchArticles(search)
+                    searchViewModel.searchMagazines(search)
+                }
             )
         }
         item(span = { GridItemSpan(2) }) {
@@ -80,10 +86,9 @@ fun SearchScreen(
         }
         when (tabIndex) {
             0 -> {
-                searchViewModel.searchArticles(search)
                 when (val articlesState = uiState.searchedArticlesState) {
                     ArticlesRetrievalState.Loading -> {
-                        items(4) {
+                        items(4, span = { GridItemSpan(2) }) {
                             ShimmeringArticle()
                         }
                     }
@@ -93,8 +98,18 @@ fun SearchScreen(
                     }
 
                     is ArticlesRetrievalState.Success -> {
-                        items(articlesState.articles, span = { GridItemSpan(2) }) {
-                            CreateArticleRow(article = it, onClick = onArticleClick)
+                        if (articlesState.articles.isEmpty()) {
+                            item(span = { GridItemSpan(2) }) {
+                                val recentSearch = search
+                                NothingToShowMessage(
+                                    title = "No articles for this query.",
+                                    message = "No articles match the query \"$recentSearch\". Try a more general query to see articles."
+                                )
+                            }
+                        } else {
+                            items(articlesState.articles, span = { GridItemSpan(2) }) {
+                                CreateArticleRow(article = it, onClick = onArticleClick)
+                            }
                         }
                     }
                 }
@@ -102,7 +117,6 @@ fun SearchScreen(
 
             1 -> {
                 // Show magazines
-                searchViewModel.searchMagazines(search)
                 when (val magazinesState = uiState.searchedMagazinesState) {
                     MagazinesRetrievalState.Loading -> {
                         items(4) {

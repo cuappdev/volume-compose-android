@@ -15,8 +15,10 @@ data class Flyer(
     val imageURL: String,
     val location: String,
 ) : Comparable<Flyer> {
-    private val endDateTime: LocalDateTime =
-        LocalDateTime.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+    val endDateTime: LocalDateTime =
+        LocalDateTime.parse(endDate, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
+    val startDateTime: LocalDateTime =
+        LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
 
     override fun compareTo(other: Flyer): Int {
         return endDateTime.compareTo(other.endDateTime)

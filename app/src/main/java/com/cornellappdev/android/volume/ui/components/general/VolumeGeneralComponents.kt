@@ -1,11 +1,14 @@
 package com.cornellappdev.android.volume.ui.components.general
 
+import android.view.KeyEvent
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +35,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -202,13 +206,27 @@ fun VolumePeriod(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SearchBar(modifier: Modifier = Modifier, value: String, onChangeValue: (String) -> Unit) {
+fun SearchBar(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    onEnterPressed: () -> Unit = {},
+    onClick: () -> Unit = {},
+) {
+    val source = remember { MutableInteractionSource() }
     TextField(
         value = value,
-        onValueChange = onChangeValue,
+        onValueChange = onValueChange,
         modifier = modifier
             .fillMaxWidth()
-            .shadow(4.dp, shape = RoundedCornerShape(10.dp)),
+            .shadow(4.dp, shape = RoundedCornerShape(10.dp))
+            .onKeyEvent {
+                if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                    onEnterPressed()
+                    return@onKeyEvent true
+                }
+                false
+            },
         leadingIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_search),
@@ -223,8 +241,12 @@ fun SearchBar(modifier: Modifier = Modifier, value: String, onChangeValue: (Stri
             backgroundColor = Color.White,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-        )
+        ),
+        interactionSource = source,
+        singleLine = true,
     )
+    if (source.collectIsPressedAsState().value)
+        onClick()
 }
 
 fun Int.toComposeColor(): Color {

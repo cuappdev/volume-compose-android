@@ -4,10 +4,9 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class Organization(
-    val id: String,
     val name: String,
     val slug: String,
-    val categorySlug: String
+    val categorySlug: String,
 )
 
 val organizationTypes = listOf(

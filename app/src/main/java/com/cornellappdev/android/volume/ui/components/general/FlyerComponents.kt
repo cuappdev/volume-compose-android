@@ -56,8 +56,6 @@ import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.FlyersViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.util.Locale
 
 private const val TAG = "FlyerComponents"
 
@@ -144,7 +142,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltV
             overflow = TextOverflow.Ellipsis
         )
         IconTextRow(
-            text = formatDateString(flyer.startDate, flyer.endDate),
+            text = formatDateString(flyer.startDateTime, flyer.endDateTime),
             iconId = R.drawable.ic_calendar
         )
         Spacer(modifier = Modifier.height(5.dp))
@@ -227,7 +225,7 @@ fun SmallFlyer(
                     .fillMaxWidth()
             )
             IconTextRow(
-                text = formatDateString(flyer.startDate, flyer.endDate),
+                text = formatDateString(flyer.startDateTime, flyer.endDateTime),
                 iconId = R.drawable.ic_calendar
             )
             Spacer(
@@ -419,39 +417,16 @@ private fun getAverageColor(immutableBitmap: Bitmap): Int {
 /**
  * Formats date string in the desired format for displaying.
  */
-private fun formatDateString(startDate: String, endDate: String): String {
-    return try {
-        val startDateTime =
-            LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
-        val endDateTime =
-            LocalDateTime.parse(endDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
-
-        val dayOfWeek = startDateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US)
-        val month = startDateTime.month.getDisplayName(TextStyle.SHORT, Locale.US)
-        val dayOfMonth = startDateTime.dayOfMonth
-
-        val startTime = if (startDateTime.minute == 0) {
-            startDateTime.format(DateTimeFormatter.ofPattern("ha"))
-        } else {
-            startDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
-        }
-
-        val endTime = if (endDateTime.minute == 0) {
-            endDateTime.format(DateTimeFormatter.ofPattern("ha"))
-        } else {
-            endDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
-        }
-
-        "$dayOfWeek, $month $dayOfMonth $startTime - $endTime"
-    } catch (e: Exception) {
-        try {
-            val dates = startDate.split(" ").toTypedArray()
-            dates.filterIndexed { index, _ -> index != 2 }.joinToString(separator = " ")
-        } catch (e: Exception) {
-            startDate
-        }
+private fun formatDateString(startDateTime: LocalDateTime, endDateTime: LocalDateTime): String =
+    try {
+        val formatter = DateTimeFormatter.ofPattern("h:mm a")
+        val startTime = formatter.format(startDateTime)
+        val endTime = formatter.format(endDateTime)
+        "$startTime - $endTime"
+    } catch (ignored: Exception) {
+        startDateTime.toString()
     }
-}
+
 
 /**
  * Opens the snackbar to share a Flyer, which shares its associated post URL.

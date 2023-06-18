@@ -28,7 +28,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
 import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
-import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringMagazine
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
@@ -59,14 +58,6 @@ fun MagazinesViewer(
                 .fillMaxSize(),
             columns = GridCells.Fixed(2)
         ) {
-            item(span = { GridItemSpan(2) }) {
-                Box(
-                    modifier = Modifier
-                        .padding(top = 16.dp, start = 12.dp, end = 16.dp)
-                        .clickable { /* TODO take to search screen */ }) {
-                    SearchBar(value = "", onChangeValue = {})
-                }
-            }
             // Featured header
             item(span = { GridItemSpan(2) }) {
                 VolumeHeaderText(

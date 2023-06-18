@@ -17,7 +17,7 @@ import com.cornellappdev.android.volume.FeaturedMagazinesQuery
 import com.cornellappdev.android.volume.FlyersAfterDateQuery
 import com.cornellappdev.android.volume.FlyersBeforeDateQuery
 import com.cornellappdev.android.volume.FlyersByIDsQuery
-import com.cornellappdev.android.volume.FlyersByOrganizationIDsQuery
+import com.cornellappdev.android.volume.FlyersByOrganizationSlugsQuery
 import com.cornellappdev.android.volume.FollowPublicationMutation
 import com.cornellappdev.android.volume.GetUserQuery
 import com.cornellappdev.android.volume.IncrementMagazineShoutoutsMutation
@@ -138,8 +138,9 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     suspend fun fetchFlyersBeforeDate(date: String): ApolloResponse<FlyersBeforeDateQuery.Data> =
         apolloClient.query(FlyersBeforeDateQuery(before = date)).execute()
 
-    suspend fun fetchFlyersByOrganizationIds(ids: List<String>): ApolloResponse<FlyersByOrganizationIDsQuery.Data> =
-        apolloClient.query(FlyersByOrganizationIDsQuery(organizationIDs = ids)).execute()
+    suspend fun fetchFlyersByOrganizationSlugs(slugs: List<String>): ApolloResponse<FlyersByOrganizationSlugsQuery.Data> =
+        apolloClient.query(FlyersByOrganizationSlugsQuery(slugs = slugs))
+            .execute()
 
     suspend fun fetchOrganizationsByCategory(category: String): ApolloResponse<OrganizationsByCategoryQuery.Data> =
         apolloClient.query(OrganizationsByCategoryQuery(categorySlug = category)).execute()

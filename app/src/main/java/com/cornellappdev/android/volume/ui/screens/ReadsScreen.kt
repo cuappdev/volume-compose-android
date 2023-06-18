@@ -22,6 +22,7 @@ import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.data.models.Publication
+import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.VolumePeriod
 import com.cornellappdev.android.volume.ui.theme.VolumeOffWhite
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
@@ -29,6 +30,7 @@ import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import kotlinx.coroutines.launch
 
+private const val TAG = "ReadsScreen"
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
@@ -37,6 +39,7 @@ fun ReadsScreen(
     showBottomBar: MutableState<Boolean>,
     onMagazineClick: (Magazine) -> Unit,
     onPublicationClick: (Publication) -> Unit,
+    onSearchClick: (Int) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
@@ -70,7 +73,7 @@ fun ReadsScreen(
                         val tabs = listOf("Articles", "Magazines")
                         Row {
                             Spacer(modifier = Modifier.weight(1F))
-                            Column(modifier = Modifier.width(screenWidthDp * (3 / 4))) {
+                            Column(modifier = Modifier.width(screenWidthDp * 3 / 4)) {
 
                                 TabRow(
                                     selectedTabIndex = tabIndex,
@@ -107,10 +110,15 @@ fun ReadsScreen(
                                     })
                             Spacer(modifier = Modifier.weight(2F))
                         }
+                        SearchBar(value = "",
+                            onValueChange = {},
+                            modifier = Modifier
+                                .padding(end = 16.dp, top = 16.dp),
+                            onClick = { onSearchClick(tabIndex) })
 
                         when (tabIndex) {
                             0 -> {
-                                ArticlesScreen(
+                                ArticlesViewer(
                                     onArticleClick = onArticleClick,
                                     showBottomBar = showBottomBar
                                 )
