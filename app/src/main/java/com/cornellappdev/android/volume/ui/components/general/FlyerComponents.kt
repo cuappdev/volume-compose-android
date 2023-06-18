@@ -287,7 +287,7 @@ fun OrganizationAndIconsRow(
     flyerId: String,
     flyersViewModel: FlyersViewModel = hiltViewModel(),
 ) {
-    var isBookmarked = false
+    var isBookmarked by remember { mutableStateOf(false) }
     // Update isBookmarked in a separate thread
     LaunchedEffect(key1 = "check bookmarked $flyerId") {
         isBookmarked = flyersViewModel.getIsBookmarked(flyerId)
@@ -324,8 +324,9 @@ fun OrganizationAndIconsRow(
             modifier = Modifier
                 .size(iconSize)
                 .clickable {
-                    // TODO Add id to user preferences
-
+                    if (isBookmarked) flyersViewModel.removeBookmarkedFlyer(flyerId)
+                    else flyersViewModel.addBookmarkedFlyer(flyerId)
+                    isBookmarked = !isBookmarked
                 }
         )
         Spacer(modifier = Modifier.width(8.dp))

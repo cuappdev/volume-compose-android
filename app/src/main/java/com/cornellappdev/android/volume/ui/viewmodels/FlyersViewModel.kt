@@ -191,6 +191,18 @@ class FlyersViewModel @Inject constructor(
         return userPreferencesRepository.fetchBookmarkedFlyerIds().contains(flyerId)
     }
 
+    fun addBookmarkedFlyer(flyerId: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.addBookmarkedFlyer(flyerId)
+        }
+    }
+
+    fun removeBookmarkedFlyer(flyerId: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.removeBookmarkedFlyer(flyerId)
+        }
+    }
+
 
 }
 

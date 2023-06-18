@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,8 +17,9 @@ import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+
+private const val TAG = "BookmarkViewModel"
 
 @HiltViewModel
 class BookmarkViewModel @Inject constructor(
@@ -31,7 +33,7 @@ class BookmarkViewModel @Inject constructor(
         val articlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
         val magazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
         val upcomingFlyersState: FlyersRetrievalState = FlyersRetrievalState.Loading,
-        val pastFlyersRetrievalState: FlyersRetrievalState = FlyersRetrievalState.Loading,
+        val pastFlyersState: FlyersRetrievalState = FlyersRetrievalState.Loading,
     )
 
     private lateinit var allUpcomingFlyers: List<Flyer>
@@ -80,22 +82,17 @@ class BookmarkViewModel @Inject constructor(
         try {
             val bookmarkedFlyerIds = userPreferencesRepository.fetchBookmarkedFlyerIds()
             val flyers = flyersRepository.fetchFlyersByIds(bookmarkedFlyerIds)
+            Log.d(TAG, "getBookmarkedFlyers: ALL BOOKMARKED FLYERS: $flyers")
             allUpcomingFlyers = flyers.filter {
-                LocalDateTime.parse(
-                    it.endDate,
-                    DateTimeFormatter.ISO_LOCAL_DATE_TIME
-                ) < LocalDateTime.now()
+                it.endDateTime < LocalDateTime.now()
             }.sortedDescending()
             allPastFlyers = flyers.filter {
-                LocalDateTime.parse(
-                    it.endDate,
-                    DateTimeFormatter.ISO_LOCAL_DATE_TIME
-                ) > LocalDateTime.now()
+                it.endDateTime > LocalDateTime.now()
             }.sorted()
 
             bookmarkUiState = bookmarkUiState.copy(
                 // TODO filter by date for both upcoming and past
-                pastFlyersRetrievalState = FlyersRetrievalState.Success(
+                pastFlyersState = FlyersRetrievalState.Success(
                     flyers = allUpcomingFlyers
                 ),
                 upcomingFlyersState = FlyersRetrievalState.Success(
@@ -105,7 +102,7 @@ class BookmarkViewModel @Inject constructor(
         } catch (e: java.lang.Exception) {
             bookmarkUiState = bookmarkUiState.copy(
                 upcomingFlyersState = FlyersRetrievalState.Error,
-                pastFlyersRetrievalState = FlyersRetrievalState.Error
+                pastFlyersState = FlyersRetrievalState.Error
             )
         }
     }
@@ -135,7 +132,7 @@ class BookmarkViewModel @Inject constructor(
             )
         } else {
             bookmarkUiState = bookmarkUiState.copy(
-                upcomingFlyersState = when (bookmarkUiState.pastFlyersRetrievalState) {
+                pastFlyersState = when (bookmarkUiState.pastFlyersState) {
                     FlyersRetrievalState.Error -> FlyersRetrievalState.Error
                     FlyersRetrievalState.Loading -> FlyersRetrievalState.Loading
                     is FlyersRetrievalState.Success -> {

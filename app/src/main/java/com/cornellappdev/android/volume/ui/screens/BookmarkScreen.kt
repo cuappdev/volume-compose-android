@@ -232,7 +232,7 @@ fun BookmarkedFlyersView(
                                     )
                                     bookmarkViewModel.applyQuery(
                                         tags[upcomingSelectedIndex],
-                                        isUpcoming = false
+                                        isUpcoming = true
                                     )
                                 }) {
                                     Text(
@@ -252,6 +252,13 @@ fun BookmarkedFlyersView(
         // Upcoming flyers
         when (val upcomingState = bookmarkUiState.upcomingFlyersState) {
             FlyersRetrievalState.Loading -> {
+                item {
+                    Spacer(
+                        modifier = Modifier
+                            .height(8.dp)
+                            .fillMaxWidth()
+                    )
+                }
                 item {
                     LazyHorizontalGrid(
                         rows = GridCells.Fixed(3),
@@ -376,14 +383,26 @@ fun BookmarkedFlyersView(
             Spacer(modifier = Modifier.height(8.dp))
         }
         // Past flyers
-        when (val pastState = bookmarkUiState.pastFlyersRetrievalState) {
+        when (val pastState = bookmarkUiState.pastFlyersState) {
             FlyersRetrievalState.Error -> {
                 // TODO error state?
             }
 
             FlyersRetrievalState.Loading -> {
+                item {
+                    Spacer(
+                        modifier = Modifier
+                            .height(8.dp)
+                            .fillMaxWidth()
+                    )
+                }
                 items(9) {
                     ShimmeringFlyer()
+                    Spacer(
+                        modifier = Modifier
+                            .height(16.dp)
+                            .fillMaxWidth()
+                    )
                 }
             }
 
@@ -396,8 +415,20 @@ fun BookmarkedFlyersView(
                         )
                     }
                 } else {
+                    item {
+                        Spacer(
+                            modifier = Modifier
+                                .height(8.dp)
+                                .fillMaxWidth()
+                        )
+                    }
                     items(pastState.flyers) {
                         SmallFlyer(inUpcoming = false, flyer = it)
+                        Spacer(
+                            modifier = Modifier
+                                .height(16.dp)
+                                .fillMaxWidth()
+                        )
                     }
                 }
             }
