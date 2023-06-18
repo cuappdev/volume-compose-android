@@ -210,6 +210,11 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
+    /*
+    On enter pressed is currently unused, but I think it could be useful to have considering how
+    this component could be used in the future, so I would like to keep it for now.
+    If this functionality does end up being used, feel free to remove this comment :)
+     */
     onEnterPressed: () -> Unit = {},
     onClick: () -> Unit = {},
 ) {

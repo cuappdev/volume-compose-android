@@ -52,12 +52,12 @@ fun SearchScreen(
         item(span = { GridItemSpan(2) }) {
             SearchBar(
                 value = search,
-                onValueChange = { search = it },
+                onValueChange = {
+                    search = it
+                    searchViewModel.searchArticles(it)
+                    searchViewModel.searchMagazines(it)
+                },
                 modifier = Modifier.padding(vertical = 12.dp),
-                onEnterPressed = {
-                    searchViewModel.searchArticles(search)
-                    searchViewModel.searchMagazines(search)
-                }
             )
         }
         item(span = { GridItemSpan(2) }) {
