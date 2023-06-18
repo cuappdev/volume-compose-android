@@ -31,11 +31,12 @@ import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.BigFlyer
+import com.cornellappdev.android.volume.ui.components.general.BigShimmeringFlyer
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
 import com.cornellappdev.android.volume.ui.components.general.MainArticleComponent
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringArticle
-import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
+import com.cornellappdev.android.volume.ui.components.general.ShimmeringMagazine
 import com.cornellappdev.android.volume.ui.components.general.VolumeLogo
 import com.cornellappdev.android.volume.ui.components.general.shimmerEffect
 import com.cornellappdev.android.volume.ui.states.ArticleRetrievalState
@@ -123,8 +124,15 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
         // Flyers
         when (val flyersState = uiState.featuredFlyers) {
             FlyersRetrievalState.Loading -> {
-                item (span = { GridItemSpan(2)} ) {
-                    VolumeLoading()
+                items (2, span = { GridItemSpan(2)} ) {
+                    Column {
+                        Row {
+                            Spacer(modifier = Modifier.width(16.dp))
+                            BigShimmeringFlyer(imgWidth = LocalConfiguration.current.screenWidthDp - 32, imgHeight = LocalConfiguration.current.screenWidthDp - 32)
+
+                        }
+                        Spacer(modifier = Modifier.height(40.dp))
+                    }
                 }
             }
             FlyersRetrievalState.Error -> {
@@ -149,9 +157,11 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
         // Magazines
         when (val magazineUiState = uiState.featuredMagazinesRetrievalState) {
             MagazinesRetrievalState.Loading -> {
-                 item (span = { GridItemSpan(2)}) {
-                     VolumeLoading()
-                 }
+                items(4) {
+                    Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                        ShimmeringMagazine()
+                    }
+                }
             }
             MagazinesRetrievalState.Error -> {
             }

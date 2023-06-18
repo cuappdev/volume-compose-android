@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -50,23 +51,48 @@ fun ShimmeringArticle(modifier: Modifier = Modifier) {
         .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,) {
         Column {
-            Box(modifier = Modifier
-                .shimmerEffect()
-                .requiredSize(100.dp, 16.dp))
-            Spacer(modifier = Modifier.height(16.dp))
-            Box(modifier = Modifier
-                .shimmerEffect()
-                .requiredSize(200.dp, 16.dp))
-            Spacer(modifier = Modifier.height(16.dp))
-            Box(modifier = Modifier
-                .shimmerEffect()
-                .requiredSize(60.dp, 16.dp))
+            ShimmeringBox(width = 112, height = 16)
+            Spacer(modifier = Modifier.height(4.dp))
+            ShimmeringBox(width = 230, height = 64)
+            Spacer(modifier = Modifier.height(12.dp))
+            Row {
+                ShimmeringBox(width = 40, height = 8)
+                Spacer(modifier = Modifier.width(6.dp))
+                ShimmeringBox(width = 72, height = 8)
+            }
         }
-        Box (modifier = Modifier
-            .shimmerEffect()
-            .requiredSize(100.dp, 100.dp))
+        Spacer(modifier = Modifier.width(27.dp))
+        ShimmeringBox(width = 104, height = 104)
     }
 }
+@Composable
+fun BigShimmeringFlyer(imgWidth: Int, imgHeight: Int) {
+    Column (verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        ShimmeringBox(width = imgWidth, height = imgHeight)
+        ShimmeringBox(width = 104, height = 16)
+        ShimmeringBox(width = 184, height = 24)
+        ShimmeringBox(width = 168, height = 16)
+        ShimmeringBox(width = 82, height = 16)
+    }
+}
+
+@Composable
+fun ShimmeringFlyer() {
+    Row (modifier = Modifier.padding(end = 84.dp)) {
+        ShimmeringBox(width = 92, height = 92)
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            ShimmeringBox(width = 104, height = 16)
+            Spacer(modifier = Modifier.height(4.dp))
+            ShimmeringBox(width = 184, height = 24)
+            Spacer(modifier = Modifier.height(8.dp))
+            ShimmeringBox(width = 168, height = 16)
+            Spacer(modifier = Modifier.height(8.dp))
+            ShimmeringBox(width = 82, height = 16)
+        }
+    }
+}
+
 
 @Composable
 fun VolumeLoading(modifier: Modifier = Modifier) {
@@ -78,7 +104,18 @@ fun VolumeLoading(modifier: Modifier = Modifier) {
     }
 }
 
-// TODO implement component when internet is down
+@Composable
+fun ShimmeringMagazine() {
+    Column (Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+        ShimmeringBox(width = 150, height = 220)
+        Spacer(modifier = Modifier.height(12.dp))
+        ShimmeringBox(width = 94, height = 15)
+        Spacer(modifier = Modifier.height(4.dp))
+        ShimmeringBox(width = 120, height = 24)
+    }
+}
+
+// Implement component when internet is down
 @Composable
 fun VolumeError(modifier: Modifier = Modifier) {
     Column(
@@ -89,4 +126,11 @@ fun VolumeError(modifier: Modifier = Modifier) {
         Text(text = "No Connection", fontFamily = notoserif, modifier = Modifier.padding(top = 32.dp), fontSize = 24.sp)
         Text(text = "Please try again later", fontSize = 17.sp)
     }
+}
+
+@Composable
+private fun ShimmeringBox(width: Int, height: Int) {
+    Box(modifier = Modifier
+        .shimmerEffect()
+        .requiredSize(width.dp, height.dp))
 }

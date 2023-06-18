@@ -1,14 +1,17 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -20,8 +23,13 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -36,9 +44,14 @@ import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
-import com.cornellappdev.android.volume.ui.components.general.NothingToShowText
+import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
+import com.cornellappdev.android.volume.ui.components.general.OldNothingToShowMessage
+import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
+import com.cornellappdev.android.volume.ui.components.general.SmallFlyer
+import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
+import com.cornellappdev.android.volume.ui.states.FlyersRetrievalState
 import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import com.cornellappdev.android.volume.ui.theme.VolumeOffWhite
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
@@ -47,6 +60,7 @@ import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.BookmarkViewModel
 import com.cornellappdev.android.volume.util.BookmarkStatus
 import com.cornellappdev.android.volume.util.FinalBookmarkStatus
+import com.cornellappdev.android.volume.util.FlyerConstants
 
 @RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterialApi::class)
@@ -56,7 +70,7 @@ fun BookmarkScreen(
     savedStateHandle: SavedStateHandle,
     onArticleClick: (Article, NavigationSource) -> Unit,
     onMagazineClick: (Magazine) -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
 ) {
     val bookmarkUiState = bookmarkViewModel.bookmarkUiState
 
@@ -83,21 +97,24 @@ fun BookmarkScreen(
         }
     })
 }
+
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun TabbedBooksmarksView(onArticleClick: (Article, NavigationSource) -> Unit,
-                         bookmarkUiState: BookmarkViewModel.BookmarkUiState,
-                         bookmarkViewModel: BookmarkViewModel,
-                         onMagazineClick: (Magazine) -> Unit,
+fun TabbedBooksmarksView(
+    onArticleClick: (Article, NavigationSource) -> Unit,
+    bookmarkUiState: BookmarkViewModel.BookmarkUiState,
+    bookmarkViewModel: BookmarkViewModel,
+    onMagazineClick: (Magazine) -> Unit,
 ) {
     var tabIndex by remember { mutableStateOf(0) };
 
-    val tabs = listOf("Articles", "Magazines")
+    val tabs = listOf("Flyers", "Articles", "Magazines")
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(selectedTabIndex = tabIndex, contentColor = VolumeOrange) {
             tabs.forEachIndexed { index, title ->
-                Tab(text = { Text(title, fontFamily = lato, fontSize = 18.sp) },
+                Tab(
+                    text = { Text(title, fontFamily = lato, fontSize = 18.sp) },
                     selected = tabIndex == index,
                     onClick = { tabIndex = index },
                     selectedContentColor = VolumeOrange,
@@ -106,31 +123,352 @@ fun TabbedBooksmarksView(onArticleClick: (Article, NavigationSource) -> Unit,
             }
         }
         when (tabIndex) {
-            0 -> BookmarkedArticlesScreen(onArticleClick =  onArticleClick, bookmarkUiState =  bookmarkUiState, bookmarkViewModel = bookmarkViewModel)
-            1 -> BookmarkedMagazinesScreen(onMagazineClick = onMagazineClick, bookmarkUiState = bookmarkUiState)
+            0 -> BookmarkedFlyersView(
+                bookmarkUiState = bookmarkUiState,
+                bookmarkViewModel = bookmarkViewModel
+            )
+
+            1 -> BookmarkedArticlesView(
+                onArticleClick = onArticleClick,
+                bookmarkUiState = bookmarkUiState,
+                bookmarkViewModel = bookmarkViewModel
+            )
+
+            2 -> BookmarkedMagazinesView(
+                onMagazineClick = onMagazineClick,
+                bookmarkUiState = bookmarkUiState
+            )
         }
     }
 }
+
+@Composable
+fun BookmarkedFlyersView(
+    bookmarkUiState: BookmarkViewModel.BookmarkUiState,
+    bookmarkViewModel: BookmarkViewModel,
+) {
+    var upcomingSelectedIndex by remember { mutableStateOf(0) }
+    var upcomingExpanded by remember { mutableStateOf(false) }
+    var pastSelectedIndex by remember { mutableStateOf(0) }
+    var pastExpanded by remember { mutableStateOf(false) }
+
+    val tags = FlyerConstants.CATEGORY_SLUGS.split(",")
+    // Maps the category slugs to strings that are viewable on the app.
+    val formattedTags = tags.map { s ->
+        // If the slug is just a single word, capitalize it.
+        if (s == s.lowercase()) {
+            s.replaceFirstChar { c -> c.uppercase() }
+            // If the slug is multiple words, split it on uppercase characters and join them, capitalizing each word.
+        } else {
+            s.split(Regex("(?<!^)(?=[A-Z])"))
+                .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+        }
+    }
+    LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
+        // Upcoming and dropdown menu
+        item {
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Row {
+                VolumeHeaderText(text = "Upcoming", underline = R.drawable.ic_underline_upcoming)
+
+                Spacer(modifier = Modifier.weight(1F))
+
+                // Dropdown menu
+                Column(modifier = Modifier.padding(end = 24.dp /* this is 16 because offset */)) {
+                    Box(modifier = Modifier.drawWithContent {
+                        drawContent()
+                        drawRoundRect(
+                            color = VolumeOrange,
+                            style = Stroke(width = 1.5.dp.toPx()),
+                            cornerRadius = CornerRadius(
+                                x = 5.dp.toPx(),
+                                y = 5.dp.toPx()
+                            ),
+                            size = Size(
+                                width = 128.dp.toPx(),
+                                height = 31.dp.toPx()
+                            ),
+                            topLeft = Offset(x = 8.dp.toPx(), y = 0.dp.toPx())
+                        )
+                    }) {
+                        Row {
+                            Text(
+                                text = formattedTags[upcomingSelectedIndex],
+                                color = VolumeOrange,
+                                modifier = Modifier
+                                    .clickable {
+                                        upcomingExpanded = true
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .height(16.dp)
+                                    .defaultMinSize(minWidth = 82.dp),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_dropdown),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(top = 12.dp)
+                                    .clickable {
+                                        upcomingExpanded = true
+                                    }
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = upcomingExpanded,
+                        onDismissRequest = { upcomingExpanded = false }) {
+                        formattedTags.forEachIndexed { index, s ->
+                            if (index != upcomingSelectedIndex) {
+                                DropdownMenuItem(onClick = {
+                                    upcomingSelectedIndex = index
+                                    upcomingExpanded = false
+                                    Log.d(
+                                        "TAG",
+                                        "FlyersScreen: Querying for tag ${tags[upcomingSelectedIndex]} "
+                                    )
+                                    bookmarkViewModel.applyQuery(
+                                        tags[upcomingSelectedIndex],
+                                        isUpcoming = true
+                                    )
+                                }) {
+                                    Text(
+                                        text = s,
+                                        color = VolumeOrange,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 12.sp,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        // Upcoming flyers
+        when (val upcomingState = bookmarkUiState.upcomingFlyersState) {
+            FlyersRetrievalState.Loading -> {
+                item {
+                    Spacer(
+                        modifier = Modifier
+                            .height(8.dp)
+                            .fillMaxWidth()
+                    )
+                }
+                item {
+                    LazyHorizontalGrid(
+                        rows = GridCells.Fixed(3),
+                        modifier = Modifier.height(308.dp)
+                    ) {
+                        items(9) {
+                            ShimmeringFlyer()
+                        }
+                    }
+                }
+            }
+
+            FlyersRetrievalState.Error -> {
+                // TODO error state?
+            }
+
+            is FlyersRetrievalState.Success -> {
+                if (upcomingState.flyers.isEmpty()) {
+                    item {
+                        NothingToShowMessage(
+                            title = "No bookmarked flyers",
+                            message = "You can bookmark them from the trending page or the flyers page"
+                        )
+                    }
+                } else {
+                    item {
+                        LazyHorizontalGrid(
+                            rows = GridCells.Fixed(3),
+                            modifier = Modifier.height(308.dp)
+                        ) {
+                            items(upcomingState.flyers) {
+                                SmallFlyer(inUpcoming = true, flyer = it)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Past and dropdown menu
+        item {
+            Spacer(modifier = Modifier.height(40.dp))
+
+            Row {
+                VolumeHeaderText(text = "Past Flyers", underline = R.drawable.ic_underline_upcoming)
+
+                Spacer(modifier = Modifier.weight(1F))
+
+                // Dropdown menu
+                Column(modifier = Modifier.padding(end = 24.dp /* this is 16 because offset */)) {
+                    Box(modifier = Modifier.drawWithContent {
+                        drawContent()
+                        drawRoundRect(
+                            color = VolumeOrange,
+                            style = Stroke(width = 1.5.dp.toPx()),
+                            cornerRadius = CornerRadius(
+                                x = 5.dp.toPx(),
+                                y = 5.dp.toPx()
+                            ),
+                            size = Size(
+                                width = 128.dp.toPx(),
+                                height = 31.dp.toPx()
+                            ),
+                            topLeft = Offset(x = 8.dp.toPx(), y = 0.dp.toPx())
+                        )
+                    }) {
+                        Row {
+                            Text(
+                                text = formattedTags[pastSelectedIndex],
+                                color = VolumeOrange,
+                                modifier = Modifier
+                                    .clickable {
+                                        pastExpanded = true
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .height(16.dp)
+                                    .defaultMinSize(minWidth = 82.dp),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_dropdown),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(top = 12.dp)
+                                    .clickable {
+                                        pastExpanded = true
+                                    }
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = pastExpanded,
+                        onDismissRequest = { pastExpanded = false }) {
+                        formattedTags.forEachIndexed { index, s ->
+                            if (index != pastSelectedIndex) {
+                                DropdownMenuItem(onClick = {
+                                    pastSelectedIndex = index
+                                    pastExpanded = false
+                                    Log.d(
+                                        "TAG",
+                                        "FlyersScreen: Querying for tag ${tags[pastSelectedIndex]} "
+                                    )
+                                    bookmarkViewModel.applyQuery(
+                                        tags[pastSelectedIndex],
+                                        isUpcoming = false
+                                    )
+                                }) {
+                                    Text(
+                                        text = s,
+                                        color = VolumeOrange,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 12.sp,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        // Past flyers
+        when (val pastState = bookmarkUiState.pastFlyersState) {
+            FlyersRetrievalState.Error -> {
+                // TODO error state?
+            }
+
+            FlyersRetrievalState.Loading -> {
+                item {
+                    Spacer(
+                        modifier = Modifier
+                            .height(8.dp)
+                            .fillMaxWidth()
+                    )
+                }
+                items(9) {
+                    ShimmeringFlyer()
+                    Spacer(
+                        modifier = Modifier
+                            .height(16.dp)
+                            .fillMaxWidth()
+                    )
+                }
+            }
+
+            is FlyersRetrievalState.Success -> {
+                if (pastState.flyers.isEmpty()) {
+                    item {
+                        NothingToShowMessage(
+                            title = "You have no past flyers",
+                            message = "Your expired flyers will show up here"
+                        )
+                    }
+                } else {
+                    item {
+                        Spacer(
+                            modifier = Modifier
+                                .height(8.dp)
+                                .fillMaxWidth()
+                        )
+                    }
+                    items(pastState.flyers) {
+                        SmallFlyer(inUpcoming = false, flyer = it)
+                        Spacer(
+                            modifier = Modifier
+                                .height(16.dp)
+                                .fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun BookmarkedMagazinesScreen(bookmarkUiState: BookmarkViewModel.BookmarkUiState, onMagazineClick: (Magazine) -> Unit) {
+fun BookmarkedMagazinesView(
+    bookmarkUiState: BookmarkViewModel.BookmarkUiState,
+    onMagazineClick: (Magazine) -> Unit,
+) {
     when (val magazinesState = bookmarkUiState.magazinesState) {
         MagazinesRetrievalState.Loading -> {
-            Box (modifier = Modifier.padding(top=20.dp)) {
+            Box(modifier = Modifier.padding(top = 20.dp)) {
                 VolumeLoading()
             }
         }
-        MagazinesRetrievalState.Error -> {  /* TODO */  }
+
+        MagazinesRetrievalState.Error -> {
+            // TODO
+        }
+
         is MagazinesRetrievalState.Success -> {
             if (magazinesState.magazines.isEmpty()) {
-                Column (verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxHeight()) {
-                    NothingToShowText(message = "You have no saved magazines.")
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxHeight()
+                ) {
+                    OldNothingToShowMessage(message = "You have no saved magazines.")
                 }
-            }
-            else {
+            } else {
                 LazyVerticalGrid(columns = GridCells.Fixed(2)) {
                     items(magazinesState.magazines) {
-                        CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick, isBookmarked = true)
+                        CreateMagazineColumn(
+                            magazine = it,
+                            onMagazineClick = onMagazineClick,
+                            isBookmarked = true
+                        )
                     }
                 }
             }
@@ -140,20 +478,26 @@ fun BookmarkedMagazinesScreen(bookmarkUiState: BookmarkViewModel.BookmarkUiState
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BookmarkedArticlesScreen(onArticleClick: (Article, NavigationSource) -> Unit, bookmarkUiState: BookmarkViewModel.BookmarkUiState, bookmarkViewModel: BookmarkViewModel) {
+fun BookmarkedArticlesView(
+    onArticleClick: (Article, NavigationSource) -> Unit,
+    bookmarkUiState: BookmarkViewModel.BookmarkUiState,
+    bookmarkViewModel: BookmarkViewModel,
+) {
     when (val articleState = bookmarkUiState.articlesState) {
         ArticlesRetrievalState.Loading -> {
-            Box (modifier = Modifier.padding(top=20.dp)) {
+            Box(modifier = Modifier.padding(top = 20.dp)) {
                 VolumeLoading()
             }
         }
+
         ArticlesRetrievalState.Error -> {
             // TODO
         }
+
         is ArticlesRetrievalState.Success -> {
             Column {
                 if (articleState.articles.isEmpty()) {
-                    NothingToShowText(message = "You have no saved articles.")
+                    OldNothingToShowMessage(message = "You have no saved articles.")
                 } else {
                     Column(
                         modifier = Modifier
@@ -226,6 +570,14 @@ fun BookmarkedArticlesScreen(onArticleClick: (Article, NavigationSource) -> Unit
             }
         }
     }
+
+}
+
+@Composable
+fun BookmarkedFlyersScreen(
+    bookmarkUiState: BookmarkViewModel.BookmarkUiState,
+    bookmarkViewModel: BookmarkViewModel,
+) {
 
 }
 

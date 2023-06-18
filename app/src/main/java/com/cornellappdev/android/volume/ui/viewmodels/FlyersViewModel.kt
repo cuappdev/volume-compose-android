@@ -1,22 +1,31 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.android.volume.data.models.Flyer
+import com.cornellappdev.android.volume.data.models.Organization
 import com.cornellappdev.android.volume.data.repositories.FlyerRepository
+import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.volume.ui.states.FlyersRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import java.time.DayOfWeek
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
+
 private const val TAG = "MagazinesViewModel"
+
 @HiltViewModel
 class FlyersViewModel @Inject constructor(
-    private val flyerRepository: FlyerRepository
+    private val flyerRepository: FlyerRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
     data class FlyersUiState(
@@ -26,35 +35,39 @@ class FlyersViewModel @Inject constructor(
         val todayFlyersState: FlyersRetrievalState = FlyersRetrievalState.Loading,
     )
 
-    companion object {
-        const val NUMBER_OF_UPCOMING_FLYERS = 20.0
-        const val NUMBER_OF_PAST_FLYERS = 25.0
-    }
+    lateinit var dailyFlyers: List<Flyer>
+    lateinit var weeklyFlyers: List<Flyer>
 
-    var flyersUiState by mutableStateOf(FlyersViewModel.FlyersUiState())
+    var flyersUiState by mutableStateOf(FlyersUiState())
         private set
 
     init {
         queryTodayFlyers()
     }
 
+    /**
+     * Returns a sorted list of Flyer's achieved from using the Flyers After Date query to find Flyers
+     * after and including today, but are filtered to ensure that they end before 11:59PM.
+     */
     private fun queryTodayFlyers() {
         viewModelScope.launch {
             try {
-                val flyers = flyerRepository.fetchTodayFlyers()
-                flyersUiState = if (flyers == null) {
-                    flyersUiState.copy(
-                        todayFlyersState = FlyersRetrievalState.Error
+                dailyFlyers = flyerRepository.fetchFlyersAfterDate(getToday()).filter { flyer ->
+                    val flyerDate =
+                        LocalDateTime.parse(flyer.endDate, DateTimeFormatter.ISO_DATE_TIME)
+                    val todayDate = LocalDateTime.now().withHour(23).withMinute(59)
+
+                    // Filter ensures flyers are before 11:59PM today.
+                    flyerDate < todayDate
+                }.sorted()
+                flyersUiState = flyersUiState.copy(
+                    todayFlyersState = FlyersRetrievalState.Success(
+                        dailyFlyers
                     )
-                } else {
-                    flyersUiState.copy(
-                        todayFlyersState = FlyersRetrievalState.Success(
-                            flyers
-                        )
-                    )
-                }
+                )
                 queryWeeklyFlyers()
             } catch (e: Exception) {
+                Log.d(TAG, "queryTodayFlyers: Daily flyers exception: ${e.message}")
                 flyersUiState = flyersUiState.copy(
                     todayFlyersState = FlyersRetrievalState.Error
                 )
@@ -63,20 +76,32 @@ class FlyersViewModel @Inject constructor(
     }
 
     /**
-     * Queries the backend for weekly flyers magazines. If successful, it will update
-     * the ui state with the flyers retrieval state.
-     * Otherwise it will update it with a failure state.
+     * Returns a sorted list of Flyers between now and Sunday 11:59PM
      */
     private fun queryWeeklyFlyers() {
         viewModelScope.launch {
             try {
+                weeklyFlyers =
+                        // Apply a filter to find flyers with dates before upcoming Sunday at 11:59PM
+                    flyerRepository.fetchFlyersAfterDate(getToday()).filter {
+                        val upcomingSunday =
+                            LocalDateTime.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY))
+                                .withHour(23).withMinute(59)
+
+                        // Ensure Flyer's date is before upcoming Sunday
+                        LocalDateTime.parse(
+                            it.endDate,
+                            DateTimeFormatter.ISO_LOCAL_DATE_TIME
+                        ) < upcomingSunday
+                    }.filter { !dailyFlyers.contains(it) }.sorted()
                 flyersUiState = flyersUiState.copy(
                     weeklyFlyersState = FlyersRetrievalState.Success(
-                        flyerRepository.fetchWeeklyFlyers() ?: listOf()
+                        weeklyFlyers
                     )
                 )
-                queryUpcomingFlyers("All")
+                queryUpcomingFlyers(categorySlug = "all")
             } catch (e: Exception) {
+                Log.d(TAG, "queryWeeklyFlyers: exception: ${e.message}")
                 flyersUiState = flyersUiState.copy(
                     weeklyFlyersState = FlyersRetrievalState.Error
                 )
@@ -85,71 +110,106 @@ class FlyersViewModel @Inject constructor(
     }
 
     /**
-     * Queries the backend for the magazines of the current semester. If successful, it will update
-     * the ui state with the magazines retrieval state.
-     * If the query is "View all" the function will query for all magazines and update the
-     * magazine state accordingly.
-     * Otherwise it will update it with a failure state.
-     * @param query Current semester, format of "fa" or "sp", and then last 2 digits of year
+     * Queries for all flyers with an end date greater than now, given a category slug.
+     * If the category slug is "all", then there will be no filter for categories applied.
+     * Otherwise, it will only get flyers that fall in that category, determined by the
+     * organizations that fall under that category.
+     * @param categorySlug: A valid category slugs.
      */
-    fun queryUpcomingFlyers (query: String) {
-        flyersUiState = flyersUiState.copy(
-            upcomingFlyersState = FlyersRetrievalState.Loading
-        )
+    fun queryUpcomingFlyers(categorySlug: String) {
         viewModelScope.launch {
             try {
-                if (query.lowercase() == "all") {
+                flyersUiState =
+                    flyersUiState.copy(upcomingFlyersState = FlyersRetrievalState.Loading)
+                if (categorySlug.lowercase() == "all") {
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
-                            flyerRepository.fetchWeeklyFlyers() ?: listOf()
+                            flyerRepository.fetchFlyersAfterDate(getToday())
+                                .filter { !weeklyFlyers.contains(it) && !dailyFlyers.contains(it) }
+                                .sorted()
                         )
                     )
                 } else {
+                    // Perform procedure to get flyers based on category.
+
+                    // Step 1: Find organizations related to category.
+                    val organizations: List<Organization> =
+                        flyerRepository.fetchOrganizationsByCategorySlug(categorySlug)
+                    // Step 2: Find flyers by those organizations:
+                    val organizationSlugs = organizations.map { it.slug }
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
-                            flyerRepository.fetchWeeklyFlyers()?.filter { f -> f.organizations.first().type == query.lowercase() } ?: listOf()
+                            flyerRepository.fetchFlyersByOrganizationSlugs(organizationSlugs)
+                                .filter { !weeklyFlyers.contains(it) && !dailyFlyers.contains(it) }
+                                .sorted()
                         )
                     )
                 }
-                queryPastFlyers()
-            } catch (ignored: Exception) {
+                if (flyersUiState.pastFlyersState == FlyersRetrievalState.Loading) {
+                    queryPastFlyers()
+                }
+            } catch (e: Exception) {
+                Log.d(TAG, "queryUpcomingFlyers: exception ${e.message}")
                 flyersUiState = flyersUiState.copy(
                     upcomingFlyersState = FlyersRetrievalState.Error
                 )
             }
         }
     }
-    private fun queryPastFlyers () {
+
+    /**
+     * Queries all flyers before now, and returns a sorted list of them in descending order.
+     */
+    private fun queryPastFlyers() {
         viewModelScope.launch {
             flyersUiState = try {
                 flyersUiState.copy(
-                    pastFlyersState = FlyersRetrievalState.Success(flyerRepository.fetchPastFlyers(limit = NUMBER_OF_PAST_FLYERS) ?: listOf())
+                    // Since we want most recent flyers to show first but we are looking at past
+                    // flyers, we need to do a sorted descending here.
+                    pastFlyersState = FlyersRetrievalState.Success(
+                        flyerRepository.fetchFlyersBeforeDate("2023-04-30T21:00:00.000Z")
+                            .sortedDescending()
+                    )
                 )
-            } catch (ignored: Exception) {
+            } catch (e: Exception) {
+                Log.d(TAG, "queryPastFlyers: exception ${e.message}")
                 flyersUiState.copy(
-                    upcomingFlyersState = FlyersRetrievalState.Error
+                    pastFlyersState = FlyersRetrievalState.Error
                 )
             }
         }
     }
+
+    fun incrementTimesClicked(id: String) {
+        viewModelScope.launch {
+            Log.d(TAG, "incrementTimesClicked: mutation ran")
+            flyerRepository.incrementTimesClicked(id)
+        }
+    }
+
+    suspend fun getIsBookmarked(flyerId: String): Boolean {
+        return userPreferencesRepository.fetchBookmarkedFlyerIds().contains(flyerId)
+    }
+
+    fun addBookmarkedFlyer(flyerId: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.addBookmarkedFlyer(flyerId)
+        }
+    }
+
+    fun removeBookmarkedFlyer(flyerId: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.removeBookmarkedFlyer(flyerId)
+        }
+    }
+
+
 }
 
 /**
- * Returns a string representation of the date one week after today, with the pattern
- * yyyy-MM-dd
- */
-private fun getWeekAfter(): String {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    val date = LocalDate.now().plusWeeks(1)
-    return formatter.format(date)
-}
-
-/**
- * Returns a string representation of today's date, with the pattern
- * yyyy-MM-dd
+ * Returns a string representation of today's date, formatted with the ISO local date time formatter.
  */
 private fun getToday(): String {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    val date = LocalDate.now()
-    return formatter.format(date)
+    return LocalDateTime.now()
+        .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 }

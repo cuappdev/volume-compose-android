@@ -16,7 +16,7 @@ sealed class NavigationItem(
     val unselectedIconId: Int,
     val selectedIconId: Int,
     val title: String,
-    val selectedRoutes: Set<String>
+    val selectedRoutes: Set<String>,
 ) {
     object Home : NavigationItem(
         route = Routes.HOME.route,
@@ -86,5 +86,6 @@ enum class Routes(override var route: String) : NavUnit {
     OPEN_MAGAZINE("open_magazine"),
     SETTINGS("settings"),
     ABOUT_US("about_us"),
-    WEEKLY_DEBRIEF("weekly_debrief")
+    WEEKLY_DEBRIEF("weekly_debrief"),
+    SEARCH("search"),
 }

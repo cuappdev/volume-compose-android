@@ -57,6 +57,30 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun addBookmarkedFlyer(flyerId: String) {
+        userPreferencesStore.updateData { currentPreferences ->
+            val currentBookmarks = currentPreferences.bookmarkedFlyersList.toHashSet()
+            if (!currentBookmarks.contains(flyerId)) {
+                currentPreferences.toBuilder().addBookmarkedFlyers(flyerId).build()
+            } else {
+                currentPreferences
+            }
+        }
+    }
+
+    suspend fun removeBookmarkedFlyer(flyerId: String) {
+        userPreferencesStore.updateData { currentPreferences ->
+            val currentBookmarks = currentPreferences.bookmarkedFlyersList.toHashSet()
+            if (currentBookmarks.contains(flyerId)) {
+                currentBookmarks.remove(flyerId)
+                currentPreferences.toBuilder().clearBookmarkedFlyers()
+                    .addAllBookmarkedFlyers(currentBookmarks).build()
+            } else {
+                currentPreferences
+            }
+        }
+    }
+
     suspend fun removeBookmarkedMagazine(magazineId: String) {
         userPreferencesStore.updateData { currentPreferences ->
             val currentBookmarks = currentPreferences.bookmarkedMagazinesList.toHashSet()
@@ -97,6 +121,9 @@ class UserPreferencesRepository @Inject constructor(
         userPreferencesFlow.first().bookmarkedMagazinesList
     suspend fun fetchBookmarkedArticleIds(): List<String> =
         userPreferencesFlow.first().bookmarkedArticlesList
+
+    suspend fun fetchBookmarkedFlyerIds(): List<String> =
+        userPreferencesFlow.first().bookmarkedFlyersList
 
     suspend fun fetchOnboardingCompleted(): Boolean =
         userPreferencesFlow.first().onboardingCompleted

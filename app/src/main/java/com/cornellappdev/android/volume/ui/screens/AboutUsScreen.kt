@@ -1,16 +1,26 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
@@ -86,120 +96,104 @@ fun AboutUsScreen() {
                         contentDescription = null,
                         modifier = Modifier.offset(y = (-7).dp)
                     )
-                    Text(
-                        text = "The founding members that together made Volume a reality ✨",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 10.dp)
-                    )
                 }
                 item {
-
-                    Text(
-                        text = "\uD83D\uDCE3  Android",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                    Text(
-                        text = "Chris Desir, Aastha Shah, Justin Jiang, Emily Hu, Ben Harris",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(
-                            top = 4.dp,
-                            start = 25.dp
-                        )
-                    )
-                    Text(
-                        text = "\uD83D\uDCE3  Backend",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                    Text(
-                        text = "Tedi Mitiku, Orko Sinha",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(
-                            top = 4.dp,
-                            start = 25.dp
-                        )
-                    )
-                    Text(
-                        text = "\uD83D\uDCE3  Design",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                    Text(
-                        text = "Amanda He, Zixian Jia, Maggie Ying",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(
-                            top = 4.dp,
-                            start = 25.dp
-                        )
-                    )
-                    Text(
-                        text = "\uD83D\uDCE3  iOS",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                    Text(
-                        text = "Sergio Diaz, Cameron Russell, Daniel Vebman",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(
-                            top = 4.dp,
-                            start = 25.dp
-                        )
-                    )
-                    Text(
-                        text = "\uD83D\uDCE3  Marketing",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                    Text(
-                        text = "Jonna Chen, Monan Modi, Yi Hsin Wei",
-                        fontFamily = lato,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        modifier = Modifier.padding(
-                            top = 4.dp,
-                            start = 25.dp
-                        )
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(40.dp)) {
+                        Column {
+                            SemesterPodLeadRow(semester = "Spring 2023", podLead = "Liam Du")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Zach Seidner")
+                                CategoryMembersPair(category = "Backend", members = "Isaac Han, Sasha Loayza")
+                                CategoryMembersPair(category = "iOS", members = "Vin Bui, Vivian Nguyen")
+                                CategoryMembersPair(category = "Design", members = "Liam Du, Amy Ge")
+                                CategoryMembersPair(category = "Marketing", members = "Jane Lee, Sanjana Kaicker")
+                            }
+                        }
+                        Column {
+                            SemesterPodLeadRow(semester = "Fall 2022", podLead = "Archit Mehta")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Emily Hu, Benjamin Harris")
+                                CategoryMembersPair(category = "Backend", members = "Archit Mehta, Kidus Zegeye")
+                                CategoryMembersPair(category = "iOS", members = "Jennifer Gu, Vivian Nguyen, Hanzheng Li")
+                                CategoryMembersPair(category = "Design", members = "Tise Alatise, Kayla Sprayberry")
+                                CategoryMembersPair(category = "Marketing", members = "Vivian Park, Eddie Chi")
+                            }
+                        }
+                        Column {
+                            SemesterPodLeadRow(semester = "Spring 2022", podLead = "Hanzheng Li")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Emily Hu, Benjamin Harris")
+                                CategoryMembersPair(category = "Backend", members = "Kidus Zegeye")
+                                CategoryMembersPair(category = "iOS", members = "Justin Ngai, Hanzheng Li")
+                                CategoryMembersPair(category = "Design", members = "Kayla Sprayberry, Christina Zeng")
+                                CategoryMembersPair(category = "Marketing", members = "Neha Malepati, Carnell Zhou")
+                            }
+                        }
+                        Column {
+                            SemesterPodLeadRow(semester = "Fall 2021", podLead = "Tedi Mitiku")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Benjamin Harris, Chris Desir")
+                                CategoryMembersPair(category = "Backend", members = "Kidus Zegeye, Tedi Mitiku, Orko Sinha")
+                                CategoryMembersPair(category = "iOS", members = "Hanzheng Li, Amy Huang")
+                                CategoryMembersPair(category = "Design", members = "Christina Zeng, Amanda He, Zixian Jia")
+                                CategoryMembersPair(category = "Marketing", members = "Gordon Tran, Jonna Chen")
+                            }
+                        }
+                        Column {
+                            SemesterPodLeadRow(semester = "Spring 2021", podLead = "Tedi Mitiku")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Chris Desir")
+                                CategoryMembersPair(category = "Backend", members = "Tedi Mitiku, Orko Sinha")
+                                CategoryMembersPair(category = "iOS", members = "Sergio Diaz, Cameron Russell")
+                                CategoryMembersPair(category = "Design", members = "Zixian Jia, Maggie Ying")
+                                CategoryMembersPair(category = "Marketing", members = "Jonna Chen, Monan Modi")
+                            }
+                        }
+                        Column {
+                            SemesterPodLeadRow(semester = "Fall 2020", podLead = "Maggie Ying")
+                            Column (verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                                CategoryMembersPair(category = "Android", members = "Justin Jiang, Aastha Shah")
+                                CategoryMembersPair(category = "Backend", members = "Tedi Mitiku, Orko Sinha")
+                                CategoryMembersPair(category = "iOS", members = "Cameron Russell, Daniel Vebman")
+                                CategoryMembersPair(category = "Design", members = "Maggie Ying")
+                                CategoryMembersPair(category = "Marketing", members = "Yi Hsin Wei")
+                            }
+                        }
+                    }
                 }
             }
         }
     })
 }
 
-@Preview
 @Composable
-fun ComposablePreview() {
-    AboutUsScreen()
+fun SemesterPodLeadRow(semester: String, podLead: String) {
+    Row {
+        BodyText(text = semester)
+        Column {
+            HeadingText(text = "Pod Lead", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
+            BodyText(text = podLead, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.End)
+        }
+    }
+}
+
+@Composable
+fun CategoryMembersPair (category: String, members: String) {
+    Column {
+        HeadingText(text = category)
+        Spacer(modifier = Modifier.height(8.dp))
+        BodyText(text = members)
+    }
+}
+@Composable
+fun HeadingText(text: String, modifier: Modifier = Modifier, textAlign: TextAlign = TextAlign.Start) {
+    Text(text = text, modifier = modifier, fontFamily = notoserif, fontSize = 20.sp, fontWeight = FontWeight.Medium, textAlign = textAlign)
+}
+
+@Composable
+fun BodyText(text: String, modifier: Modifier = Modifier, textAlign: TextAlign = TextAlign.Start) {
+    Text(text = text, modifier = modifier, fontFamily = notoserif, fontSize = 16.sp, fontWeight = FontWeight.Normal, textAlign = textAlign)
 }

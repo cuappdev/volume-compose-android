@@ -1,6 +1,13 @@
 package com.cornellappdev.android.volume.data.repositories
 
-import com.cornellappdev.android.volume.*
+import com.cornellappdev.android.volume.AllMagazinesQuery
+import com.cornellappdev.android.volume.FeaturedMagazinesQuery
+import com.cornellappdev.android.volume.IncrementMagazineShoutoutsMutation
+import com.cornellappdev.android.volume.MagazineByIdQuery
+import com.cornellappdev.android.volume.MagazinesByIDsQuery
+import com.cornellappdev.android.volume.MagazinesByPublicationSlugQuery
+import com.cornellappdev.android.volume.MagazinesBySemesterQuery
+import com.cornellappdev.android.volume.SearchMagazinesQuery
 import com.cornellappdev.android.volume.data.NetworkApi
 import com.cornellappdev.android.volume.data.models.ContentType
 import com.cornellappdev.android.volume.data.models.Magazine
@@ -31,20 +38,61 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
         networkApi.fetchMagazinesByIds(ids).dataAssertNoErrors.mapDataToMagazines()
 
     suspend fun fetchMagazinesByPublicationSlug(slug: String, limit: Double? = null) =
-        networkApi.fetchMagazinesByPublication(slug = slug, limit = limit).dataAssertNoErrors.mapDataToMagazines()
+        networkApi.fetchMagazinesByPublication(
+            slug = slug,
+            limit = limit
+        ).dataAssertNoErrors.mapDataToMagazines()
 
     suspend fun fetchAllMagazines(limit: Double? = null): List<Magazine> =
         networkApi.fetchAllMagazines(limit).dataAssertNoErrors.mapDataToMagazines()
 
-    suspend fun incrementMagazineShoutouts(id: String, uuid: String): IncrementMagazineShoutoutsMutation.Data =
+    suspend fun incrementMagazineShoutouts(
+        id: String,
+        uuid: String,
+    ): IncrementMagazineShoutoutsMutation.Data =
         networkApi.incrementMagazineShoutout(id, uuid).dataAssertNoErrors
+
+    suspend fun searchMagazines(query: String): List<Magazine> =
+        networkApi.fetchSearchedMagazines(query).dataAssertNoErrors.mapDataToMagazines()
+
+    private fun SearchMagazinesQuery.Data.mapDataToMagazines(): List<Magazine> {
+        return this.searchMagazines.map { magazine ->
+            val publication = magazine.publication
+            Magazine(
+                id = magazine.id,
+                title = magazine.title,
+                date = magazine.date.toString(),
+                semester = magazine.semester,
+                pdfURL = magazine.pdfURL,
+                publication = Publication(
+                    backgroundImageURL = publication.backgroundImageURL,
+                    bio = publication.bio,
+                    name = publication.name,
+                    profileImageURL = publication.profileImageURL,
+                    rssName = publication.rssName,
+                    rssURL = publication.rssURL,
+                    slug = publication.slug,
+                    shoutouts = publication.shoutouts,
+                    contentTypes = publication.contentTypes.map {
+                        ContentType.valueOf(it.uppercase())
+                    },
+                    websiteURL = publication.websiteURL,
+                    numArticles = publication.numArticles,
+                    socials = publication.socials.map {
+                        Social(it.social, it.url)
+                    }
+                ),
+                shoutouts = magazine.shoutouts
+            )
+        }
+    }
 
     private fun FeaturedMagazinesQuery.Data.mapDataToMagazines(): List<Magazine> {
         // Not really sure why I need a non-null assertion here, if there are issues getting
         // featured magazines in the future this could be the cause.
         return this.getFeaturedMagazines!!.map { magazine ->
             val publication = magazine.publication
-            Magazine (
+            Magazine(
                 id = magazine.id,
                 title = magazine.title,
                 date = magazine.date.toString(),
@@ -76,7 +124,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
     private fun MagazinesByPublicationSlugQuery.Data.mapDataToMagazines(): List<Magazine> {
         return this.getMagazinesByPublicationSlug.map { magazine ->
             val publication = magazine.publication
-            Magazine (
+            Magazine(
                 id = magazine.id,
                 title = magazine.title,
                 date = magazine.date.toString(),
@@ -108,7 +156,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
     private fun MagazinesBySemesterQuery.Data.mapDataToMagazines(): List<Magazine> {
         return this.getMagazinesBySemester.map {
             val publication = it.publication
-            Magazine (
+            Magazine(
                 id = it.id,
                 title = it.title,
                 date = it.date.toString(),
@@ -140,7 +188,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
     private fun MagazinesByIDsQuery.Data.mapDataToMagazines(): List<Magazine> {
         return this.getMagazinesByIDs.map {
             val publication = it.publication
-            Magazine (
+            Magazine(
                 id = it.id,
                 title = it.title,
                 date = it.date.toString(),
@@ -173,7 +221,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
         // Same with here.
         val magRep = this.getMagazineByID!!
         val publication = magRep.publication
-        return Magazine (
+        return Magazine(
             id = magRep.id,
             title = magRep.title,
             date = magRep.date.toString(),

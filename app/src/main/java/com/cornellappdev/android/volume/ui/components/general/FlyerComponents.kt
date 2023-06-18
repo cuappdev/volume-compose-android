@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -52,14 +53,14 @@ import com.cornellappdev.android.volume.data.models.Organization
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
+import com.cornellappdev.android.volume.ui.viewmodels.FlyersViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.util.Locale
 
+private const val TAG = "FlyerComponents"
 
 @Composable
-fun BigFlyer(imgSize: Dp, flyer: Flyer) {
+fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltViewModel()) {
     val iconSize = if (imgSize > 256.dp) 24.dp else 16.dp
     val imageURL = flyer.imageURL
     val context = LocalContext.current
@@ -69,13 +70,14 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
         ActivityResultContracts.StartActivityForResult()
     ) {}
 
+
     // Gets the average image color for background
     LaunchedEffect(key1 = flyer.imageURL) {
         imageBitmap = getBitmap(imageURL, context)
         averageColor = getAverageColor(imageBitmap!!).toComposeColor()
     }
 
-    Column (modifier = Modifier.width(imgSize)) {
+    Column(modifier = Modifier.width(imgSize)) {
         // Image and tag
         Box {
 
@@ -93,7 +95,9 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
                     Text(
                         text = flyer.organizations.formatTypes(),
                         color = Color.White,
-                        modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp)
+                        modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -104,19 +108,29 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
                 modifier = Modifier
                     .size(size = imgSize)
                     .zIndex(0F)
-                    .background(color = averageColor).clickable { val uri = Uri.parse(flyer.postURL)
+                    .background(color = averageColor)
+                    .clickable {
+                        flyersViewModel.incrementTimesClicked(flyer.id)
+
+                        val uri = Uri.parse(flyer.flyerURL)
                         try {
                             val intent = Intent(Intent.ACTION_VIEW, uri)
                             openLinkLauncher.launch(intent)
-                        } catch (ignored: ActivityNotFoundException) {} },
+                        } catch (ignored: ActivityNotFoundException) {
+                        }
+                    },
             )
         }
 
         // Organization and icon row
-        OrganizationAndIconsRow(organizationName = flyer.organizations
-            .joinToString(transform = {o -> o.name.replaceFirstChar { c -> c.uppercase() }},
-                separator = ", "), inBigFlyer = true, iconSize = iconSize, url = flyer.postURL,
-            context = LocalContext.current)
+        OrganizationAndIconsRow(
+            organizationName = flyer.organizations
+                .joinToString(
+                    transform = { o -> o.name.replaceFirstChar { c -> c.uppercase() } },
+                    separator = ", "
+                ), inBigFlyer = true, iconSize = iconSize, url = flyer.flyerURL,
+            context = LocalContext.current, flyerId = flyer.id
+        )
 
         // Event title text
         Text(
@@ -125,16 +139,23 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer) {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            overflow = TextOverflow.Ellipsis
         )
-        IconTextRow(text = formatDateString(flyer.startDate, flyer.endDate), iconId = R.drawable.ic_calendar)
+        IconTextRow(
+            text = formatDateString(flyer.startDateTime, flyer.endDateTime),
+            iconId = R.drawable.ic_calendar
+        )
         Spacer(modifier = Modifier.height(5.dp))
         IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin)
     }
 }
 
 @Composable
-fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
+fun SmallFlyer(
+    inUpcoming: Boolean,
+    flyer: Flyer,
+    flyersViewModel: FlyersViewModel = hiltViewModel(),
+) {
     val imageURL = flyer.imageURL
     val context = LocalContext.current
     val openLinkLauncher = rememberLauncherForActivityResult(
@@ -158,15 +179,17 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
             .width(352.dp)
             .padding(bottom = 16.dp, end = 16.dp)
     }
-    Row (modifier = modifier) {
+    Row(modifier = modifier) {
         // For some reason image clickability only works when it's in a box in this case
         // This is the cover image
-        Box (modifier = Modifier.clickable {
-            val uri = Uri.parse(flyer.postURL)
+        Box(modifier = Modifier.clickable {
+            flyersViewModel.incrementTimesClicked(flyer.id)
+            val uri = Uri.parse(flyer.flyerURL)
             try {
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 openLinkLauncher.launch(intent)
-            } catch (ignored: ActivityNotFoundException) {}
+            } catch (ignored: ActivityNotFoundException) {
+            }
         }) {
             AsyncImage(
                 model = flyer.imageURL,
@@ -179,24 +202,32 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
             )
         }
 
-        Column (modifier = Modifier.padding(start = 8.dp)) {
-            OrganizationAndIconsRow(organizationName = flyer.organizations
-                .toSet()
-                .joinToString(transform = {o -> o.name}, separator = ", "), iconSize = 20.dp, url = flyer.postURL,
-                context = LocalContext.current)
+        Column(modifier = Modifier.padding(start = 8.dp)) {
+            OrganizationAndIconsRow(
+                organizationName = flyer.organizations
+                    .toSet()
+                    .joinToString(transform = { o -> o.name }, separator = ", "),
+                iconSize = 20.dp,
+                url = flyer.flyerURL,
+                context = LocalContext.current,
+                flyerId = flyer.id
+            )
             // Flyer title
             Text(
                 text = flyer.title,
                 fontFamily = notoserif,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
             Spacer(
                 modifier = Modifier
                     .height(4.dp)
                     .fillMaxWidth()
             )
-            IconTextRow(text = formatDateString(flyer.startDate, flyer.endDate), iconId = R.drawable.ic_calendar)
+            IconTextRow(
+                text = formatDateString(flyer.startDateTime, flyer.endDateTime),
+                iconId = R.drawable.ic_calendar
+            )
             Spacer(
                 modifier = Modifier
                     .height(4.dp)
@@ -205,9 +236,11 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
             IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin)
             if (!inUpcoming) {
                 // Show the tag:
-                Spacer(modifier = Modifier
-                    .height(8.dp)
-                    .fillMaxWidth())
+                Spacer(
+                    modifier = Modifier
+                        .height(8.dp)
+                        .fillMaxWidth()
+                )
                 Box(modifier = Modifier.drawWithContent {
                     drawContent()
                     drawRoundRect(
@@ -226,6 +259,8 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
                             .padding(horizontal = 16.dp, vertical = 4.dp),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -237,52 +272,91 @@ fun SmallFlyer(inUpcoming: Boolean, flyer: Flyer) {
  * Formats the types for multiple organizations so you can see them clearly in the tag.
  */
 fun List<Organization>.formatTypes(): String {
-    return  this.map { o -> o.type.replaceFirstChar { c -> c.uppercase() } }.toSet().joinToString(separator = ", ")
+    return this.map { o -> o.categorySlug.replaceFirstChar { c -> c.uppercase() } }.toSet()
+        .joinToString(separator = ", ")
 }
 
 
 @Composable
-fun OrganizationAndIconsRow(organizationName: String, inBigFlyer: Boolean = false, iconSize: Dp,
-    url: String, context: Context) {
-    if (inBigFlyer) {
-        Spacer(modifier = Modifier
-            .height(8.dp)
-            .fillMaxWidth())
+fun OrganizationAndIconsRow(
+    organizationName: String,
+    inBigFlyer: Boolean = false,
+    iconSize: Dp,
+    url: String,
+    context: Context,
+    flyerId: String,
+    flyersViewModel: FlyersViewModel = hiltViewModel(),
+) {
+    var isBookmarked by remember { mutableStateOf(false) }
+    // Update isBookmarked in a separate thread
+    LaunchedEffect(key1 = "check bookmarked $flyerId") {
+        isBookmarked = flyersViewModel.getIsBookmarked(flyerId)
     }
-    Row(modifier = Modifier
-        .fillMaxWidth()) {
+    if (inBigFlyer) {
+        Spacer(
+            modifier = Modifier
+                .height(8.dp)
+                .fillMaxWidth()
+        )
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
         // Org name
         Text(
             text = organizationName,
             fontFamily = notoserif,
             fontWeight = FontWeight.Medium,
-            fontSize = 12.sp
+            fontSize = 12.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
         Spacer(modifier = Modifier.weight(1F))
         // Bookmark icon
         Image(
-            painter = painterResource(id = R.drawable.ic_bookmark_orange_empty),
+            painter = painterResource(
+                id =
+                if (isBookmarked) R.drawable.ic_bookmark_orange_filled
+                else R.drawable.ic_bookmark_orange_empty
+            ),
             contentDescription = null,
-            modifier = Modifier.size(iconSize),
+            modifier = Modifier
+                .size(iconSize)
+                .clickable {
+                    if (isBookmarked) flyersViewModel.removeBookmarkedFlyer(flyerId)
+                    else flyersViewModel.addBookmarkedFlyer(flyerId)
+                    isBookmarked = !isBookmarked
+                }
         )
         Spacer(modifier = Modifier.width(8.dp))
         // Share icon
         Icon(
             painter = painterResource(id = R.drawable.ic_share_black),
             contentDescription = null,
-            modifier = Modifier.size(iconSize).clickable {
-                 shareFlyer(context = context, url = url)
-            },
+            modifier = Modifier
+                .size(iconSize)
+                .clickable {
+                    shareFlyer(context = context, url = url)
+                },
         )
     }
 }
 
 @Composable
 fun IconTextRow(text: String, iconId: Int, modifier: Modifier = Modifier) {
-    Row (modifier = Modifier) {
+    Row(modifier = Modifier) {
         Icon(painter = painterResource(id = iconId), contentDescription = null)
         Spacer(modifier = Modifier.width(4.dp))
-        Text(text = text, fontFamily = lato, fontWeight = FontWeight.Normal, fontSize = 12.sp, modifier = modifier)
+        Text(
+            text = text,
+            fontFamily = lato,
+            fontWeight = FontWeight.Normal,
+            fontSize = 12.sp,
+            modifier = modifier,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -297,6 +371,7 @@ private suspend fun getBitmap(imageUrl: String, context: Context): Bitmap? {
             val bitDrawable = res.drawable
             (bitDrawable as BitmapDrawable).bitmap
         }
+
         else -> {
             null
         }
@@ -309,7 +384,12 @@ private suspend fun getBitmap(imageUrl: String, context: Context): Bitmap? {
  */
 private fun getAverageColor(immutableBitmap: Bitmap): Int {
     // Scale bitmap to make it go faster :)
-    val bitmap = Bitmap.createScaledBitmap(immutableBitmap.copy(Bitmap.Config.RGBA_F16, true), 120 , 120, false)
+    val bitmap = Bitmap.createScaledBitmap(
+        immutableBitmap.copy(Bitmap.Config.RGBA_F16, true),
+        120,
+        120,
+        false
+    )
 
 
     // Calculate the total sum of red, green, and blue values
@@ -338,28 +418,16 @@ private fun getAverageColor(immutableBitmap: Bitmap): Int {
 /**
  * Formats date string in the desired format for displaying.
  */
-private fun formatDateString(startDate: String, endDate: String): String {
-    val startDateTime = LocalDateTime.parse(startDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
-    val endDateTime = LocalDateTime.parse(endDate, DateTimeFormatter.ofPattern("MMM d yy h:mm a"))
-
-    val dayOfWeek = startDateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.US)
-    val month = startDateTime.month.getDisplayName(TextStyle.SHORT, Locale.US)
-    val dayOfMonth = startDateTime.dayOfMonth
-
-    val startTime = if (startDateTime.minute == 0) {
-        startDateTime.format(DateTimeFormatter.ofPattern("ha"))
-    } else {
-        startDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
+private fun formatDateString(startDateTime: LocalDateTime, endDateTime: LocalDateTime): String =
+    try {
+        val formatter = DateTimeFormatter.ofPattern("h:mm a")
+        val startTime = formatter.format(startDateTime)
+        val endTime = formatter.format(endDateTime)
+        "$startTime - $endTime"
+    } catch (ignored: Exception) {
+        startDateTime.toString()
     }
 
-    val endTime = if (endDateTime.minute == 0) {
-        endDateTime.format(DateTimeFormatter.ofPattern("ha"))
-    } else {
-        endDateTime.format(DateTimeFormatter.ofPattern("h:mm a"))
-    }
-
-    return "$dayOfWeek, $month $dayOfMonth $startTime - $endTime"
-}
 
 /**
  * Opens the snackbar to share a Flyer, which shares its associated post URL.

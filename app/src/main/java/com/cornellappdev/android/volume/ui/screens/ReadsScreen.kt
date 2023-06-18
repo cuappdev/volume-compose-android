@@ -22,6 +22,7 @@ import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.data.models.Publication
+import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.VolumePeriod
 import com.cornellappdev.android.volume.ui.theme.VolumeOffWhite
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
@@ -29,13 +30,17 @@ import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import kotlinx.coroutines.launch
 
+private const val TAG = "ReadsScreen"
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun ReadsScreen(onArticleClick: (Article, NavigationSource) -> Unit,
-                showBottomBar: MutableState<Boolean>,
-                onMagazineClick: (Magazine) -> Unit,
-                onPublicationClick: (Publication) -> Unit){
+fun ReadsScreen(
+    onArticleClick: (Article, NavigationSource) -> Unit,
+    showBottomBar: MutableState<Boolean>,
+    onMagazineClick: (Magazine) -> Unit,
+    onPublicationClick: (Publication) -> Unit,
+    onSearchClick: (Int) -> Unit,
+) {
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
@@ -47,12 +52,11 @@ fun ReadsScreen(onArticleClick: (Article, NavigationSource) -> Unit,
                     PublicationsMenu(onPublicationClick = onPublicationClick)
                 }
             },
-            content = {
-                    innerPadding ->
+            content = { innerPadding ->
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    Column (modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
+                    Column(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
                         // Reads title
-                        Row (modifier = Modifier.padding(top = 20.dp)) {
+                        Row(modifier = Modifier.padding(top = 20.dp)) {
                             Text(
                                 modifier = Modifier.padding(start = 15.dp),
                                 text = "Reads",
@@ -61,7 +65,7 @@ fun ReadsScreen(onArticleClick: (Article, NavigationSource) -> Unit,
                                 fontSize = 28.sp,
                                 textAlign = TextAlign.Left
                             )
-                            VolumePeriod(modifier = Modifier.padding(start = 10.dp, top=23.dp))
+                            VolumePeriod(modifier = Modifier.padding(start = 10.dp, top = 23.dp))
                         }
 
                         // Articles and Magazines Tab tabs.
@@ -69,11 +73,23 @@ fun ReadsScreen(onArticleClick: (Article, NavigationSource) -> Unit,
                         val tabs = listOf("Articles", "Magazines")
                         Row {
                             Spacer(modifier = Modifier.weight(1F))
-                            Column (modifier = Modifier.width(screenWidthDp * 3 / 4)) {
+                            Column(modifier = Modifier.width(screenWidthDp * 3 / 4)) {
 
-                                TabRow(selectedTabIndex = tabIndex, contentColor = VolumeOrange, backgroundColor = VolumeOffWhite) {
+                                TabRow(
+                                    selectedTabIndex = tabIndex,
+                                    contentColor = VolumeOrange,
+                                    backgroundColor = VolumeOffWhite
+                                ) {
                                     tabs.forEachIndexed { index, title ->
-                                        Tab(text = { Text(title, fontFamily = lato, fontSize = 18.sp, maxLines = 1,) },
+                                        Tab(
+                                            text = {
+                                                Text(
+                                                    title,
+                                                    fontFamily = lato,
+                                                    fontSize = 18.sp,
+                                                    maxLines = 1,
+                                                )
+                                            },
                                             selected = tabIndex == index,
                                             onClick = { tabIndex = index },
                                             selectedContentColor = VolumeOrange,
@@ -94,13 +110,22 @@ fun ReadsScreen(onArticleClick: (Article, NavigationSource) -> Unit,
                                     })
                             Spacer(modifier = Modifier.weight(2F))
                         }
+                        SearchBar(value = "",
+                            onValueChange = {},
+                            modifier = Modifier
+                                .padding(end = 16.dp, top = 16.dp),
+                            onClick = { onSearchClick(tabIndex) })
 
                         when (tabIndex) {
                             0 -> {
-                                ArticlesScreen(onArticleClick = onArticleClick, showBottomBar = showBottomBar)
+                                ArticlesViewer(
+                                    onArticleClick = onArticleClick,
+                                    showBottomBar = showBottomBar
+                                )
                             }
+
                             1 -> {
-                                MagazinesScreen(onMagazineClick = onMagazineClick)
+                                MagazinesViewer(onMagazineClick = onMagazineClick)
                             }
                         }
                     }

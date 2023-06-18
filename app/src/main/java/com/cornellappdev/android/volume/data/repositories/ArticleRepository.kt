@@ -1,6 +1,14 @@
 package com.cornellappdev.android.volume.data.repositories
 
-import com.cornellappdev.android.volume.*
+import com.cornellappdev.android.volume.AllArticlesQuery
+import com.cornellappdev.android.volume.ArticleByIDQuery
+import com.cornellappdev.android.volume.ArticlesByIDsQuery
+import com.cornellappdev.android.volume.ArticlesByPublicationSlugQuery
+import com.cornellappdev.android.volume.ArticlesByPublicationSlugsQuery
+import com.cornellappdev.android.volume.IncrementShoutoutsMutation
+import com.cornellappdev.android.volume.SearchArticlesQuery
+import com.cornellappdev.android.volume.ShuffledArticlesByPublicationSlugsQuery
+import com.cornellappdev.android.volume.TrendingArticlesQuery
 import com.cornellappdev.android.volume.data.NetworkApi
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.ContentType
@@ -30,7 +38,7 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
         networkApi.fetchArticlesByPublicationSlugs(slugs).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByShuffledPublicationSlugs(slugs: List<String>): List<Article> =
-            networkApi.fetchShuffledArticlesByPublicationSlugs(slugs).dataAssertNoErrors.mapDataToArticles()
+        networkApi.fetchShuffledArticlesByPublicationSlugs(slugs).dataAssertNoErrors.mapDataToArticles()
 
     suspend fun fetchArticlesByIDs(ids: List<String>): List<Article> =
         networkApi.fetchArticlesByIDs(ids).dataAssertNoErrors.mapDataToArticles()
@@ -38,8 +46,44 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
     suspend fun fetchArticleByID(id: String): Article =
         networkApi.fetchArticleByID(id).dataAssertNoErrors.mapDataToArticles().first()
 
-    suspend fun incrementShoutout(id: String, uuid: String): IncrementShoutoutMutation.Data =
+    suspend fun searchArticles(query: String): List<Article> =
+        networkApi.fetchSearchedArticles(query).dataAssertNoErrors.mapDataToArticles()
+
+    suspend fun incrementShoutout(id: String, uuid: String): IncrementShoutoutsMutation.Data =
         networkApi.incrementShoutout(id, uuid).dataAssertNoErrors
+
+    private fun SearchArticlesQuery.Data.mapDataToArticles(): List<Article> {
+        return this.searchArticles.map { articleData ->
+            val publication = articleData.publication
+            Article(
+                title = articleData.title,
+                articleURL = articleData.articleURL,
+                date = articleData.date.toString(),
+                id = articleData.id,
+                imageURL = articleData.imageURL,
+                publication = Publication(
+                    backgroundImageURL = publication.backgroundImageURL,
+                    bio = publication.bio,
+                    name = publication.name,
+                    profileImageURL = publication.profileImageURL,
+                    rssName = publication.rssName,
+                    rssURL = publication.rssURL,
+                    slug = publication.slug,
+                    shoutouts = publication.shoutouts,
+                    contentTypes = publication.contentTypes.map {
+                        ContentType.valueOf(it.uppercase())
+                    },
+                    websiteURL = publication.websiteURL,
+                    numArticles = publication.numArticles,
+                    socials = publication.socials
+                        .map { Social(it.social, it.url) }
+                ),
+                shoutouts = articleData.shoutouts,
+
+                nsfw = articleData.nsfw
+            )
+        }
+    }
 
     private fun AllArticlesQuery.Data.mapDataToArticles(): List<Article> {
         return this.getAllArticles.map { articleData ->
