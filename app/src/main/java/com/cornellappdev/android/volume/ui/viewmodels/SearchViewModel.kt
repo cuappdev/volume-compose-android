@@ -10,6 +10,7 @@ import com.cornellappdev.android.volume.data.repositories.MagazineRepository
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,6 +28,11 @@ class SearchViewModel @Inject constructor(
     var searchUiState by mutableStateOf(SearchUiState())
         private set
 
+    // Have two main jobs to represent the search queries, default initialized to an empty job.
+    // This way we can cancel jobs from search requests we no longer need.
+    private var magazineJob: Job = viewModelScope.launch { }
+    private var articleJob: Job = viewModelScope.launch { }
+
     /**
      * This function updates the view model with the result from performing a search
      * with the given query for magazines.
@@ -37,7 +43,9 @@ class SearchViewModel @Inject constructor(
         searchUiState = searchUiState.copy(
             searchedMagazinesState = MagazinesRetrievalState.Loading
         )
-        viewModelScope.launch {
+        // Cancel any previous jobs so we don't unnecessarily load those search results.
+        magazineJob.cancel()
+        magazineJob = viewModelScope.launch {
             searchUiState = try {
                 searchUiState.copy(
                     searchedMagazinesState = MagazinesRetrievalState.Success(
@@ -63,7 +71,9 @@ class SearchViewModel @Inject constructor(
         searchUiState = searchUiState.copy(
             searchedArticlesState = ArticlesRetrievalState.Loading
         )
-        viewModelScope.launch {
+        // Cancel any previous jobs so we don't unnecessarily load those search results.
+        articleJob.cancel()
+        articleJob = viewModelScope.launch {
             searchUiState = try {
                 searchUiState.copy(
                     searchedArticlesState = ArticlesRetrievalState.Success(

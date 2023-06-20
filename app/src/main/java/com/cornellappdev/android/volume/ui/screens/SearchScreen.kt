@@ -1,7 +1,9 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -20,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
@@ -35,12 +38,14 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.viewmodels.SearchViewModel
 
+private const val TAG = "SearchScreen"
+
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun SearchScreen(
     searchViewModel: SearchViewModel = hiltViewModel(),
     onMagazineClick: (Magazine) -> Unit,
-    onArticleClick: (Article) -> Unit,
+    onArticleClick: (Article, NavigationSource) -> Unit,
     defaultTab: Int = 0,
 ) {
     var search by remember { mutableStateOf("") }
@@ -99,6 +104,7 @@ fun SearchScreen(
 
                     is ArticlesRetrievalState.Success -> {
                         if (articlesState.articles.isEmpty()) {
+                            Log.d(TAG, "SearchScreen: Articles empty")
                             item(span = { GridItemSpan(2) }) {
                                 val recentSearch = search
                                 NothingToShowMessage(
@@ -107,8 +113,22 @@ fun SearchScreen(
                                 )
                             }
                         } else {
-                            items(articlesState.articles, span = { GridItemSpan(2) }) {
-                                CreateArticleRow(article = it, onClick = onArticleClick)
+                            items(articlesState.articles, span = { GridItemSpan(2) }) { article ->
+                                Box(
+                                    modifier = Modifier.padding(
+                                        vertical = 10.dp,
+                                        horizontal = 16.dp
+                                    )
+                                ) {
+                                    CreateArticleRow(
+                                        article
+                                    ) {
+                                        onArticleClick(
+                                            article,
+                                            NavigationSource.SEARCH
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -129,8 +149,22 @@ fun SearchScreen(
                     }
 
                     is MagazinesRetrievalState.Success -> {
-                        items(magazinesState.magazines) {
-                            CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
+                        if (magazinesState.magazines.isEmpty()) {
+                            Log.d(TAG, "SearchScreen: Magazines empty")
+                            item(span = { GridItemSpan(2) }) {
+                                val recentSearch = search
+                                NothingToShowMessage(
+                                    title = "No articles for this query.",
+                                    message = "No articles match the query \"$recentSearch\". Try a more general query to see articles."
+                                )
+                            }
+                        } else {
+                            items(magazinesState.magazines, span = { GridItemSpan(2) }) {
+                                CreateMagazineColumn(
+                                    magazine = it,
+                                    onMagazineClick = onMagazineClick
+                                )
+                            }
                         }
                     }
                 }

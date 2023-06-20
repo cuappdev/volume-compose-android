@@ -36,7 +36,7 @@ enum class VolumeEvent(val event: String) {
             eventType: EventType,
             volumeEvent: VolumeEvent,
             navigationSource: NavigationSource = NavigationSource.UNSPECIFIED,
-            id: String = "error"
+            id: String = "error",
         ) {
             when (eventType) {
                 EventType.ARTICLE -> {
@@ -45,12 +45,14 @@ enum class VolumeEvent(val event: String) {
                         param("navigationSource", navigationSource.source)
                     }
                 }
+
                 EventType.PUBLICATION -> {
                     Firebase.analytics.logEvent(volumeEvent.event) {
                         param("publicationSlug", id)
                         param("navigationSource", navigationSource.source)
                     }
                 }
+
                 EventType.GENERAL -> Firebase.analytics.logEvent(volumeEvent.event) {}
             }
         }
@@ -73,6 +75,8 @@ enum class NavigationSource(val source: String) : Parcelable {
     MORE_PUBLICATIONS("more_publications"),
     ONBOARDING("onboarding"),
 
+    // General Entry Points
+    SEARCH("search"),
     UNSPECIFIED("unspecified");
 
     companion object {

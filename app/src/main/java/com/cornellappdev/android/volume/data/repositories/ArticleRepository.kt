@@ -70,9 +70,13 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes.map {
-                        ContentType.valueOf(it.uppercase())
-                    },
+                    /*
+                    * FIXME content types is an empty list, since the backend gives an internal
+                    * server error when searching articles and looking for content types.
+                    * Once this is fixed we should be searching for articles and
+                    * include their content types.
+                    */
+                    contentTypes = listOf(),
                     websiteURL = publication.websiteURL,
                     numArticles = publication.numArticles,
                     socials = publication.socials

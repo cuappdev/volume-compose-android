@@ -195,7 +195,6 @@ query SearchArticles($limit: Float, $query: String!){
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
             socials {
                 social
