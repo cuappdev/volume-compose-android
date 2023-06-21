@@ -43,6 +43,7 @@ import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.analytics.EventType
 import com.cornellappdev.android.volume.analytics.VolumeEvent
 import com.cornellappdev.android.volume.navigation.Routes
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.VolumeLinearProgressBar
 import com.cornellappdev.android.volume.ui.components.general.shimmerEffect
 import com.cornellappdev.android.volume.ui.states.MagazineRetrievalState
@@ -67,7 +68,7 @@ fun IndividualMagazineScreen(
 ) {
     individualMagazineViewModel.queryMagazineById(magazineId)
     val magazineUiState = individualMagazineViewModel.magazineUiState
-    var showProgressBar by remember { mutableStateOf(false)}
+    var showProgressBar by remember { mutableStateOf(false) }
 
     Scaffold(
         bottomBar = {
@@ -89,37 +90,49 @@ fun IndividualMagazineScreen(
         }
     )
 }
+
 @Composable
-fun MakeTopBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState,
-                navController: NavController, navSource: String) {
+fun MakeTopBar(
+    magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState,
+    navController: NavController, navSource: String,
+) {
     when (val magazineState = magazineUiState.magazineState) {
         MagazineRetrievalState.Loading -> {
             TopBar(navController = navController, navSource = navSource)
         }
+
         MagazineRetrievalState.Error -> {
             TopBar(navController = navController, navSource = navSource)
         }
+
         is MagazineRetrievalState.Success -> {
-            TopBar(magazineState.magazine.publication.name, navController = navController,
-            navSource = navSource)
+            TopBar(
+                magazineState.magazine.publication.name, navController = navController,
+                navSource = navSource
+            )
         }
     }
 
 }
 
 @Composable
-fun TopBar(publisher: String = "Magazine",
-           navController: NavController,
-            navSource: String) {
-    Row (modifier = Modifier.background(Color(0xFFF9F9F9)).fillMaxWidth()
-        , horizontalArrangement = Arrangement.SpaceBetween)
+fun TopBar(
+    publisher: String = "Magazine",
+    navController: NavController,
+    navSource: String,
+) {
+    Row(
+        modifier = Modifier
+            .background(Color(0xFFF9F9F9))
+            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+    )
     {
         val arrowWidth = 25.dp
         Icon(painter = painterResource(id = R.drawable.ic_arrow_left),
             contentDescription = null,
             modifier = Modifier
                 .width(arrowWidth)
-                .offset(x = 16.dp, y=4.dp)
+                .offset(x = 16.dp, y = 4.dp)
                 .clickable {
                     navController.navigate(navSource)
                 })
@@ -141,7 +154,7 @@ fun TopBar(publisher: String = "Magazine",
         }
         /* This is to help the title column to be automatically aligned with the center by the
          * Space between arrangement */
-        Box (modifier = Modifier.width(arrowWidth))
+        Box(modifier = Modifier.width(arrowWidth))
     }
 }
 
@@ -151,15 +164,16 @@ fun TopBar(publisher: String = "Magazine",
  * properly, otherwise they will have default values.
  */
 @Composable
-fun MakeBottomBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState, )
-{
+fun MakeBottomBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState) {
     when (val magazineState = magazineUiState.magazineState) {
         MagazineRetrievalState.Loading -> {
             BottomBar()
         }
+
         MagazineRetrievalState.Error -> {
             BottomBar()
         }
+
         is MagazineRetrievalState.Success -> {
             BottomBar(
                 shoutouts = magazineUiState.shoutoutCount,
@@ -174,12 +188,13 @@ fun MakeBottomBar(magazineUiState: IndividualMagazineViewModel.IndividualMagazin
 
 @Composable
 @Preview
-fun BottomBar(shoutouts: Int = 0,
-              isBookmarked: Boolean = false,
-              hasMaxShoutouts: Boolean = false,
-              id: String = "",
-              individualMagazineViewModel: IndividualMagazineViewModel = hiltViewModel())
-{
+fun BottomBar(
+    shoutouts: Int = 0,
+    isBookmarked: Boolean = false,
+    hasMaxShoutouts: Boolean = false,
+    id: String = "",
+    individualMagazineViewModel: IndividualMagazineViewModel = hiltViewModel(),
+) {
     val context = LocalContext.current
     val space = 80.dp
 
@@ -190,10 +205,11 @@ fun BottomBar(shoutouts: Int = 0,
             individualMagazineViewModel.bookmarkMagazine()
         }
 
-    Row (modifier = Modifier
-        .background(color = Color.White)
-        .fillMaxWidth()
-        , horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(
+        modifier = Modifier
+            .background(color = Color.White)
+            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+    ) {
 
         // Bookmark icon
         if (isBookmarked) {
@@ -203,8 +219,7 @@ fun BottomBar(shoutouts: Int = 0,
                 tint = VolumeOrange,
                 modifier = bookmarkModifier
             )
-        }
-        else {
+        } else {
             Icon(
                 Icons.Outlined.BookmarkBorder,
                 contentDescription = "Bookmark article",
@@ -235,10 +250,14 @@ fun BottomBar(shoutouts: Int = 0,
                 }
             }
 
-        Row (modifier = Modifier
-            .padding(end = 16.dp, top = 10.dp).width(space)) {
-            Image(painter = if (hasMaxShoutouts) painterResource(id = R.drawable.ic_shoutout_filled)
-                                else painterResource(id = R.drawable.ic_shoutout),
+        Row(
+            modifier = Modifier
+                .padding(end = 16.dp, top = 10.dp)
+                .width(space)
+        ) {
+            Image(
+                painter = if (hasMaxShoutouts) painterResource(id = R.drawable.ic_shoutout_filled)
+                else painterResource(id = R.drawable.ic_shoutout),
                 contentDescription = null,
                 modifier = shoutoutsModifier
             )
@@ -273,18 +292,24 @@ private fun shareMagazine(context: Context, id: String) {
 
 
 @Composable
-fun PdfReader(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState,
-              modifier: Modifier,
-              showProgressBar: Boolean) {
+fun PdfReader(
+    magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiState,
+    modifier: Modifier,
+    showProgressBar: Boolean,
+) {
     when (val magazineByIdState = magazineUiState.magazineState) {
         MagazineRetrievalState.Loading -> {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .shimmerEffect())
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .shimmerEffect()
+            )
         }
+
         MagazineRetrievalState.Error -> {
-            // TODO retry prompt
+            ErrorState()
         }
+
         is MagazineRetrievalState.Success -> {
             val magazine = magazineByIdState.magazine
             val pdfState = rememberHorizontalPdfReaderState(
@@ -307,6 +332,6 @@ fun PdfReader(magazineUiState: IndividualMagazineViewModel.IndividualMagazineUiS
                 )
             }
         }
-        
+
     }
 }

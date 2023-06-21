@@ -155,6 +155,7 @@ fun SmallFlyer(
     inUpcoming: Boolean,
     flyer: Flyer,
     flyersViewModel: FlyersViewModel = hiltViewModel(),
+    showTag: Boolean = !inUpcoming,
 ) {
     val imageURL = flyer.imageURL
     val context = LocalContext.current
@@ -234,7 +235,7 @@ fun SmallFlyer(
                     .fillMaxWidth()
             )
             IconTextRow(text = flyer.location, iconId = R.drawable.ic_location_pin)
-            if (!inUpcoming) {
+            if (showTag) {
                 // Show the tag:
                 Spacer(
                     modifier = Modifier
