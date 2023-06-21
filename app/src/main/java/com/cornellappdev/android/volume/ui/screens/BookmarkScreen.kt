@@ -63,8 +63,9 @@ import com.cornellappdev.android.volume.util.BookmarkStatus
 import com.cornellappdev.android.volume.util.FinalBookmarkStatus
 import com.cornellappdev.android.volume.util.FlyerConstants
 
+private const val TAG = "BookmarkScreen"
+
 @RequiresApi(Build.VERSION_CODES.P)
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BookmarkScreen(
     bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
