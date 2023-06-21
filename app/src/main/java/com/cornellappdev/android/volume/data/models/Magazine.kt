@@ -17,6 +17,7 @@ data class Magazine(
     val date: String,
     val semester: String,
     val pdfURL: String,
+    val imageURL: String,
     val publication: Publication,
     val shoutouts: Double,
     val title: String,
