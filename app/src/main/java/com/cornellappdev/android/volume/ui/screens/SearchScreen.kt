@@ -4,6 +4,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -27,6 +29,7 @@ import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringArticle
@@ -99,7 +102,9 @@ fun SearchScreen(
                     }
 
                     ArticlesRetrievalState.Error -> {
-                        // TODO
+                        item(span = { GridItemSpan(2) }) {
+                            ErrorState(modifier = Modifier.padding(top = 100.dp))
+                        }
                     }
 
                     is ArticlesRetrievalState.Success -> {
@@ -107,10 +112,17 @@ fun SearchScreen(
                             Log.d(TAG, "SearchScreen: Articles empty")
                             item(span = { GridItemSpan(2) }) {
                                 val recentSearch = search
-                                NothingToShowMessage(
-                                    title = "No articles for this query.",
-                                    message = "No articles match the query \"$recentSearch\". Try a more general query to see articles."
-                                )
+                                if (recentSearch.trim() == "") {
+                                    NothingToShowMessage(
+                                        title = "Not showing articles",
+                                        message = "Try typing in the search bar to search for articles."
+                                    )
+                                } else {
+                                    NothingToShowMessage(
+                                        title = "No articles for this query.",
+                                        message = "No articles match the query \"$recentSearch\". Try a more general query to see articles."
+                                    )
+                                }
                             }
                         } else {
                             items(articlesState.articles, span = { GridItemSpan(2) }) { article ->
@@ -145,7 +157,9 @@ fun SearchScreen(
                     }
 
                     MagazinesRetrievalState.Error -> {
-                        // TODO
+                        item(span = { GridItemSpan(2) }) {
+                            ErrorState(modifier = Modifier.padding(top = 100.dp))
+                        }
                     }
 
                     is MagazinesRetrievalState.Success -> {
@@ -153,12 +167,22 @@ fun SearchScreen(
                             Log.d(TAG, "SearchScreen: Magazines empty")
                             item(span = { GridItemSpan(2) }) {
                                 val recentSearch = search
-                                NothingToShowMessage(
-                                    title = "No articles for this query.",
-                                    message = "No articles match the query \"$recentSearch\". Try a more general query to see articles."
-                                )
+                                if (recentSearch.trim() == "") {
+                                    NothingToShowMessage(
+                                        title = "Not showing magazines",
+                                        message = "Try typing in the search bar to search for magazines."
+                                    )
+                                } else {
+                                    NothingToShowMessage(
+                                        title = "No magazines for this query.",
+                                        message = "No magazines match the query \"$recentSearch\". Try a more general query to see magazines."
+                                    )
+                                }
                             }
                         } else {
+                            item {
+                                Spacer(modifier = Modifier.height(10.dp))
+                            }
                             items(magazinesState.magazines, span = { GridItemSpan(2) }) {
                                 CreateMagazineColumn(
                                     magazine = it,

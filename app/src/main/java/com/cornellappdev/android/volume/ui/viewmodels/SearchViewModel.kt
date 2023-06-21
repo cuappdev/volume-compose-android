@@ -10,9 +10,13 @@ import com.cornellappdev.android.volume.data.repositories.MagazineRepository
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
 import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val TAG = "SearchViewModel"
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -46,16 +50,22 @@ class SearchViewModel @Inject constructor(
         // Cancel any previous jobs so we don't unnecessarily load those search results.
         magazineJob.cancel()
         magazineJob = viewModelScope.launch {
+            // Only query once the user has stopped typing for one second.
+            delay(1000L)
             searchUiState = try {
                 searchUiState.copy(
                     searchedMagazinesState = MagazinesRetrievalState.Success(
                         magazines = magazineRepository.searchMagazines(query)
                     )
                 )
-            } catch (ignored: Exception) {
-                searchUiState.copy(
-                    searchedMagazinesState = MagazinesRetrievalState.Error
-                )
+            } catch (e: java.lang.Exception) {
+                if (e is CancellationException) {
+                    searchUiState
+                } else {
+                    searchUiState.copy(
+                        searchedMagazinesState = MagazinesRetrievalState.Error
+                    )
+                }
             }
         }
     }
@@ -74,16 +84,22 @@ class SearchViewModel @Inject constructor(
         // Cancel any previous jobs so we don't unnecessarily load those search results.
         articleJob.cancel()
         articleJob = viewModelScope.launch {
+            // Only query once the user has stopped typing for one second.
+            delay(1000L)
             searchUiState = try {
                 searchUiState.copy(
                     searchedArticlesState = ArticlesRetrievalState.Success(
                         articles = articleRepository.searchArticles(query)
                     )
                 )
-            } catch (ignored: java.lang.Exception) {
-                searchUiState.copy(
-                    searchedArticlesState = ArticlesRetrievalState.Error
-                )
+            } catch (e: java.lang.Exception) {
+                if (e is CancellationException) {
+                    searchUiState
+                } else {
+                    searchUiState.copy(
+                        searchedArticlesState = ArticlesRetrievalState.Error
+                    )
+                }
             }
         }
     }

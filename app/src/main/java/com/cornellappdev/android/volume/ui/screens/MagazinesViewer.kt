@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringMagazine
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
@@ -173,7 +174,10 @@ fun MagazinesViewer(
                     }
                 }
 
-                MagazinesRetrievalState.Error -> { /* TODO */
+                MagazinesRetrievalState.Error -> {
+                    item {
+                        ErrorState()
+                    }
                 }
 
                 is MagazinesRetrievalState.Success -> {
@@ -205,6 +209,7 @@ fun FillFeaturedMagazinesRow(
         }
 
         MagazinesRetrievalState.Error -> {
+            ErrorState()
         }
 
         is MagazinesRetrievalState.Success -> {

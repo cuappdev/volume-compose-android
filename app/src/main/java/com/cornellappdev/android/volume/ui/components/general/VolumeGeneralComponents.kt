@@ -155,9 +155,15 @@ fun OldNothingToShowMessage(message: String) {
 }
 
 @Composable
-fun NothingToShowMessage(title: String, message: String, showImage: Boolean = false) {
+fun NothingToShowMessage(
+    title: String,
+    message: String,
+    showImage: Boolean = false,
+    imgId: Int = R.drawable.ic_volume_bars_orange_large,
+    modifier: Modifier = Modifier,
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -168,7 +174,7 @@ fun NothingToShowMessage(title: String, message: String, showImage: Boolean = fa
         ) {
             if (showImage) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_volume_bars_orange_large),
+                    painter = painterResource(id = imgId),
                     contentDescription = null,
                     modifier = Modifier
                         .width(21.dp)
@@ -202,6 +208,18 @@ fun VolumePeriod(modifier: Modifier = Modifier) {
         contentDescription = null,
         modifier = modifier
             .scale(1.05F)
+    )
+}
+
+@Composable
+fun ErrorState(modifier: Modifier = Modifier) {
+
+    NothingToShowMessage(
+        title = "No Connection",
+        message = "Please try again later",
+        showImage = true,
+        imgId = R.drawable.ic_nowifi,
+        modifier = modifier
     )
 }
 
