@@ -23,6 +23,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -235,8 +238,16 @@ fun SearchBar(
      */
     onEnterPressed: () -> Unit = {},
     onClick: () -> Unit = {},
+    autoFocus: Boolean = false,
 ) {
     val source = remember { MutableInteractionSource() }
+    val focusRequest = remember { FocusRequester() }
+    if (autoFocus) {
+        LaunchedEffect(key1 = "focus") {
+            focusRequest.requestFocus()
+        }
+    }
+
     TextField(
         value = value,
         onValueChange = onValueChange,
@@ -249,7 +260,8 @@ fun SearchBar(
                     return@onKeyEvent true
                 }
                 false
-            },
+            }
+            .focusRequester(focusRequest),
         leadingIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_search),
