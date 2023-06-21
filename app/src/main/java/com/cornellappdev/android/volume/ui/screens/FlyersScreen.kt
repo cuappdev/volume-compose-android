@@ -329,7 +329,6 @@ fun FlyersScreen(
             is FlyersRetrievalState.Success -> {
                 val flyers = pastFlyersState.flyers
                 if (flyers.isEmpty()) {
-                    Log.d("TAG", "FlyersScreen: PAST FLYERS IS EMPTY")
                     item {
                         NothingToShowMessage(
                             title = "No past flyers",

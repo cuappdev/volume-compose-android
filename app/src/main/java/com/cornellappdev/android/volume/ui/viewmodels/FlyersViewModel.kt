@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,8 +18,6 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
-
-private const val TAG = "MagazinesViewModel"
 
 @HiltViewModel
 class FlyersViewModel @Inject constructor(
@@ -67,7 +64,6 @@ class FlyersViewModel @Inject constructor(
                 )
                 queryWeeklyFlyers()
             } catch (e: Exception) {
-                Log.d(TAG, "queryTodayFlyers: Daily flyers exception: ${e.message}")
                 flyersUiState = flyersUiState.copy(
                     todayFlyersState = FlyersRetrievalState.Error
                 )
@@ -101,7 +97,6 @@ class FlyersViewModel @Inject constructor(
                 )
                 queryUpcomingFlyers(categorySlug = "all")
             } catch (e: Exception) {
-                Log.d(TAG, "queryWeeklyFlyers: exception: ${e.message}")
                 flyersUiState = flyersUiState.copy(
                     weeklyFlyersState = FlyersRetrievalState.Error
                 )
@@ -149,7 +144,6 @@ class FlyersViewModel @Inject constructor(
                     queryPastFlyers()
                 }
             } catch (e: Exception) {
-                Log.d(TAG, "queryUpcomingFlyers: exception ${e.message}")
                 flyersUiState = flyersUiState.copy(
                     upcomingFlyersState = FlyersRetrievalState.Error
                 )
@@ -172,7 +166,6 @@ class FlyersViewModel @Inject constructor(
                     )
                 )
             } catch (e: Exception) {
-                Log.d(TAG, "queryPastFlyers: exception ${e.message}")
                 flyersUiState.copy(
                     pastFlyersState = FlyersRetrievalState.Error
                 )
@@ -182,7 +175,6 @@ class FlyersViewModel @Inject constructor(
 
     fun incrementTimesClicked(id: String) {
         viewModelScope.launch {
-            Log.d(TAG, "incrementTimesClicked: mutation ran")
             flyerRepository.incrementTimesClicked(id)
         }
     }

@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,8 +17,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
-
-private const val TAG = "BookmarkViewModel"
 
 @HiltViewModel
 class BookmarkViewModel @Inject constructor(
@@ -139,7 +136,6 @@ class BookmarkViewModel @Inject constructor(
      * @param categorySlug a valid category slug
      */
     private fun Flyer.belongsToCategory(categorySlug: String): Boolean {
-        Log.d(TAG, "belongsToCategory: ${this.organizations}")
         this.organizations.forEach {
             if (it.categorySlug == categorySlug) {
                 return true

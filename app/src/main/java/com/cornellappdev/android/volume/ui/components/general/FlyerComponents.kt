@@ -57,8 +57,6 @@ import com.cornellappdev.android.volume.ui.viewmodels.FlyersViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-private const val TAG = "FlyerComponents"
-
 @Composable
 fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltViewModel()) {
     val iconSize = if (imgSize > 256.dp) 24.dp else 16.dp

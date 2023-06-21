@@ -12,7 +12,6 @@ import com.cornellappdev.android.volume.data.models.Organization
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val TAG = "FlyerRepository"
 
 @Singleton
 class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
