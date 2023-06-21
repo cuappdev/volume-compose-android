@@ -1,7 +1,6 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -112,20 +111,9 @@ fun SearchScreen(
 
                     is ArticlesRetrievalState.Success -> {
                         if (articlesState.articles.isEmpty()) {
-                            Log.d(TAG, "SearchScreen: Articles empty")
+                            val recentSearch = search
                             item(span = { GridItemSpan(2) }) {
-                                val recentSearch = search
-                                if (recentSearch.trim() == "") {
-                                    NothingToShowMessage(
-                                        title = "Not showing articles",
-                                        message = "Try typing in the search bar to search for articles."
-                                    )
-                                } else {
-                                    NothingToShowMessage(
-                                        title = "No articles for this query.",
-                                        message = "No articles match the query \"$recentSearch\". Try a more general query to see articles."
-                                    )
-                                }
+                                SearchEmptyState(type = "magazines", recentSearch = recentSearch)
                             }
                         } else {
                             items(articlesState.articles, span = { GridItemSpan(2) }) { article ->
@@ -172,20 +160,9 @@ fun SearchScreen(
 
                     is MagazinesRetrievalState.Success -> {
                         if (magazinesState.magazines.isEmpty()) {
-                            Log.d(TAG, "SearchScreen: Magazines empty")
+                            val recentSearch = search
                             item(span = { GridItemSpan(2) }) {
-                                val recentSearch = search
-                                if (recentSearch.trim() == "") {
-                                    NothingToShowMessage(
-                                        title = "Not showing magazines",
-                                        message = "Try typing in the search bar to search for magazines."
-                                    )
-                                } else {
-                                    NothingToShowMessage(
-                                        title = "No magazines for this query.",
-                                        message = "No magazines match the query \"$recentSearch\". Try a more general query to see magazines."
-                                    )
-                                }
+                                SearchEmptyState(type = "magazines", recentSearch = recentSearch)
                             }
                         } else {
                             item {
@@ -203,6 +180,24 @@ fun SearchScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun SearchEmptyState(type: String, recentSearch: String) {
+    Column {
+        Spacer(modifier = Modifier.height(100.dp))
+        if (recentSearch.trim() == "") {
+            NothingToShowMessage(
+                title = "Not showing $type",
+                message = "Try typing in the search bar to search for $type.",
+            )
+        } else {
+            NothingToShowMessage(
+                title = "No $type for this query.",
+                message = "No $type match the query \"$recentSearch\". Try a more general query to see $type."
+            )
         }
     }
 }
