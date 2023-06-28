@@ -195,7 +195,6 @@ query SearchArticles($limit: Float, $query: String!){
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
             socials {
                 social
@@ -250,6 +249,7 @@ query MagazinesBySemester($offset: Float, $limit: Float, $semester: String!){
         date
         semester
         pdfURL
+        imageURL
         publication{
             id
             backgroundImageURL
@@ -286,6 +286,7 @@ query MagazineById($id: String!){
         semester
         pdfURL
         publicationSlug
+        imageURL
         publication{
             id
             backgroundImageURL
@@ -320,6 +321,7 @@ query MagazinesByIDs($ids: [String!]!){
         date
         semester
         pdfURL
+        imageURL
         publication {
             id
             backgroundImageURL
@@ -355,6 +357,7 @@ query FeaturedMagazines($limit: Float){
         date
         semester
         pdfURL
+        imageURL
         publication{
             id
             backgroundImageURL
@@ -390,6 +393,7 @@ query MagazinesByPublicationSlug($offset: Float, $limit: Float, $slug: String!){
         date
         semester
         pdfURL
+        imageURL
         publication{
             id
             backgroundImageURL
@@ -426,6 +430,7 @@ query AllMagazines ($limit: Float) {
         semester
         pdfURL
         publicationSlug
+        imageURL
         publication{
             id
             backgroundImageURL

@@ -44,6 +44,7 @@ import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.OldNothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
@@ -62,8 +63,9 @@ import com.cornellappdev.android.volume.util.BookmarkStatus
 import com.cornellappdev.android.volume.util.FinalBookmarkStatus
 import com.cornellappdev.android.volume.util.FlyerConstants
 
+private const val TAG = "BookmarkScreen"
+
 @RequiresApi(Build.VERSION_CODES.P)
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BookmarkScreen(
     bookmarkViewModel: BookmarkViewModel = hiltViewModel(),
@@ -272,7 +274,10 @@ fun BookmarkedFlyersView(
             }
 
             FlyersRetrievalState.Error -> {
-                // TODO error state?
+                item {
+                    ErrorState()
+                }
+
             }
 
             is FlyersRetrievalState.Success -> {
@@ -385,7 +390,9 @@ fun BookmarkedFlyersView(
         // Past flyers
         when (val pastState = bookmarkUiState.pastFlyersState) {
             FlyersRetrievalState.Error -> {
-                // TODO error state?
+                item {
+                    ErrorState()
+                }
             }
 
             FlyersRetrievalState.Loading -> {
@@ -423,7 +430,7 @@ fun BookmarkedFlyersView(
                         )
                     }
                     items(pastState.flyers) {
-                        SmallFlyer(inUpcoming = false, flyer = it)
+                        SmallFlyer(inUpcoming = false, flyer = it, showTag = false)
                         Spacer(
                             modifier = Modifier
                                 .height(16.dp)
@@ -450,7 +457,7 @@ fun BookmarkedMagazinesView(
         }
 
         MagazinesRetrievalState.Error -> {
-            // TODO
+            ErrorState()
         }
 
         is MagazinesRetrievalState.Success -> {
@@ -491,7 +498,7 @@ fun BookmarkedArticlesView(
         }
 
         ArticlesRetrievalState.Error -> {
-            // TODO
+            ErrorState()
         }
 
         is ArticlesRetrievalState.Success -> {

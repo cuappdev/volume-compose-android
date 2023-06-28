@@ -23,6 +23,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -155,9 +158,15 @@ fun OldNothingToShowMessage(message: String) {
 }
 
 @Composable
-fun NothingToShowMessage(title: String, message: String, showImage: Boolean = false) {
+fun NothingToShowMessage(
+    title: String,
+    message: String,
+    showImage: Boolean = false,
+    imgId: Int = R.drawable.ic_volume_bars_orange_large,
+    modifier: Modifier = Modifier,
+) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -168,7 +177,7 @@ fun NothingToShowMessage(title: String, message: String, showImage: Boolean = fa
         ) {
             if (showImage) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_volume_bars_orange_large),
+                    painter = painterResource(id = imgId),
                     contentDescription = null,
                     modifier = Modifier
                         .width(21.dp)
@@ -206,6 +215,18 @@ fun VolumePeriod(modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun ErrorState(modifier: Modifier = Modifier) {
+
+    NothingToShowMessage(
+        title = "No Connection",
+        message = "Please try again later",
+        showImage = true,
+        imgId = R.drawable.ic_nowifi,
+        modifier = modifier
+    )
+}
+
+@Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
     value: String,
@@ -217,8 +238,16 @@ fun SearchBar(
      */
     onEnterPressed: () -> Unit = {},
     onClick: () -> Unit = {},
+    autoFocus: Boolean = false,
 ) {
     val source = remember { MutableInteractionSource() }
+    val focusRequest = remember { FocusRequester() }
+    if (autoFocus) {
+        LaunchedEffect(key1 = "focus") {
+            focusRequest.requestFocus()
+        }
+    }
+
     TextField(
         value = value,
         onValueChange = onValueChange,
@@ -231,7 +260,8 @@ fun SearchBar(
                     return@onKeyEvent true
                 }
                 false
-            },
+            }
+            .focusRequester(focusRequest),
         leadingIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_search),

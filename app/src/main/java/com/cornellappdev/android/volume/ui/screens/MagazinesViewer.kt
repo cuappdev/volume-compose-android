@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringMagazine
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
@@ -166,6 +167,9 @@ fun MagazinesViewer(
             // Semester magazines view
             when (val magazinesState = magazineUiState.moreMagazinesState) {
                 MagazinesRetrievalState.Loading -> {
+                    item(span = { GridItemSpan(2) }) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                     items(5) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             ShimmeringMagazine()
@@ -173,10 +177,16 @@ fun MagazinesViewer(
                     }
                 }
 
-                MagazinesRetrievalState.Error -> { /* TODO */
+                MagazinesRetrievalState.Error -> {
+                    item {
+                        ErrorState()
+                    }
                 }
 
                 is MagazinesRetrievalState.Success -> {
+                    item(span = { GridItemSpan(2) }) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                     items(magazinesState.magazines) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
@@ -205,6 +215,7 @@ fun FillFeaturedMagazinesRow(
         }
 
         MagazinesRetrievalState.Error -> {
+            ErrorState()
         }
 
         is MagazinesRetrievalState.Success -> {

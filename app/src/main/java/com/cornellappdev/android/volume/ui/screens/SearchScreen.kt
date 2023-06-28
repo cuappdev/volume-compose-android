@@ -2,6 +2,10 @@ package com.cornellappdev.android.volume.ui.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -15,15 +19,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringArticle
@@ -35,12 +42,14 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.viewmodels.SearchViewModel
 
+private const val TAG = "SearchScreen"
+
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun SearchScreen(
     searchViewModel: SearchViewModel = hiltViewModel(),
     onMagazineClick: (Magazine) -> Unit,
-    onArticleClick: (Article) -> Unit,
+    onArticleClick: (Article, NavigationSource) -> Unit,
     defaultTab: Int = 0,
 ) {
     var search by remember { mutableStateOf("") }
@@ -58,6 +67,7 @@ fun SearchScreen(
                     searchViewModel.searchMagazines(it)
                 },
                 modifier = Modifier.padding(vertical = 12.dp),
+                autoFocus = true,
             )
         }
         item(span = { GridItemSpan(2) }) {
@@ -94,21 +104,34 @@ fun SearchScreen(
                     }
 
                     ArticlesRetrievalState.Error -> {
-                        // TODO
+                        item(span = { GridItemSpan(2) }) {
+                            ErrorState(modifier = Modifier.padding(top = 100.dp))
+                        }
                     }
 
                     is ArticlesRetrievalState.Success -> {
                         if (articlesState.articles.isEmpty()) {
+                            val recentSearch = search
                             item(span = { GridItemSpan(2) }) {
-                                val recentSearch = search
-                                NothingToShowMessage(
-                                    title = "No articles for this query.",
-                                    message = "No articles match the query \"$recentSearch\". Try a more general query to see articles."
-                                )
+                                SearchEmptyState(type = "magazines", recentSearch = recentSearch)
                             }
                         } else {
-                            items(articlesState.articles, span = { GridItemSpan(2) }) {
-                                CreateArticleRow(article = it, onClick = onArticleClick)
+                            items(articlesState.articles, span = { GridItemSpan(2) }) { article ->
+                                Box(
+                                    modifier = Modifier.padding(
+                                        vertical = 10.dp,
+                                        horizontal = 16.dp
+                                    )
+                                ) {
+                                    CreateArticleRow(
+                                        article
+                                    ) {
+                                        onArticleClick(
+                                            article,
+                                            NavigationSource.SEARCH
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -119,22 +142,62 @@ fun SearchScreen(
                 // Show magazines
                 when (val magazinesState = uiState.searchedMagazinesState) {
                     MagazinesRetrievalState.Loading -> {
+                        item(span = { GridItemSpan(2) }) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
                         items(4) {
-                            ShimmeringMagazine()
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                ShimmeringMagazine()
+                            }
                         }
                     }
 
                     MagazinesRetrievalState.Error -> {
-                        // TODO
+                        item(span = { GridItemSpan(2) }) {
+                            ErrorState(modifier = Modifier.padding(top = 100.dp))
+                        }
                     }
 
                     is MagazinesRetrievalState.Success -> {
-                        items(magazinesState.magazines) {
-                            CreateMagazineColumn(magazine = it, onMagazineClick = onMagazineClick)
+                        if (magazinesState.magazines.isEmpty()) {
+                            val recentSearch = search
+                            item(span = { GridItemSpan(2) }) {
+                                SearchEmptyState(type = "magazines", recentSearch = recentSearch)
+                            }
+                        } else {
+                            item {
+                                Spacer(modifier = Modifier.height(10.dp))
+                            }
+                            items(magazinesState.magazines, span = { GridItemSpan(2) }) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    CreateMagazineColumn(
+                                        magazine = it,
+                                        onMagazineClick = onMagazineClick
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun SearchEmptyState(type: String, recentSearch: String) {
+    Column {
+        Spacer(modifier = Modifier.height(100.dp))
+        if (recentSearch.trim() == "") {
+            NothingToShowMessage(
+                title = "Not showing $type",
+                message = "Try typing in the search bar to search for $type.",
+            )
+        } else {
+            NothingToShowMessage(
+                title = "No $type for this query.",
+                message = "No $type match the query \"$recentSearch\". Try a more general query to see $type."
+            )
         }
     }
 }

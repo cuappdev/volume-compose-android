@@ -18,6 +18,7 @@ import java.util.Random
 import javax.inject.Inject
 
 private const val TAG = "TrendingViewModel"
+
 @HiltViewModel
 class TrendingViewModel @Inject constructor(
     private val articleRepository: ArticleRepository,
@@ -30,9 +31,9 @@ class TrendingViewModel @Inject constructor(
 
     data class TrendingUiState(
         val mainFeaturedArticleRetrievalState: ArticleRetrievalState = ArticleRetrievalState.Loading,
-        val featuredMagazinesRetrievalState: MagazinesRetrievalState =  MagazinesRetrievalState.Loading,
+        val featuredMagazinesRetrievalState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
         val featuredArticlesRetrievalState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
-        val featuredFlyers: FlyersRetrievalState = FlyersRetrievalState.Loading
+        val featuredFlyers: FlyersRetrievalState = FlyersRetrievalState.Loading,
     )
 
     var trendingUiState by mutableStateOf(TrendingUiState())
@@ -45,38 +46,24 @@ class TrendingViewModel @Inject constructor(
             val myRandom = Random(System.currentTimeMillis())
             val featuredArticle = trendingArticles[myRandom.nextInt(trendingArticles.size)]
             trendingUiState = trendingUiState.copy(
-              mainFeaturedArticleRetrievalState = ArticleRetrievalState.Success(featuredArticle)
+                mainFeaturedArticleRetrievalState = ArticleRetrievalState.Success(featuredArticle)
             )
-            getFeaturedMagazines()
+            getFeaturedArticles()
         } catch (e: java.lang.Exception) {
             trendingUiState = trendingUiState.copy(
                 mainFeaturedArticleRetrievalState = ArticleRetrievalState.Error
             )
         }
     }
-    private fun getFeaturedMagazines() = viewModelScope.launch {
-        try {
-            val potentialMags = magazineRepository.fetchAllMagazines(limit = 10.0)
-            val featuredMags = potentialMags.filter {
-                it.publication.slug != "nooz"  && it.publication.slug != "review"
-            }
-            trendingUiState = trendingUiState.copy(
-                featuredMagazinesRetrievalState = MagazinesRetrievalState.Success(featuredMags)
-            )
-            getFeaturedArticles()
-        } catch (e: java.lang.Exception) {
-            trendingUiState = trendingUiState.copy(
-                featuredMagazinesRetrievalState = MagazinesRetrievalState.Error
-            )
-        }
-    }
+
     private fun getFeaturedArticles() = viewModelScope.launch {
         try {
             val potentialArticles = articleRepository.fetchTrendingArticles()
-            val featuredArticles =  potentialArticles.filter {/*
+            val featuredArticles = potentialArticles.filter {/*
                  TODO add filter before release (so we get real images)
                  it.publication.slug != "nooz" && it.publication.slug != "review" */
-            true }.shuffled(Random(System.currentTimeMillis()))
+                true
+            }.shuffled(Random(System.currentTimeMillis()))
             trendingUiState = trendingUiState.copy(
                 featuredArticlesRetrievalState = ArticlesRetrievalState.Success(featuredArticles)
             )
@@ -89,20 +76,30 @@ class TrendingViewModel @Inject constructor(
     }
 
     private fun getFeaturedFlyers() = viewModelScope.launch {
-        trendingUiState = try {
-            val flyers = flyerRepository.fetchWeeklyFlyers()?.shuffled(Random(System.currentTimeMillis()))
-            if (flyers == null) {
-                trendingUiState.copy(
-                    featuredFlyers = FlyersRetrievalState.Error
-                )
-            } else {
-                trendingUiState.copy(
-                    featuredFlyers = FlyersRetrievalState.Success(flyers)
-                )
-            }
+        try {
+            trendingUiState = trendingUiState.copy(
+                featuredFlyers = FlyersRetrievalState.Success(flyers = flyerRepository.fetchTrendingFlyers())
+            )
+            getFeaturedMagazines()
         } catch (e: Exception) {
-            trendingUiState.copy(
+            trendingUiState = trendingUiState.copy(
                 featuredFlyers = FlyersRetrievalState.Error
+            )
+        }
+    }
+
+    private fun getFeaturedMagazines() = viewModelScope.launch {
+        trendingUiState = try {
+            val potentialMags = magazineRepository.fetchAllMagazines(limit = 10.0)
+            val featuredMags = potentialMags.filter {
+                it.publication.slug != "nooz" && it.publication.slug != "review"
+            }
+            trendingUiState.copy(
+                featuredMagazinesRetrievalState = MagazinesRetrievalState.Success(featuredMags)
+            )
+        } catch (e: java.lang.Exception) {
+            trendingUiState.copy(
+                featuredMagazinesRetrievalState = MagazinesRetrievalState.Error
             )
         }
     }

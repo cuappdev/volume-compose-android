@@ -39,6 +39,7 @@ import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.ui.components.general.BigReadShimmeringArticle
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateBigReadRow
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.PermissionRequestDialog
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringArticle
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
@@ -82,7 +83,7 @@ fun ArticlesViewer(
                     }
 
                     ArticlesRetrievalState.Error -> {
-                        // TODO Prompt to try again, queryTrendingArticles manually (it's public). Could be that internet is down.
+                        ErrorState()
                     }
 
                     is ArticlesRetrievalState.Success -> {
@@ -116,7 +117,9 @@ fun ArticlesViewer(
                 }
 
                 ArticlesRetrievalState.Error -> {
-                    // TODO Prompt to try again, queryFollowingArticles manually (it's public). Could be that internet is down.
+                    item {
+                        ErrorState()
+                    }
                 }
 
                 is ArticlesRetrievalState.Success -> {
@@ -243,7 +246,9 @@ fun ArticlesViewer(
                 }
 
                 ArticlesRetrievalState.Error -> {
-                    // TODO Prompt to try again, queryAllArticles manually (it's public). Could be that internet is down.
+                    item {
+                        ErrorState()
+                    }
                 }
 
                 is ArticlesRetrievalState.Success -> {

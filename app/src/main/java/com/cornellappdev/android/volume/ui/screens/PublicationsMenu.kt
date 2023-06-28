@@ -1,7 +1,12 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.util.Log
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -15,12 +20,14 @@ import com.cornellappdev.android.volume.data.models.ContentType
 import com.cornellappdev.android.volume.data.models.Publication
 import com.cornellappdev.android.volume.ui.components.general.CreatePublicationColumn
 import com.cornellappdev.android.volume.ui.components.general.CreatePublicationRow
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
 import com.cornellappdev.android.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.android.volume.ui.viewmodels.PublicationsViewModel
 
 private const val TAG = "PublicationsMenu"
+
 @Composable
 fun PublicationsMenu(
     publicationsViewModel: PublicationsViewModel = hiltViewModel(),
@@ -48,10 +55,12 @@ fun PublicationsMenu(
                 PublicationsRetrievalState.Loading -> {
                     VolumeLoading()
                 }
+
                 PublicationsRetrievalState.Error -> {
-                    // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
+                    ErrorState()
                     Log.d(TAG, "PublicationsMenu: Error state")
                 }
+
                 is PublicationsRetrievalState.Success -> {
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -83,10 +92,14 @@ fun PublicationsMenu(
                     VolumeLoading()
                 }
             }
+
             PublicationsRetrievalState.Error -> {
-                // TODO Prompt to try again, queryFollowingPublications manually (it's public). Could be that internet is down.
+                item {
+                    ErrorState()
+                }
                 Log.d(TAG, "PublicationsMenu: Error2")
             }
+
             is PublicationsRetrievalState.Success -> {
                 itemsIndexed(morePublicationsState.publications) { index, publication ->
                     if (!publication.contentTypes.contains(ContentType.MAGAZINES)) {

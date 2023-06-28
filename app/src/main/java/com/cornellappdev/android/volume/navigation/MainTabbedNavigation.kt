@@ -377,8 +377,9 @@ private fun MainScreenNavigationConfigurations(
             }) { entry ->
             val tabIndex = entry.arguments?.getString("tabIndex")?.toInt()
 
-            SearchScreen(onArticleClick = { article ->
-                navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${Routes.SEARCH.route}")
+            SearchScreen(onArticleClick = { article, navigationSource ->
+                FirstTimeShown.firstTimeShown = false
+                navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
             }, onMagazineClick = { magazine ->
                 navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.SEARCH.route}")
             }, defaultTab = tabIndex ?: 0)

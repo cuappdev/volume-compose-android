@@ -64,6 +64,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
                 date = magazine.date.toString(),
                 semester = magazine.semester,
                 pdfURL = magazine.pdfURL,
+                imageURL = magazine.imageURL,
                 publication = Publication(
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
@@ -98,6 +99,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
                 date = magazine.date.toString(),
                 semester = magazine.semester,
                 pdfURL = magazine.pdfURL,
+                imageURL = magazine.imageURL,
                 publication = Publication(
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
@@ -130,6 +132,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
                 date = magazine.date.toString(),
                 semester = magazine.semester,
                 pdfURL = magazine.pdfURL,
+                imageURL = magazine.imageURL,
                 publication = Publication(
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
@@ -162,6 +165,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
                 date = it.date.toString(),
                 semester = it.semester,
                 pdfURL = it.pdfURL,
+                imageURL = it.imageURL,
                 publication = Publication(
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
@@ -194,6 +198,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
                 date = it.date.toString(),
                 semester = it.semester,
                 pdfURL = it.pdfURL,
+                imageURL = it.imageURL,
                 publication = Publication(
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,
@@ -227,6 +232,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
             date = magRep.date.toString(),
             semester = magRep.semester,
             pdfURL = magRep.pdfURL,
+            imageURL = magRep.imageURL,
             publication = Publication(
                 backgroundImageURL = publication.backgroundImageURL,
                 bio = publication.bio,
@@ -259,6 +265,7 @@ class MagazineRepository @Inject constructor(private val networkApi: NetworkApi)
                 date = magazine.date.toString(),
                 semester = magazine.semester,
                 pdfURL = magazine.pdfURL,
+                imageURL = magazine.imageURL,
                 publication = Publication(
                     backgroundImageURL = publication.backgroundImageURL,
                     bio = publication.bio,

@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.ui.components.general.BigFlyer
 import com.cornellappdev.android.volume.ui.components.general.BigShimmeringFlyer
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
 import com.cornellappdev.android.volume.ui.components.general.SmallFlyer
@@ -114,7 +115,10 @@ fun FlyersScreen(
                     })
                 }
 
-                FlyersRetrievalState.Error -> {}
+                FlyersRetrievalState.Error -> {
+                    ErrorState()
+                }
+
                 is FlyersRetrievalState.Success -> {
                     val flyers = todayFlyersState.flyers
                     if (flyers.isEmpty()) {
@@ -160,7 +164,7 @@ fun FlyersScreen(
                 }
 
                 FlyersRetrievalState.Error -> {
-                    // TODO
+                    ErrorState()
                 }
 
                 is FlyersRetrievalState.Success -> {
@@ -278,7 +282,7 @@ fun FlyersScreen(
                 }
 
                 FlyersRetrievalState.Error -> {
-                    // TODO
+                    ErrorState()
                 }
 
                 is FlyersRetrievalState.Success -> {
@@ -317,13 +321,14 @@ fun FlyersScreen(
             }
 
             FlyersRetrievalState.Error -> {
-                // TODO
+                item {
+                    ErrorState()
+                }
             }
 
             is FlyersRetrievalState.Success -> {
                 val flyers = pastFlyersState.flyers
                 if (flyers.isEmpty()) {
-                    Log.d("TAG", "FlyersScreen: PAST FLYERS IS EMPTY")
                     item {
                         NothingToShowMessage(
                             title = "No past flyers",

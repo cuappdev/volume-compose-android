@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,8 +18,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 
-private const val TAG = "BookmarkViewModel"
-
 @HiltViewModel
 class BookmarkViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -34,10 +31,10 @@ class BookmarkViewModel @Inject constructor(
         val magazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
         val upcomingFlyersState: FlyersRetrievalState = FlyersRetrievalState.Loading,
         val pastFlyersState: FlyersRetrievalState = FlyersRetrievalState.Loading,
+        val allUpcomingFlyers: List<Flyer> = emptyList(),
+        val allPastFlyers: List<Flyer> = emptyList(),
     )
 
-    private lateinit var allUpcomingFlyers: List<Flyer>
-    private lateinit var allPastFlyers: List<Flyer>
     var bookmarkUiState by mutableStateOf(BookmarkUiState())
         private set
 
@@ -63,15 +60,15 @@ class BookmarkViewModel @Inject constructor(
     }
 
     private fun getBookmarkedMagazines() = viewModelScope.launch {
-        try {
+        bookmarkUiState = try {
             val bookmarkedMagazineIds = userPreferencesRepository.fetchBookmarkedMagazineIds()
-            bookmarkUiState = bookmarkUiState.copy(
+            bookmarkUiState.copy(
                 magazinesState = MagazinesRetrievalState.Success(
                     magazines = magazineRepository.fetchMagazinesByIds(bookmarkedMagazineIds)
                 )
             )
         } catch (e: Exception) {
-            bookmarkUiState = bookmarkUiState.copy(
+            bookmarkUiState.copy(
                 articlesState = ArticlesRetrievalState.Error
             )
         }
@@ -82,23 +79,17 @@ class BookmarkViewModel @Inject constructor(
         try {
             val bookmarkedFlyerIds = userPreferencesRepository.fetchBookmarkedFlyerIds()
             val flyers = flyersRepository.fetchFlyersByIds(bookmarkedFlyerIds)
-            Log.d(TAG, "getBookmarkedFlyers: ALL BOOKMARKED FLYERS: $flyers")
-            allUpcomingFlyers = flyers.filter {
-                it.endDateTime < LocalDateTime.now()
-            }.sortedDescending()
-            allPastFlyers = flyers.filter {
-                it.endDateTime > LocalDateTime.now()
-            }.sorted()
 
             bookmarkUiState = bookmarkUiState.copy(
-                // TODO filter by date for both upcoming and past
-                pastFlyersState = FlyersRetrievalState.Success(
-                    flyers = allUpcomingFlyers
-                ),
-                upcomingFlyersState = FlyersRetrievalState.Success(
-                    flyers = allPastFlyers
-                )
+                allPastFlyers = flyers.filter {
+                    it.endDateTime < LocalDateTime.now()
+                }.sortedDescending(),
+                allUpcomingFlyers = flyers.filter {
+                    it.endDateTime > LocalDateTime.now()
+                }.sortedDescending()
             )
+            applyQuery("all", isUpcoming = true)
+            applyQuery("all", isUpcoming = false)
         } catch (e: java.lang.Exception) {
             bookmarkUiState = bookmarkUiState.copy(
                 upcomingFlyersState = FlyersRetrievalState.Error,
@@ -115,36 +106,26 @@ class BookmarkViewModel @Inject constructor(
      */
     fun applyQuery(categorySlug: String, isUpcoming: Boolean) {
         if (isUpcoming) {
+            val allUpcomingFlyers = bookmarkUiState.allUpcomingFlyers
             bookmarkUiState = bookmarkUiState.copy(
-                upcomingFlyersState = when (bookmarkUiState.upcomingFlyersState) {
-                    FlyersRetrievalState.Error -> FlyersRetrievalState.Error
-                    FlyersRetrievalState.Loading -> FlyersRetrievalState.Loading
-                    is FlyersRetrievalState.Success -> {
-                        // The success state ensures that allUpcomingFlyers has been initialized,
-                        // so it is safe to use here.
-                        FlyersRetrievalState.Success(allUpcomingFlyers.filter {
-                            it.belongsToCategory(
-                                categorySlug
-                            )
-                        })
-                    }
-                }
+                upcomingFlyersState =
+                FlyersRetrievalState.Success(if (categorySlug.lowercase() == "all") allUpcomingFlyers
+                else allUpcomingFlyers.filter {
+                    it.belongsToCategory(
+                        categorySlug
+                    )
+                })
             )
         } else {
+            val allPastFlyers = bookmarkUiState.allPastFlyers
             bookmarkUiState = bookmarkUiState.copy(
-                pastFlyersState = when (bookmarkUiState.pastFlyersState) {
-                    FlyersRetrievalState.Error -> FlyersRetrievalState.Error
-                    FlyersRetrievalState.Loading -> FlyersRetrievalState.Loading
-                    is FlyersRetrievalState.Success -> {
-                        // The success state ensures that allPastFlyers has been initialized,
-                        // so it is safe to use here.
-                        FlyersRetrievalState.Success(allPastFlyers.filter {
-                            it.belongsToCategory(
-                                categorySlug
-                            )
-                        })
-                    }
-                }
+                pastFlyersState =
+                FlyersRetrievalState.Success(if (categorySlug.lowercase() == "all") allPastFlyers
+                else allPastFlyers.filter {
+                    it.belongsToCategory(
+                        categorySlug
+                    )
+                })
             )
         }
     }

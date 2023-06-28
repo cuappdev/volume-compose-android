@@ -34,6 +34,7 @@ import com.cornellappdev.android.volume.ui.components.general.BigFlyer
 import com.cornellappdev.android.volume.ui.components.general.BigShimmeringFlyer
 import com.cornellappdev.android.volume.ui.components.general.CreateArticleRow
 import com.cornellappdev.android.volume.ui.components.general.CreateMagazineColumn
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.MainArticleComponent
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringArticle
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringMagazine
@@ -48,43 +49,54 @@ import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.TrendingViewModel
 
 private const val TAG = "TrendingScreen"
+
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
-                   onArticleClick: (Article, NavigationSource) -> Unit,
-                    onMagazineClick: (Magazine) -> Unit) {
+fun TrendingScreen(
+    trendingViewModel: TrendingViewModel = hiltViewModel(),
+    onArticleClick: (Article, NavigationSource) -> Unit,
+    onMagazineClick: (Magazine) -> Unit,
+) {
     val config = LocalConfiguration.current
     val screenWidthDp = config.screenWidthDp.dp
     val uiState = trendingViewModel.trendingUiState
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-        item (span = { GridItemSpan(2) }) {
-            Column (horizontalAlignment = Alignment.Start) {
-                VolumeLogo(modifier = Modifier.padding( bottom = 24.dp))
+        item(span = { GridItemSpan(2) }) {
+            Column(horizontalAlignment = Alignment.Start) {
+                VolumeLogo(modifier = Modifier.padding(bottom = 24.dp))
             }
         }
         // Main featured article component:
         when (val articleUiState = uiState.mainFeaturedArticleRetrievalState) {
             ArticleRetrievalState.Loading -> {
-                item (span = { GridItemSpan(2)}) {
+                item(span = { GridItemSpan(2) }) {
                     Column {
-                        Box (modifier = Modifier
-                            .requiredSize(screenWidthDp)
-                            .shimmerEffect())
-                        Row (modifier = Modifier.fillMaxWidth()) {
-                            Box (modifier = Modifier
+                        Box(
+                            modifier = Modifier
+                                .requiredSize(screenWidthDp)
                                 .shimmerEffect()
-                                .weight(1F)
-                                .fillMaxWidth())
-                            Spacer (modifier = Modifier.weight(2F))
+                        )
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Box(
+                                modifier = Modifier
+                                    .shimmerEffect()
+                                    .weight(1F)
+                                    .fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.weight(2F))
                         }
                     }
                 }
             }
-            ArticleRetrievalState.Error -> {
 
+            ArticleRetrievalState.Error -> {
+                item(span = { GridItemSpan(2) }) {
+                    ErrorState()
+                }
             }
+
             is ArticleRetrievalState.Success -> {
-                item (span = { GridItemSpan(2)}) {
+                item(span = { GridItemSpan(2) }) {
                     MainArticleComponent(
                         article = articleUiState.article,
                         onArticleClick = onArticleClick
@@ -95,25 +107,31 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
         }
 
         // Space
-        item (span = { GridItemSpan(2)}) {
-            Spacer(modifier = Modifier
-                .height(40.dp)
-                .fillMaxWidth())
+        item(span = { GridItemSpan(2) }) {
+            Spacer(
+                modifier = Modifier
+                    .height(40.dp)
+                    .fillMaxWidth()
+            )
         }
 
         // Article items
-        when(val articleUiState = uiState.featuredArticlesRetrievalState) {
+        when (val articleUiState = uiState.featuredArticlesRetrievalState) {
             ArticlesRetrievalState.Loading -> {
-                items(4, span = { GridItemSpan(2)}) {
+                items(4, span = { GridItemSpan(2) }) {
                     ShimmeringArticle()
                 }
             }
+
             ArticlesRetrievalState.Error -> {}
             is ArticlesRetrievalState.Success -> {
-                items(minOf(articleUiState.articles.size, 4), span = { GridItemSpan(2)}) { index ->
-                    Box (modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+                items(minOf(articleUiState.articles.size, 4), span = { GridItemSpan(2) }) { index ->
+                    Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
                         CreateArticleRow(article = articleUiState.articles[index]) {
-                            onArticleClick(articleUiState.articles[index], NavigationSource.TRENDING_ARTICLES)
+                            onArticleClick(
+                                articleUiState.articles[index],
+                                NavigationSource.TRENDING_ARTICLES
+                            )
                         }
                     }
                 }
@@ -124,28 +142,32 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
         // Flyers
         when (val flyersState = uiState.featuredFlyers) {
             FlyersRetrievalState.Loading -> {
-                items (2, span = { GridItemSpan(2)} ) {
+                items(2, span = { GridItemSpan(2) }) {
                     Column {
                         Row {
                             Spacer(modifier = Modifier.width(16.dp))
-                            BigShimmeringFlyer(imgWidth = LocalConfiguration.current.screenWidthDp - 32, imgHeight = LocalConfiguration.current.screenWidthDp - 32)
+                            BigShimmeringFlyer(
+                                imgWidth = LocalConfiguration.current.screenWidthDp - 32,
+                                imgHeight = LocalConfiguration.current.screenWidthDp - 32
+                            )
 
                         }
                         Spacer(modifier = Modifier.height(40.dp))
                     }
                 }
             }
+
             FlyersRetrievalState.Error -> {
 
             }
+
             is FlyersRetrievalState.Success -> {
                 val flyers = flyersState.flyers
-                items(minOf(2, flyers.size), span = { GridItemSpan(2) }) {
-                        index ->
+                items(minOf(2, flyers.size), span = { GridItemSpan(2) }) { index ->
                     Column {
                         Row {
                             Spacer(modifier = Modifier.width(16.dp))
-                            BigFlyer(imgSize = screenWidthDp-32.dp, flyer = flyers[index])
+                            BigFlyer(imgSize = screenWidthDp - 32.dp, flyer = flyers[index])
                         }
                         Spacer(modifier = Modifier.height(40.dp))
                     }
@@ -158,11 +180,12 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
         when (val magazineUiState = uiState.featuredMagazinesRetrievalState) {
             MagazinesRetrievalState.Loading -> {
                 items(4) {
-                    Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         ShimmeringMagazine()
                     }
                 }
             }
+
             MagazinesRetrievalState.Error -> {
             }
 
@@ -170,7 +193,7 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
                 val magazines = magazineUiState.magazines
 
                 items(minOf(magazines.size, 4)) { index ->
-                    Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         CreateMagazineColumn(
                             magazine = magazineUiState.magazines[index],
                             onMagazineClick = onMagazineClick
@@ -181,22 +204,35 @@ fun TrendingScreen(trendingViewModel: TrendingViewModel = hiltViewModel(),
         }
 
         // Space
-        item (span = { GridItemSpan(2)}) {
-            Spacer(modifier = Modifier
-                .height(40.dp)
-                .fillMaxWidth())
+        item(span = { GridItemSpan(2) }) {
+            Spacer(
+                modifier = Modifier
+                    .height(40.dp)
+                    .fillMaxWidth()
+            )
         }
         // Ending text for organizations
-        item (span = { GridItemSpan(2)}) {
-            Column (modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 141.dp, start = 94.dp, end = 94.dp),
+        item(span = { GridItemSpan(2) }) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 141.dp, start = 94.dp, end = 94.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,)
-                         {
-                Image(painter =  painterResource(id = R.drawable.ic_volume_bars_orange_solid), contentDescription = null)
-                Text(text = "Are you an organization?", fontFamily = notoserif, fontSize = 18.sp, textAlign = TextAlign.Center)
-                Text(text = "If you want to see your organization’s events on Volume, email us at cornellappdev@gmail.com.",
+                horizontalAlignment = Alignment.CenterHorizontally,
+            )
+            {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_volume_bars_orange_solid),
+                    contentDescription = null
+                )
+                Text(
+                    text = "Are you an organization?",
+                    fontFamily = notoserif,
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "If you want to see your organization’s events on Volume, email us at cornellappdev@gmail.com.",
                     fontFamily = lato,
                     fontSize = 12.sp,
                     textAlign = TextAlign.Center

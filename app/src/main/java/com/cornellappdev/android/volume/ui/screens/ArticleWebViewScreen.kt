@@ -36,6 +36,7 @@ import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.analytics.VolumeEvent
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.navigation.Routes
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.states.ArticleRetrievalState
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
@@ -68,7 +69,7 @@ fun ArticleWebViewScreen(
             }
         }
         ArticleRetrievalState.Error -> {
-            // TODO
+            ErrorState()
         }
         is ArticleRetrievalState.Success -> {
             val state = rememberWebViewState(articleState.article.articleURL)
