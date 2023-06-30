@@ -226,6 +226,15 @@ fun ErrorState(modifier: Modifier = Modifier) {
     )
 }
 
+/**
+ * A composable search bar styled based on Volume design.
+ * @param modifier the generic modifier parameter, it is applied to the text-field.
+ * @param value the value for the search bar
+ * @param onValueChange actions to perform when the value is changed
+ * @param onEnterPressed actions to perform when enter is pressed
+ * @param onClick actions to perform when the search bar is clicked
+ * @param autoFocus whether or not the search bar should automatically be focused when in view
+ */
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,

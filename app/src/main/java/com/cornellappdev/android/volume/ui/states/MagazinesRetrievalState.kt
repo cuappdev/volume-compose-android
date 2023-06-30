@@ -7,9 +7,9 @@ import com.cornellappdev.android.volume.data.models.Magazine
  */
 sealed interface MagazinesRetrievalState {
     /**
-     * The articles are successfully retrieved with the given list.
+     * The magazines are successfully retrieved with the given list.
      */
-    data class Success (val magazines: List<Magazine>) : MagazinesRetrievalState
+    data class Success(val magazines: List<Magazine>) : MagazinesRetrievalState
 
     /**
      * There was an error in retrieving the articles.
@@ -17,7 +17,7 @@ sealed interface MagazinesRetrievalState {
     object Error : MagazinesRetrievalState
 
     /**
-     * The articles are in the process of being retrieved.
+     * The magazines are in the process of being retrieved.
      */
     object Loading : MagazinesRetrievalState
 }
