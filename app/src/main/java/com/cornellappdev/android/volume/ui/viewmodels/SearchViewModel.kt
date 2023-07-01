@@ -25,8 +25,11 @@ class SearchViewModel @Inject constructor(
 ) : ViewModel() {
 
     data class SearchUiState(
-        val searchedMagazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Loading,
-        val searchedArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+
+        val searchedMagazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Success(
+            emptyList()
+        ),
+        val searchedArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Success(emptyList()),
     )
 
     var searchUiState by mutableStateOf(SearchUiState())
@@ -47,6 +50,7 @@ class SearchViewModel @Inject constructor(
         searchUiState = searchUiState.copy(
             searchedMagazinesState = MagazinesRetrievalState.Loading
         )
+
         // Cancel any previous jobs so we don't unnecessarily load those search results.
         magazineJob.cancel()
         magazineJob = viewModelScope.launch {

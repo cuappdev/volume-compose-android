@@ -15,6 +15,7 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,14 +58,26 @@ fun SearchScreen(
     var tabIndex by remember { mutableStateOf(defaultTab) }
     val uiState = searchViewModel.searchUiState
 
+    DisposableEffect(key1 = tabIndex, effect = {
+        if (tabIndex == 0) {
+            searchViewModel.searchArticles(search)
+        } else {
+            searchViewModel.searchMagazines(search)
+        }
+        onDispose { }
+    })
+
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
         item(span = { GridItemSpan(2) }) {
             SearchBar(
                 value = search,
                 onValueChange = {
                     search = it
-                    searchViewModel.searchArticles(it)
-                    searchViewModel.searchMagazines(it)
+                    if (tabIndex == 0) {
+                        searchViewModel.searchArticles(it)
+                    } else {
+                        searchViewModel.searchMagazines(it)
+                    }
                 },
                 modifier = Modifier.padding(vertical = 12.dp),
                 autoFocus = true,
@@ -113,7 +126,7 @@ fun SearchScreen(
                         if (articlesState.articles.isEmpty()) {
                             val recentSearch = search
                             item(span = { GridItemSpan(2) }) {
-                                SearchEmptyState(type = "magazines", recentSearch = recentSearch)
+                                SearchEmptyState(type = "articles", recentSearch = recentSearch)
                             }
                         } else {
                             items(articlesState.articles, span = { GridItemSpan(2) }) { article ->
@@ -165,10 +178,10 @@ fun SearchScreen(
                                 SearchEmptyState(type = "magazines", recentSearch = recentSearch)
                             }
                         } else {
-                            item {
+                            item(span = { GridItemSpan(2) }) {
                                 Spacer(modifier = Modifier.height(10.dp))
                             }
-                            items(magazinesState.magazines, span = { GridItemSpan(2) }) {
+                            items(magazinesState.magazines) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     CreateMagazineColumn(
                                         magazine = it,

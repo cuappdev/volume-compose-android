@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,6 +52,8 @@ fun CreateMagazineColumn(
                 .width(150.dp)
                 .height(200.dp)
                 .shadow(8.dp)
+                .shimmerEffect(),
+            contentScale = ContentScale.Crop
         )
 
         // Magazine publisher text
