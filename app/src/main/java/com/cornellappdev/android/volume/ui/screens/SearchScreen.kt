@@ -126,7 +126,7 @@ fun SearchScreen(
                         if (articlesState.articles.isEmpty()) {
                             val recentSearch = search
                             item(span = { GridItemSpan(2) }) {
-                                SearchEmptyState(type = "magazines", recentSearch = recentSearch)
+                                SearchEmptyState(type = "articles", recentSearch = recentSearch)
                             }
                         } else {
                             items(articlesState.articles, span = { GridItemSpan(2) }) { article ->

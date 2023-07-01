@@ -26,8 +26,10 @@ class SearchViewModel @Inject constructor(
 
     data class SearchUiState(
 
-        val searchedMagazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Error,
-        val searchedArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Loading,
+        val searchedMagazinesState: MagazinesRetrievalState = MagazinesRetrievalState.Success(
+            emptyList()
+        ),
+        val searchedArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Success(emptyList()),
     )
 
     var searchUiState by mutableStateOf(SearchUiState())
