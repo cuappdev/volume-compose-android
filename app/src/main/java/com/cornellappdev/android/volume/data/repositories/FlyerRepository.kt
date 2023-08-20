@@ -22,7 +22,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         networkApi.fetchFlyersBeforeDate(date).dataAssertNoErrors.mapDataToFlyers()
 
     suspend fun fetchOrganizationsByCategorySlug(slug: String): List<Organization> =
-        networkApi.fetchOrganizationsByCategory(category = slug).dataAssertNoErrors.mapOrganizationCategoryDataToOrganizations()
+        networkApi.fetchOrganizationsByCategory(category = slug).dataAssertNoErrors
+            .mapOrganizationCategoryDataToOrganizations()
 
     suspend fun fetchFlyersByOrganizationSlugs(ids: List<String>): List<Flyer> =
         networkApi.fetchFlyersByOrganizationSlugs(ids).dataAssertNoErrors.mapDataToFlyers()
