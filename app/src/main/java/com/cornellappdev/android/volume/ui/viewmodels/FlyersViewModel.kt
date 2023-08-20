@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,6 +19,8 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
+
+private const val TAG = "FlyersViewModel"
 
 @HiltViewModel
 class FlyersViewModel @Inject constructor(
@@ -64,6 +67,7 @@ class FlyersViewModel @Inject constructor(
                 )
                 queryWeeklyFlyers()
             } catch (e: Exception) {
+                dailyFlyers = listOf()
                 flyersUiState = flyersUiState.copy(
                     todayFlyersState = FlyersRetrievalState.Error
                 )
@@ -87,7 +91,7 @@ class FlyersViewModel @Inject constructor(
                         // Ensure Flyer's date is before upcoming Sunday
                         LocalDateTime.parse(
                             it.endDate,
-                            DateTimeFormatter.ISO_LOCAL_DATE_TIME
+                            DateTimeFormatter.ISO_DATE_TIME
                         ) < upcomingSunday
                     }.filter { !dailyFlyers.contains(it) }.sorted()
                 flyersUiState = flyersUiState.copy(
@@ -97,6 +101,8 @@ class FlyersViewModel @Inject constructor(
                 )
                 queryUpcomingFlyers(categorySlug = "all")
             } catch (e: Exception) {
+                Log.e(TAG, "queryWeeklyFlyers: error", e)
+                weeklyFlyers = listOf()
                 flyersUiState = flyersUiState.copy(
                     weeklyFlyersState = FlyersRetrievalState.Error
                 )
@@ -117,9 +123,11 @@ class FlyersViewModel @Inject constructor(
                 flyersUiState =
                     flyersUiState.copy(upcomingFlyersState = FlyersRetrievalState.Loading)
                 if (categorySlug.lowercase() == "all") {
+                    val initialFlyers = flyerRepository.fetchFlyersAfterDate(getToday())
+                    Log.d(TAG, "queryUpcomingFlyers: $initialFlyers")
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
-                            flyerRepository.fetchFlyersAfterDate(getToday())
+                            initialFlyers
                                 .filter { !weeklyFlyers.contains(it) && !dailyFlyers.contains(it) }
                                 .sorted()
                         )
@@ -135,7 +143,11 @@ class FlyersViewModel @Inject constructor(
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
                             flyerRepository.fetchFlyersByOrganizationSlugs(organizationSlugs)
-                                .filter { !weeklyFlyers.contains(it) && !dailyFlyers.contains(it) }
+                                .filter {
+                                    !weeklyFlyers.contains(it) &&
+                                            !dailyFlyers.contains(it) &&
+                                            it.startDateTime > LocalDateTime.now()
+                                }
                                 .sorted()
                         )
                     )
@@ -144,6 +156,7 @@ class FlyersViewModel @Inject constructor(
                     queryPastFlyers()
                 }
             } catch (e: Exception) {
+                Log.e(TAG, "queryUpcomingFlyers: error", e)
                 flyersUiState = flyersUiState.copy(
                     upcomingFlyersState = FlyersRetrievalState.Error
                 )
@@ -161,7 +174,10 @@ class FlyersViewModel @Inject constructor(
                     // Since we want most recent flyers to show first but we are looking at past
                     // flyers, we need to do a sorted descending here.
                     pastFlyersState = FlyersRetrievalState.Success(
-                        flyerRepository.fetchFlyersBeforeDate("2023-04-30T21:00:00.000Z")
+                        flyerRepository.fetchFlyersBeforeDate(
+                            LocalDateTime.now().withHour(23).withMinute(59)
+                                .format(DateTimeFormatter.ISO_DATE_TIME)
+                        )
                             .sortedDescending()
                     )
                 )

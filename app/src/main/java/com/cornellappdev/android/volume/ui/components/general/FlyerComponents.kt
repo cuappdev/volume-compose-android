@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -309,7 +310,8 @@ fun OrganizationAndIconsRow(
             fontWeight = FontWeight.Medium,
             fontSize = 12.sp,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.widthIn(0.dp, 150.dp)
         )
         Spacer(modifier = Modifier.weight(1F))
         // Bookmark icon
@@ -420,9 +422,16 @@ private fun getAverageColor(immutableBitmap: Bitmap): Int {
 private fun formatDateString(startDateTime: LocalDateTime, endDateTime: LocalDateTime): String =
     try {
         val formatter = DateTimeFormatter.ofPattern("h:mm a")
+        val dayOfWeek = startDateTime.dayOfWeek.toString().substring(0, 3)
+            .lowercase()
+            .replaceFirstChar { c -> c.uppercase() }
+        val month = startDateTime.month.toString()
+            .lowercase()
+            .replaceFirstChar { c -> c.uppercase() }
+        val dayOfMonth = startDateTime.dayOfMonth
         val startTime = formatter.format(startDateTime)
         val endTime = formatter.format(endDateTime)
-        "$startTime - $endTime"
+        "$dayOfWeek, $month $dayOfMonth   $startTime - $endTime"
     } catch (ignored: Exception) {
         startDateTime.toString()
     }
