@@ -77,8 +77,8 @@ fun BigShimmeringFlyer(imgWidth: Int, imgHeight: Int) {
 }
 
 @Composable
-fun ShimmeringFlyer() {
-    Row (modifier = Modifier.padding(end = 84.dp)) {
+fun ShimmeringFlyer(inUpcoming: Boolean = true) {
+    Row (modifier = Modifier.padding(end = if (inUpcoming) 84.dp else 0.dp)) {
         ShimmeringBox(width = 92, height = 92)
         Spacer(modifier = Modifier.width(8.dp))
         Column {

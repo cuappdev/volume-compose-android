@@ -308,7 +308,9 @@ private fun MainScreenNavigationConfigurations(
         }
 
         composable(Routes.FLYERS.route) {
-            FlyersScreen()
+            FlyersScreen(onSearchClick = {
+                navController.navigate("${Routes.SEARCH.route}/$it")
+            })
         }
         composable(
             Routes.BOOKMARKS.route,

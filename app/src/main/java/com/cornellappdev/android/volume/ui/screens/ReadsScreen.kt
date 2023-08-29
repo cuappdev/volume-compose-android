@@ -110,11 +110,13 @@ fun ReadsScreen(
                                     })
                             Spacer(modifier = Modifier.weight(2F))
                         }
-                        SearchBar(value = "",
-                            onValueChange = {},
-                            modifier = Modifier
-                                .padding(end = 16.dp, top = 16.dp),
-                            onClick = { onSearchClick(tabIndex) })
+                        Box(modifier = Modifier.padding(start = 16.dp)) {
+                            SearchBar(value = "",
+                                onValueChange = {},
+                                modifier = Modifier
+                                    .padding(end = 16.dp, top = 16.dp),
+                                onClick = { onSearchClick(tabIndex) })
+
 
                         when (tabIndex) {
                             0 -> {

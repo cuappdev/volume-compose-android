@@ -43,6 +43,7 @@ import com.cornellappdev.android.volume.ui.components.general.BigFlyer
 import com.cornellappdev.android.volume.ui.components.general.BigShimmeringFlyer
 import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
+import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
 import com.cornellappdev.android.volume.ui.components.general.SmallFlyer
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
@@ -56,6 +57,7 @@ import com.cornellappdev.android.volume.util.FlyerConstants
 @Composable
 fun FlyersScreen(
     flyersViewModel: FlyersViewModel = hiltViewModel(),
+    onSearchClick: (Int) -> Unit,
 ) {
     var selectedIndex by remember { mutableStateOf(0) }
     val tags = FlyerConstants.CATEGORY_SLUGS.split(",")
@@ -76,6 +78,7 @@ fun FlyersScreen(
         "If you want to see your organization's events on Volume, email us at volumeappdev@gmail.com"
 
     LazyColumn(modifier = Modifier.padding(start = 16.dp)) {
+        // Page title
         item {
             Row {
                 Text(
@@ -88,11 +91,21 @@ fun FlyersScreen(
                 VolumePeriod(modifier = Modifier.padding(top = 39.dp, start = 7.dp))
             }
         }
+        // Search bar
+        item {
+            Box(modifier = Modifier.padding(end = 16.dp, top = 16.dp)) {
+                SearchBar(
+                    value = "",
+                    onValueChange = {},
+                    onClick = { onSearchClick(2) },
+                )
+            }
+        }
         // Today header
         item {
             Spacer(
                 modifier = Modifier
-                    .height(32.dp)
+                    .height(16.dp)
                     .fillMaxWidth()
             )
             VolumeHeaderText(text = "Today", underline = R.drawable.ic_today_underline)
@@ -337,7 +350,9 @@ fun FlyersScreen(
                     }
                 } else {
                     items(flyers) {
-                        SmallFlyer(inUpcoming = false, it)
+                        Box(modifier = Modifier.padding(end = 16.dp)) {
+                            SmallFlyer(inUpcoming = false, it)
+                        }
                     }
                 }
             }
