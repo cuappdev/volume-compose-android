@@ -116,6 +116,7 @@ fun ReadsScreen(
                                 modifier = Modifier
                                     .padding(end = 16.dp, top = 16.dp),
                                 onClick = { onSearchClick(tabIndex) })
+                        }
 
 
                         when (tabIndex) {
@@ -135,5 +136,4 @@ fun ReadsScreen(
             }
         )
     }
-
 }
