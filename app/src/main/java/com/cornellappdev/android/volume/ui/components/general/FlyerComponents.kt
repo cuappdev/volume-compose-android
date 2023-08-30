@@ -64,7 +64,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltV
     val imageURL = flyer.imageURL
     val context = LocalContext.current
     var imageBitmap by remember(imageURL) { mutableStateOf<Bitmap?>(null) }
-    var averageColor by remember { mutableStateOf(Color.Gray) }
+    var averageColor by remember { mutableStateOf(Color.Black) }
     val openLinkLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {}
@@ -73,7 +73,9 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltV
     // Gets the average image color for background
     LaunchedEffect(key1 = flyer.imageURL) {
         imageBitmap = getBitmap(imageURL, context)
-        averageColor = getAverageColor(imageBitmap!!).toComposeColor()
+        imageBitmap?.let {
+            averageColor = getAverageColor(it).toComposeColor()
+        }
     }
 
     Column(modifier = Modifier.width(imgSize)) {
