@@ -5,6 +5,7 @@ import com.cornellappdev.android.volume.FlyersBeforeDateQuery
 import com.cornellappdev.android.volume.FlyersByIDsQuery
 import com.cornellappdev.android.volume.FlyersByOrganizationSlugsQuery
 import com.cornellappdev.android.volume.OrganizationsByCategoryQuery
+import com.cornellappdev.android.volume.SearchFlyersQuery
 import com.cornellappdev.android.volume.TrendingFlyersQuery
 import com.cornellappdev.android.volume.data.NetworkApi
 import com.cornellappdev.android.volume.data.models.Flyer
@@ -38,7 +39,24 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun fetchTrendingFlyers(): List<Flyer> =
         networkApi.fetchTrendingFlyers().dataAssertNoErrors.mapDataToFlyers()
 
+    suspend fun fetchSearchedFlyers(query: String): List<Flyer> =
+        networkApi.fetchSearchedFlyers(query).dataAssertNoErrors.mapDataToFlyers()
+
     // These functions map the apollo query types to types of the models that are in place.
+    private fun SearchFlyersQuery.Data.mapDataToFlyers(): List<Flyer> =
+        this.searchFlyers.map { flyer ->
+            Flyer(
+                id = flyer.id,
+                title = flyer.title,
+                organizations = flyer.organizations.mapSearchDataToOrganizations(),
+                flyerURL = flyer.flyerURL,
+                startDate = flyer.startDate as String,
+                endDate = flyer.endDate as String,
+                imageURL = flyer.imageURL,
+                location = flyer.location,
+            )
+        }
+
 
     private fun FlyersByIDsQuery.Data.mapDataToFlyers(): List<Flyer> =
         this.getFlyersByIDs.map { flyer ->
@@ -166,5 +184,16 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
                 categorySlug = organization.categorySlug,
             )
         }
+
+    private fun List<SearchFlyersQuery.Organization>.mapSearchDataToOrganizations(): List<Organization> =
+        this.map { organization ->
+            Organization(
+                name = organization.name,
+                slug = organization.slug,
+                categorySlug = organization.categorySlug
+            )
+        }
 }
+
+
 

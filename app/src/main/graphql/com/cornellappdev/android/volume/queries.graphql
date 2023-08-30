@@ -997,6 +997,35 @@ mutation IncrementShoutouts($id: String!, $uuid: String!){
     }
 }
 
+query SearchFlyers($limit: Float, $query: String!){
+    searchFlyers(limit: $limit, query: $query){
+        id
+        endDate
+        flyerURL
+        imageURL
+        isTrending
+        location
+        nsfw
+        organizations{
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            numFlyers
+            clicks
+        }
+        organizationSlugs
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
 mutation IncrementTimesClicked($id: String!){
     incrementTimesClicked(id: $id){
         id

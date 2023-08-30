@@ -173,7 +173,7 @@ fun SmallFlyer(
 
     var modifier = Modifier
         .fillMaxWidth()
-        .padding(bottom = 16.dp, end = 16.dp)
+        .padding(bottom = 16.dp)
     if (inUpcoming) {
         modifier = Modifier
             .width(352.dp)

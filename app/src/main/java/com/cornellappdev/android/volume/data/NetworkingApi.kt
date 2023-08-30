@@ -31,6 +31,7 @@ import com.cornellappdev.android.volume.OrganizationsByCategoryQuery
 import com.cornellappdev.android.volume.PublicationBySlugQuery
 import com.cornellappdev.android.volume.ReadArticleMutation
 import com.cornellappdev.android.volume.SearchArticlesQuery
+import com.cornellappdev.android.volume.SearchFlyersQuery
 import com.cornellappdev.android.volume.SearchMagazinesQuery
 import com.cornellappdev.android.volume.ShuffledArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.TrendingArticlesQuery
@@ -137,6 +138,9 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
 
     suspend fun fetchFlyersBeforeDate(date: String): ApolloResponse<FlyersBeforeDateQuery.Data> =
         apolloClient.query(FlyersBeforeDateQuery(before = date)).execute()
+
+    suspend fun fetchSearchedFlyers(query: String): ApolloResponse<SearchFlyersQuery.Data> =
+        apolloClient.query(SearchFlyersQuery(query = query)).execute()
 
     suspend fun fetchFlyersByOrganizationSlugs(slugs: List<String>): ApolloResponse<FlyersByOrganizationSlugsQuery.Data> =
         apolloClient.query(FlyersByOrganizationSlugsQuery(slugs = slugs))

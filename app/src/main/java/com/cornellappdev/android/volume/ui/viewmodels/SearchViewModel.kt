@@ -6,8 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.volume.data.repositories.ArticleRepository
+import com.cornellappdev.android.volume.data.repositories.FlyerRepository
 import com.cornellappdev.android.volume.data.repositories.MagazineRepository
 import com.cornellappdev.android.volume.ui.states.ArticlesRetrievalState
+import com.cornellappdev.android.volume.ui.states.FlyersRetrievalState
 import com.cornellappdev.android.volume.ui.states.MagazinesRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -22,6 +24,7 @@ private const val TAG = "SearchViewModel"
 class SearchViewModel @Inject constructor(
     private val magazineRepository: MagazineRepository,
     private val articleRepository: ArticleRepository,
+    private val flyersRepository: FlyerRepository,
 ) : ViewModel() {
 
     data class SearchUiState(
@@ -30,6 +33,7 @@ class SearchViewModel @Inject constructor(
             emptyList()
         ),
         val searchedArticlesState: ArticlesRetrievalState = ArticlesRetrievalState.Success(emptyList()),
+        val searchedFlyersState: FlyersRetrievalState = FlyersRetrievalState.Success(emptyList()),
     )
 
     var searchUiState by mutableStateOf(SearchUiState())
@@ -39,6 +43,7 @@ class SearchViewModel @Inject constructor(
     // This way we can cancel jobs from search requests we no longer need.
     private var magazineJob: Job = viewModelScope.launch { }
     private var articleJob: Job = viewModelScope.launch { }
+    private var flyerJob: Job = viewModelScope.launch { }
 
     /**
      * This function updates the view model with the result from performing a search
@@ -102,6 +107,31 @@ class SearchViewModel @Inject constructor(
                 } else {
                     searchUiState.copy(
                         searchedArticlesState = ArticlesRetrievalState.Error
+                    )
+                }
+            }
+        }
+    }
+
+    fun searchFlyers(query: String) {
+        searchUiState = searchUiState.copy(
+            searchedFlyersState = FlyersRetrievalState.Loading
+        )
+        flyerJob.cancel()
+        flyerJob = viewModelScope.launch {
+            delay(1000L)
+            searchUiState = try {
+                searchUiState.copy(
+                    searchedFlyersState = FlyersRetrievalState.Success(
+                        flyers = flyersRepository.fetchSearchedFlyers(query)
+                    )
+                )
+            } catch (e: java.lang.Exception) {
+                if (e is CancellationException) {
+                    searchUiState
+                } else {
+                    searchUiState.copy(
+                        searchedFlyersState = FlyersRetrievalState.Error
                     )
                 }
             }
