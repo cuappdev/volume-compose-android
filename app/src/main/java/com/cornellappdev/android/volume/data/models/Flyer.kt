@@ -2,6 +2,8 @@ package com.cornellappdev.android.volume.data.models
 
 import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @JsonClass(generateAdapter = true)
@@ -16,9 +18,11 @@ data class Flyer(
     val location: String,
 ) : Comparable<Flyer> {
     val endDateTime: LocalDateTime =
-        LocalDateTime.parse(endDate, DateTimeFormatter.ISO_DATE_TIME)
+        ZonedDateTime.parse(endDate, DateTimeFormatter.ISO_DATE_TIME)
+            .withZoneSameInstant(ZoneId.of(ZonedDateTime.now().zone.id)).toLocalDateTime()
     val startDateTime: LocalDateTime =
-        LocalDateTime.parse(startDate, DateTimeFormatter.ISO_DATE_TIME)
+        ZonedDateTime.parse(startDate, DateTimeFormatter.ISO_DATE_TIME)
+            .withZoneSameInstant(ZoneId.of(ZonedDateTime.now().zone.id)).toLocalDateTime()
 
     override fun compareTo(other: Flyer): Int {
         return endDateTime.compareTo(other.endDateTime)

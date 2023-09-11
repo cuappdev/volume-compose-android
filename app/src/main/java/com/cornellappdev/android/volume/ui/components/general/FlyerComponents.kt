@@ -423,17 +423,12 @@ private fun getAverageColor(immutableBitmap: Bitmap): Int {
  */
 private fun formatDateString(startDateTime: LocalDateTime, endDateTime: LocalDateTime): String =
     try {
-        val formatter = DateTimeFormatter.ofPattern("h:mm a")
-        val dayOfWeek = startDateTime.dayOfWeek.toString().substring(0, 3)
-            .lowercase()
-            .replaceFirstChar { c -> c.uppercase() }
-        val month = startDateTime.month.toString()
-            .lowercase()
-            .replaceFirstChar { c -> c.uppercase() }
-        val dayOfMonth = startDateTime.dayOfMonth
-        val startTime = formatter.format(startDateTime)
-        val endTime = formatter.format(endDateTime)
-        "$dayOfWeek, $month $dayOfMonth   $startTime - $endTime"
+        val startFormatter = DateTimeFormatter.ofPattern("EEE, MMM d   h:mm a")
+        val endFormatter = DateTimeFormatter.ofPattern("h:mm a")
+
+        val start = startFormatter.format(startDateTime)
+        val end = endFormatter.format(endDateTime)
+        "$start - $end"
     } catch (ignored: Exception) {
         startDateTime.toString()
     }
