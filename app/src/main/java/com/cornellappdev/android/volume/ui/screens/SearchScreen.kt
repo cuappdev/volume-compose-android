@@ -86,7 +86,7 @@ fun SearchScreen(
                         2 -> searchViewModel.searchFlyers(it)
                     }
                 },
-                modifier = Modifier.padding(vertical = 12.dp),
+                modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
                 autoFocus = true,
             )
         }
