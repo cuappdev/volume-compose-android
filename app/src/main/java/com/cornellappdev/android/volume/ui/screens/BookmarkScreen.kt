@@ -283,10 +283,18 @@ fun BookmarkedFlyersView(
             is FlyersRetrievalState.Success -> {
                 if (upcomingState.flyers.isEmpty()) {
                     item {
-                        NothingToShowMessage(
-                            title = "No bookmarked flyers",
-                            message = "You can bookmark them from the trending page or the flyers page"
-                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .requiredHeight(312.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            NothingToShowMessage(
+                                title = "No bookmarked upcoming flyers",
+                                message = "You can bookmark them from the trending page or the flyers page"
+                            )
+                        }
                     }
                 } else {
                     item {
@@ -295,7 +303,7 @@ fun BookmarkedFlyersView(
                             modifier = Modifier.height(308.dp)
                         ) {
                             items(upcomingState.flyers) {
-                                SmallFlyer(inUpcoming = true, flyer = it)
+                                SmallFlyer(isExtraSmall = true, flyer = it)
                             }
                         }
                     }
@@ -305,7 +313,7 @@ fun BookmarkedFlyersView(
 
         // Past and dropdown menu
         item {
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             Row {
                 VolumeHeaderText(text = "Past Flyers", underline = R.drawable.ic_underline_upcoming)
@@ -430,7 +438,7 @@ fun BookmarkedFlyersView(
                         )
                     }
                     items(pastState.flyers) {
-                        SmallFlyer(inUpcoming = false, flyer = it, showTag = false)
+                        SmallFlyer(isExtraSmall = false, flyer = it, showTag = false)
                         Spacer(
                             modifier = Modifier
                                 .height(16.dp)

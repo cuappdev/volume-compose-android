@@ -153,10 +153,10 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltV
 
 @Composable
 fun SmallFlyer(
-    inUpcoming: Boolean,
+    isExtraSmall: Boolean,
     flyer: Flyer,
     flyersViewModel: FlyersViewModel = hiltViewModel(),
-    showTag: Boolean = !inUpcoming,
+    showTag: Boolean = !isExtraSmall,
 ) {
     val imageURL = flyer.imageURL
     val context = LocalContext.current
@@ -170,13 +170,15 @@ fun SmallFlyer(
     // Gets the average image color for background
     LaunchedEffect(key1 = flyer.imageURL) {
         imageBitmap = getBitmap(imageURL, context)
-        averageColor = getAverageColor(imageBitmap!!).toComposeColor()
+        imageBitmap?.let {
+            averageColor = getAverageColor(it).toComposeColor()
+        }
     }
 
     var modifier = Modifier
         .fillMaxWidth()
         .padding(bottom = 16.dp)
-    if (inUpcoming) {
+    if (isExtraSmall) {
         modifier = Modifier
             .width(352.dp)
             .padding(bottom = 16.dp, end = 16.dp)
@@ -196,7 +198,7 @@ fun SmallFlyer(
             AsyncImage(
                 model = flyer.imageURL,
                 contentDescription = null,
-                modifier = if (inUpcoming) Modifier
+                modifier = if (isExtraSmall) Modifier
                     .background(color = averageColor)
                     .size(123.dp) else Modifier
                     .size(width = 130.dp, height = 130.dp)
@@ -220,6 +222,8 @@ fun SmallFlyer(
                 fontFamily = notoserif,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
             )
             Spacer(
                 modifier = Modifier
@@ -423,17 +427,12 @@ private fun getAverageColor(immutableBitmap: Bitmap): Int {
  */
 private fun formatDateString(startDateTime: LocalDateTime, endDateTime: LocalDateTime): String =
     try {
-        val formatter = DateTimeFormatter.ofPattern("h:mm a")
-        val dayOfWeek = startDateTime.dayOfWeek.toString().substring(0, 3)
-            .lowercase()
-            .replaceFirstChar { c -> c.uppercase() }
-        val month = startDateTime.month.toString()
-            .lowercase()
-            .replaceFirstChar { c -> c.uppercase() }
-        val dayOfMonth = startDateTime.dayOfMonth
-        val startTime = formatter.format(startDateTime)
-        val endTime = formatter.format(endDateTime)
-        "$dayOfWeek, $month $dayOfMonth   $startTime - $endTime"
+        val startFormatter = DateTimeFormatter.ofPattern("EEE, MMM d   h:mm a")
+        val endFormatter = DateTimeFormatter.ofPattern("h:mm a")
+
+        val start = startFormatter.format(startDateTime)
+        val end = endFormatter.format(endDateTime)
+        "$start - $end"
     } catch (ignored: Exception) {
         startDateTime.toString()
     }

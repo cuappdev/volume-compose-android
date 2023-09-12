@@ -86,7 +86,7 @@ fun SearchScreen(
                         2 -> searchViewModel.searchFlyers(it)
                     }
                 },
-                modifier = Modifier.padding(vertical = 12.dp),
+                modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
                 autoFocus = true,
             )
         }
@@ -251,7 +251,7 @@ fun SearchScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                                        SmallFlyer(inUpcoming = false, it)
+                                        SmallFlyer(isExtraSmall = false, it)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(16.dp))
