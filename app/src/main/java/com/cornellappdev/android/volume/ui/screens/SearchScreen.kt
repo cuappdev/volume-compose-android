@@ -251,7 +251,7 @@ fun SearchScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                                        SmallFlyer(inUpcoming = false, it)
+                                        SmallFlyer(isExtraSmall = false, it)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(16.dp))

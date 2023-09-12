@@ -295,7 +295,7 @@ fun BookmarkedFlyersView(
                             modifier = Modifier.height(308.dp)
                         ) {
                             items(upcomingState.flyers) {
-                                SmallFlyer(inUpcoming = true, flyer = it)
+                                SmallFlyer(isExtraSmall = true, flyer = it)
                             }
                         }
                     }
@@ -430,7 +430,7 @@ fun BookmarkedFlyersView(
                         )
                     }
                     items(pastState.flyers) {
-                        SmallFlyer(inUpcoming = false, flyer = it, showTag = false)
+                        SmallFlyer(isExtraSmall = false, flyer = it, showTag = false)
                         Spacer(
                             modifier = Modifier
                                 .height(16.dp)

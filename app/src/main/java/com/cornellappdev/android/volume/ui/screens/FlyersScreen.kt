@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -14,9 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -260,10 +256,6 @@ fun FlyersScreen(
                                 DropdownMenuItem(onClick = {
                                     selectedIndex = index
                                     expanded = false
-                                    Log.d(
-                                        "TAG",
-                                        "FlyersScreen: Querying for tag ${tags[selectedIndex]} "
-                                    )
                                     flyersViewModel.queryUpcomingFlyers(tags[selectedIndex])
                                 }) {
                                     Text(
@@ -280,44 +272,40 @@ fun FlyersScreen(
             }
             Spacer(modifier = Modifier.height(8.dp))
         }
-        // Small flyer display
-        item {
-            when (val upcomingFlyerState = uiState.upcomingFlyersState) {
-                FlyersRetrievalState.Loading -> {
-                    LazyHorizontalGrid(
-                        rows = GridCells.Fixed(3),
-                        modifier = Modifier.height(308.dp)
-                    ) {
-                        items(9) {
-                            ShimmeringFlyer()
-                        }
-                    }
+        // Upcoming flyer display
+        when (val upcomingFlyerState = uiState.upcomingFlyersState) {
+            FlyersRetrievalState.Loading -> {
+                items(5) {
+                    ShimmeringFlyer()
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
+            }
 
-                FlyersRetrievalState.Error -> {
+            FlyersRetrievalState.Error -> {
+                item {
                     ErrorState()
                 }
+            }
 
-                is FlyersRetrievalState.Success -> {
-                    val flyers = upcomingFlyerState.flyers
-                    if (flyers.isEmpty()) {
+            is FlyersRetrievalState.Success -> {
+                val flyers = upcomingFlyerState.flyers
+                if (flyers.isEmpty()) {
+                    item {
                         NothingToShowMessage(
-                            title = "No upcoming flyers for this category",
-                            message = NO_FLYERS_MESSAGE
+                            title = "No upcoming flyers",
+                            message = "If you want to see your organization’s events on Volume, email us at volumeappdev@gmail.com"
                         )
-                    } else {
-                        LazyHorizontalGrid(
-                            rows = GridCells.Fixed(3),
-                            modifier = Modifier.height(308.dp)
-                        ) {
-                            items(flyers) {
-                                SmallFlyer(inUpcoming = true, it)
-                            }
+                    }
+                } else {
+                    items(flyers) {
+                        Box(modifier = Modifier.padding(end = 16.dp)) {
+                            SmallFlyer(isExtraSmall = false, it)
                         }
                     }
                 }
             }
         }
+
 
         item {
             Spacer(modifier = Modifier.height(40.dp))
@@ -351,7 +339,7 @@ fun FlyersScreen(
                 } else {
                     items(flyers) {
                         Box(modifier = Modifier.padding(end = 16.dp)) {
-                            SmallFlyer(inUpcoming = false, it)
+                            SmallFlyer(isExtraSmall = false, it)
                         }
                     }
                 }
