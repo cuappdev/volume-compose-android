@@ -124,7 +124,7 @@ class FlyersViewModel @Inject constructor(
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
                             initialFlyers
-                                .filter { !weeklyFlyers.contains(it) && !dailyFlyers.contains(it) }
+                                .filter { !dailyFlyers.contains(it) }
                                 .sorted()
                         )
                     )
