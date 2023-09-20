@@ -2,8 +2,8 @@ package com.cornellappdev.android.volume.data.repositories
 
 import com.cornellappdev.android.volume.FlyersAfterDateQuery
 import com.cornellappdev.android.volume.FlyersBeforeDateQuery
+import com.cornellappdev.android.volume.FlyersByCategorySlugQuery
 import com.cornellappdev.android.volume.FlyersByIDsQuery
-import com.cornellappdev.android.volume.FlyersByOrganizationSlugsQuery
 import com.cornellappdev.android.volume.OrganizationsByCategoryQuery
 import com.cornellappdev.android.volume.SearchFlyersQuery
 import com.cornellappdev.android.volume.TrendingFlyersQuery
@@ -23,11 +23,10 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         networkApi.fetchFlyersBeforeDate(date).dataAssertNoErrors.mapDataToFlyers()
 
     suspend fun fetchOrganizationsByCategorySlug(slug: String): List<Organization> =
-        networkApi.fetchOrganizationsByCategory(category = slug).dataAssertNoErrors
-            .mapOrganizationCategoryDataToOrganizations()
+        networkApi.fetchOrganizationsByCategory(category = slug).dataAssertNoErrors.mapToOrganizations()
 
-    suspend fun fetchFlyersByOrganizationSlugs(ids: List<String>): List<Flyer> =
-        networkApi.fetchFlyersByOrganizationSlugs(ids).dataAssertNoErrors.mapDataToFlyers()
+    suspend fun fetchFlyersByCategorySlug(slug: String): List<Flyer> =
+        networkApi.fetchFlyersByCategorySlug(slug).dataAssertNoErrors.mapDataToFlyers()
 
     suspend fun fetchFlyersByIds(ids: List<String>): List<Flyer> =
         networkApi.fetchFlyersByIds(ids).dataAssertNoErrors.mapDataToFlyers()
@@ -48,12 +47,13 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             Flyer(
                 id = flyer.id,
                 title = flyer.title,
-                organizations = flyer.organizations.mapSearchDataToOrganizations(),
+                organization = flyer.organization.mapToOrganization(),
                 flyerURL = flyer.flyerURL,
                 startDate = flyer.startDate as String,
                 endDate = flyer.endDate as String,
                 imageURL = flyer.imageURL,
                 location = flyer.location,
+                categorySlug = flyer.categorySlug,
             )
         }
 
@@ -63,26 +63,28 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             Flyer(
                 id = flyer.id,
                 title = flyer.title,
-                organizations = flyer.organizations.mapIdsDataToOrganizations(),
+                organization = flyer.organization.mapToOrganization(),
                 flyerURL = flyer.flyerURL,
                 startDate = flyer.startDate as String,
                 endDate = flyer.endDate as String,
                 imageURL = flyer.imageURL,
-                location = flyer.location
+                location = flyer.location,
+                categorySlug = flyer.categorySlug,
             )
         }
 
-    private fun FlyersByOrganizationSlugsQuery.Data.mapDataToFlyers(): List<Flyer> =
-        this.getFlyersByOrganizationSlugs.map { flyer ->
+    private fun FlyersByCategorySlugQuery.Data.mapDataToFlyers(): List<Flyer> =
+        this.getFlyersByCategorySlug.map { flyer ->
             Flyer(
                 id = flyer.id,
                 title = flyer.title,
-                organizations = flyer.organizations.mapOrganizationIdDataToOrganization(),
+                organization = flyer.organization.mapToOrganization(),
                 flyerURL = flyer.flyerURL,
                 startDate = flyer.startDate as String,
                 endDate = flyer.endDate as String,
                 imageURL = flyer.imageURL,
-                location = flyer.location
+                location = flyer.location,
+                categorySlug = flyer.categorySlug,
             )
         }
 
@@ -91,12 +93,13 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             Flyer(
                 id = flyer.id,
                 title = flyer.title,
-                organizations = flyer.organizations.mapTrendsDataToOrganizations(),
+                organization = flyer.organization.mapToOrganization(),
                 flyerURL = flyer.flyerURL,
                 startDate = flyer.startDate as String,
                 endDate = flyer.endDate as String,
                 imageURL = flyer.imageURL,
-                location = flyer.location
+                location = flyer.location,
+                categorySlug = flyer.categorySlug,
             )
         }
 
@@ -105,12 +108,13 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             Flyer(
                 id = flyer.id,
                 title = flyer.title,
-                organizations = flyer.organizations.mapAfterDateDataToOrganizations(),
+                organization = flyer.organization.mapToOrganization(),
                 flyerURL = flyer.flyerURL,
                 startDate = flyer.startDate as String,
                 endDate = flyer.endDate as String,
                 imageURL = flyer.imageURL,
-                location = flyer.location
+                location = flyer.location,
+                categorySlug = flyer.categorySlug,
             )
         }
 
@@ -119,78 +123,75 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             Flyer(
                 id = flyer.id,
                 title = flyer.title,
-                organizations = flyer.organizations.mapBeforeDateDataToOrganizations(),
+                organization = flyer.organization.mapToOrganization(),
                 flyerURL = flyer.flyerURL,
                 startDate = flyer.startDate as String,
                 endDate = flyer.endDate as String,
                 imageURL = flyer.imageURL,
-                location = flyer.location
+                location = flyer.location,
+                categorySlug = flyer.categorySlug,
             )
         }
 
-    /* Ideally all these functions should just be named mapDataToOrganizations but I was dealing
-     * with some very strange issues with the compiler having issues with overloaded extension
-     * functions so I gave them all different names instead. */
-    private fun List<FlyersByIDsQuery.Organization>.mapIdsDataToOrganizations(): List<Organization> =
-        this.map { organization ->
-            Organization(
-                name = organization.name,
-                slug = organization.slug,
-                categorySlug = organization.categorySlug
-            )
-        }
 
-    private fun List<TrendingFlyersQuery.Organization>.mapTrendsDataToOrganizations(): List<Organization> =
-        this.map { organization ->
-            Organization(
-                name = organization.name,
-                slug = organization.slug,
-                categorySlug = organization.categorySlug
-            )
-        }
+    private fun SearchFlyersQuery.Organization.mapToOrganization(): Organization = Organization(
+        name = this.name,
+        categorySlug = this.categorySlug,
+        websiteURL = this.websiteURL,
+        backgroundImageURL = this.backgroundImageURL,
+        bio = this.bio,
+    )
 
-    private fun List<FlyersAfterDateQuery.Organization>.mapAfterDateDataToOrganizations(): List<Organization> =
-        this.map { organization ->
-            Organization(
-                name = organization.name,
-                slug = organization.slug,
-                categorySlug = organization.categorySlug
-            )
-        }
+    private fun FlyersByIDsQuery.Organization.mapToOrganization(): Organization = Organization(
+        name = this.name,
+        categorySlug = this.categorySlug,
+        websiteURL = this.websiteURL,
+        backgroundImageURL = this.backgroundImageURL,
+        bio = this.bio,
+    )
 
-    private fun List<FlyersBeforeDateQuery.Organization>.mapBeforeDateDataToOrganizations(): List<Organization> =
-        this.map { organization ->
-            Organization(
-                name = organization.name,
-                slug = organization.slug,
-                categorySlug = organization.categorySlug
-            )
-        }
+    private fun FlyersByCategorySlugQuery.Organization.mapToOrganization(): Organization =
+        Organization(
+            name = this.name,
+            categorySlug = this.categorySlug,
+            websiteURL = this.websiteURL,
+            backgroundImageURL = this.backgroundImageURL,
+            bio = this.bio,
+        )
 
-    private fun List<FlyersByOrganizationSlugsQuery.Organization>.mapOrganizationIdDataToOrganization(): List<Organization> =
-        this.map { organization ->
-            Organization(
-                name = organization.name,
-                slug = organization.slug,
-                categorySlug = organization.categorySlug
-            )
-        }
+    private fun TrendingFlyersQuery.Organization.mapToOrganization(): Organization = Organization(
+        name = this.name,
+        categorySlug = this.categorySlug,
+        websiteURL = this.websiteURL,
+        backgroundImageURL = this.backgroundImageURL,
+        bio = this.bio,
+    )
 
-    private fun OrganizationsByCategoryQuery.Data.mapOrganizationCategoryDataToOrganizations(): List<Organization> =
-        this.getOrganizationsByCategory!!.map { organization ->
-            Organization(
-                name = organization.name,
-                slug = organization.slug,
-                categorySlug = organization.categorySlug,
-            )
-        }
+    private fun FlyersAfterDateQuery.Organization.mapToOrganization(): Organization = Organization(
+        name = this.name,
+        categorySlug = this.categorySlug,
+        websiteURL = this.websiteURL,
+        backgroundImageURL = this.backgroundImageURL,
+        bio = this.bio,
+    )
 
-    private fun List<SearchFlyersQuery.Organization>.mapSearchDataToOrganizations(): List<Organization> =
-        this.map { organization ->
+    private fun FlyersBeforeDateQuery.Organization.mapToOrganization(): Organization = Organization(
+        name = this.name,
+        categorySlug = this.categorySlug,
+        websiteURL = this.websiteURL,
+        backgroundImageURL = this.backgroundImageURL,
+        bio = this.bio,
+    )
+
+    private fun OrganizationsByCategoryQuery.Data.mapToOrganizations(): List<Organization> =
+        // TODO why do I need a non-null assertion here?
+        this.getOrganizationsByCategory!!.map {
             Organization(
-                name = organization.name,
-                slug = organization.slug,
-                categorySlug = organization.categorySlug
+                name = it.name,
+                categorySlug = it.categorySlug,
+                websiteURL = it.websiteURL,
+                backgroundImageURL = it.backgroundImageURL,
+                bio = it.bio,
             )
         }
 }
