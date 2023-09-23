@@ -111,9 +111,7 @@ class BookmarkViewModel @Inject constructor(
                 upcomingFlyersState =
                 FlyersRetrievalState.Success(if (categorySlug.lowercase() == "all") allUpcomingFlyers
                 else allUpcomingFlyers.filter {
-                    it.belongsToCategory(
-                        categorySlug
-                    )
+                    it.categorySlug == categorySlug
                 })
             )
         } else {
@@ -122,26 +120,10 @@ class BookmarkViewModel @Inject constructor(
                 pastFlyersState =
                 FlyersRetrievalState.Success(if (categorySlug.lowercase() == "all") allPastFlyers
                 else allPastFlyers.filter {
-                    it.belongsToCategory(
-                        categorySlug
-                    )
+                    it.categorySlug == categorySlug
                 })
             )
         }
-    }
-
-    /**
-     * Checks if a Flyer belongs in a certain category by checking if any of its organizations
-     * fall in that category.
-     * @param categorySlug a valid category slug
-     */
-    private fun Flyer.belongsToCategory(categorySlug: String): Boolean {
-        this.organizations.forEach {
-            if (it.categorySlug == categorySlug) {
-                return true
-            }
-        }
-        return false
     }
 
     fun removeArticle(id: String) = viewModelScope.launch {

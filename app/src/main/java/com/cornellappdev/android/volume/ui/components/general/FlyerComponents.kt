@@ -94,7 +94,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltV
                 ) {
                     // Tag
                     Text(
-                        text = flyer.organizations.formatTypes(),
+                        text = flyer.organization.formatCategory(),
                         color = Color.White,
                         modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp),
                         maxLines = 1,
@@ -113,7 +113,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltV
                     .clickable {
                         flyersViewModel.incrementTimesClicked(flyer.id)
 
-                        val uri = Uri.parse(flyer.flyerURL)
+                        val uri = Uri.parse(flyer.flyerURL ?: flyer.organization.websiteURL)
                         try {
                             val intent = Intent(Intent.ACTION_VIEW, uri)
                             openLinkLauncher.launch(intent)
@@ -125,12 +125,12 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltV
 
         // Organization and icon row
         OrganizationAndIconsRow(
-            organizationName = flyer.organizations
-                .joinToString(
-                    transform = { o -> o.name.replaceFirstChar { c -> c.uppercase() } },
-                    separator = ", "
-                ), inBigFlyer = true, iconSize = iconSize, url = flyer.flyerURL,
-            context = LocalContext.current, flyerId = flyer.id
+            organizationName = flyer.organization.name,
+            inBigFlyer = true,
+            iconSize = iconSize,
+            url = flyer.flyerURL ?: flyer.organization.websiteURL,
+            context = LocalContext.current,
+            flyerId = flyer.id
         )
 
         // Event title text
@@ -188,7 +188,8 @@ fun SmallFlyer(
         // This is the cover image
         Box(modifier = Modifier.clickable {
             flyersViewModel.incrementTimesClicked(flyer.id)
-            val uri = Uri.parse(flyer.flyerURL)
+
+            val uri = Uri.parse(flyer.flyerURL ?: flyer.organization.websiteURL)
             try {
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 openLinkLauncher.launch(intent)
@@ -208,11 +209,9 @@ fun SmallFlyer(
 
         Column(modifier = Modifier.padding(start = 8.dp)) {
             OrganizationAndIconsRow(
-                organizationName = flyer.organizations
-                    .toSet()
-                    .joinToString(transform = { o -> o.name }, separator = ", "),
+                organizationName = flyer.organization.name,
                 iconSize = 20.dp,
-                url = flyer.flyerURL,
+                url = flyer.flyerURL ?: flyer.organization.websiteURL,
                 context = LocalContext.current,
                 flyerId = flyer.id
             )
@@ -259,7 +258,7 @@ fun SmallFlyer(
                     )
                 }) {
                     Text(
-                        text = flyer.organizations.formatTypes(),
+                        text = flyer.organization.formatCategory(),
                         color = VolumeOrange,
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -277,9 +276,8 @@ fun SmallFlyer(
 /**
  * Formats the types for multiple organizations so you can see them clearly in the tag.
  */
-fun List<Organization>.formatTypes(): String {
-    return this.map { o -> o.categorySlug.replaceFirstChar { c -> c.uppercase() } }.toSet()
-        .joinToString(separator = ", ")
+fun Organization.formatCategory(): String {
+    return this.categorySlug.replaceFirstChar { c -> c.uppercase() }.replace("-", " ")
 }
 
 

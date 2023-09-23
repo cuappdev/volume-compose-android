@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.volume.data.models.Flyer
-import com.cornellappdev.android.volume.data.models.Organization
 import com.cornellappdev.android.volume.data.repositories.FlyerRepository
 import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.volume.ui.states.FlyersRetrievalState
@@ -125,24 +124,17 @@ class FlyersViewModel @Inject constructor(
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
                             initialFlyers
-                                .filter { !weeklyFlyers.contains(it) && !dailyFlyers.contains(it) }
+                                .filter { !dailyFlyers.contains(it) }
                                 .sorted()
                         )
                     )
                 } else {
-                    // Perform procedure to get flyers based on category.
-
-                    // Step 1: Find organizations related to category.
-                    val organizations: List<Organization> =
-                        flyerRepository.fetchOrganizationsByCategorySlug(categorySlug)
-                    // Step 2: Find flyers by those organizations:
-                    val organizationSlugs = organizations.map { it.slug }
+                    // Get Flyers based on category
                     flyersUiState = flyersUiState.copy(
                         upcomingFlyersState = FlyersRetrievalState.Success(
-                            flyerRepository.fetchFlyersByOrganizationSlugs(organizationSlugs)
+                            flyerRepository.fetchFlyersByCategorySlug(categorySlug)
                                 .filter {
-                                    !weeklyFlyers.contains(it) &&
-                                            !dailyFlyers.contains(it) &&
+                                    !dailyFlyers.contains(it) &&
                                             it.startDateTime > LocalDateTime.now()
                                 }
                                 .sorted()

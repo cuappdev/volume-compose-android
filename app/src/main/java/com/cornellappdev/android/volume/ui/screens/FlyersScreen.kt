@@ -350,6 +350,7 @@ fun FlyersScreen(
                 title = "Are you an organization?",
                 message = "If you want to see your organization’s events on Volume, email us at volumeappdev@gmail.com",
                 showImage = true,
+                modifier = Modifier.padding(bottom = 141.dp)
             )
         }
     }
