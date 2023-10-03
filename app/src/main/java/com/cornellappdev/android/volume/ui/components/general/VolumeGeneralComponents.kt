@@ -7,17 +7,22 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -41,12 +46,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
+import com.cornellappdev.android.volume.ui.theme.GrayFive
+import com.cornellappdev.android.volume.ui.theme.GrayFour
 import com.cornellappdev.android.volume.ui.theme.GrayTwo
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
@@ -291,6 +300,37 @@ fun SearchBar(
     )
     if (source.collectIsPressedAsState().value)
         onClick()
+}
+
+@Composable
+fun VolumeTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    height: Dp = 36.dp,
+    borderColor: Color = GrayFour,
+    icon: (@Composable () -> Unit)? = null,
+) {
+    Box(modifier = modifier) {
+        Row(
+            modifier = modifier
+                .border(1.dp, borderColor, shape = RoundedCornerShape(4.dp))
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BasicTextField(
+                value = value,
+                modifier = Modifier.fillMaxWidth(),
+                onValueChange = onValueChange,
+                textStyle = TextStyle(fontFamily = lato, color = GrayFive),
+            )
+            icon?.let {
+                Box(modifier = Modifier.requiredSize(16.dp)) {
+                    it()
+                }
+            }
+        }
+    }
 }
 
 fun Int.toComposeColor(): Color {

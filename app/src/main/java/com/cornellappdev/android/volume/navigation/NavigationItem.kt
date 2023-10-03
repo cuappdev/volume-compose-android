@@ -88,4 +88,5 @@ enum class Routes(override var route: String) : NavUnit {
     ABOUT_US("about_us"),
     WEEKLY_DEBRIEF("weekly_debrief"),
     SEARCH("search"),
+    ORGANIZATION_LOGIN("organization_login")
 }

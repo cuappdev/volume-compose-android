@@ -347,9 +347,11 @@ private fun MainScreenNavigationConfigurations(
                     animationSpec = tween(durationMillis = 2500)
                 )
             }) {
-            SettingsScreen {
-                navController.navigate(Routes.ABOUT_US.route)
-            }
+            SettingsScreen(
+                onAboutUsClicked = {
+                    navController.navigate(Routes.ABOUT_US.route)
+                },
+                onOrganizationLoginClicked = { navController.navigate(Routes.ORGANIZATION_LOGIN.route) })
         }
         composable(Routes.ABOUT_US.route,
             enterTransition = {
@@ -385,6 +387,20 @@ private fun MainScreenNavigationConfigurations(
             }, onMagazineClick = { magazine ->
                 navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.SEARCH.route}")
             }, defaultTab = tabIndex ?: 0)
+        }
+        composable(route = Routes.ORGANIZATION_LOGIN.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            }) {
+            OrganizationsLoginScreen()
         }
     }
 }

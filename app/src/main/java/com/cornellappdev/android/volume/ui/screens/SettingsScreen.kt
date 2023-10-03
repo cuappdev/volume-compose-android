@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.OutlinedFlag
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,7 +32,7 @@ import com.cornellappdev.android.volume.ui.theme.notoserif
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onAboutUsClicked: () -> Unit) {
+fun SettingsScreen(onAboutUsClicked: () -> Unit, onOrganizationLoginClicked: () -> Unit) {
     val context = LocalContext.current
     Scaffold(
         topBar = {
@@ -138,6 +139,33 @@ fun SettingsScreen(onAboutUsClicked: () -> Unit) {
                     Text(
                         modifier = Modifier.align(Alignment.CenterVertically),
                         text = "About Us",
+                        fontFamily = lato,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 16.sp,
+                        color = Color.Black
+                    )
+                    Spacer(Modifier.weight(1f, true))
+                    Icon(
+                        Icons.Outlined.ChevronRight,
+                        contentDescription = null,
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .background(Color.Transparent)
+                        .height(30.dp)
+                        .clickable { onOrganizationLoginClicked() }
+                ) {
+                    Icon(
+                        Icons.Outlined.Lock,
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        contentDescription = null,
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        text = "Organization login",
                         fontFamily = lato,
                         fontWeight = FontWeight.Normal,
                         fontSize = 16.sp,
