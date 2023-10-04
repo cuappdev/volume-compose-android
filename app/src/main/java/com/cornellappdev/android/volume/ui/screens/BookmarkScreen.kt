@@ -154,18 +154,9 @@ fun BookmarkedFlyersView(
     var pastSelectedIndex by remember { mutableStateOf(0) }
     var pastExpanded by remember { mutableStateOf(false) }
 
-    val tags = FlyerConstants.CATEGORY_SLUGS.split(",")
-    // Maps the category slugs to strings that are viewable on the app.
-    val formattedTags = tags.map { s ->
-        // If the slug is just a single word, capitalize it.
-        if (s == s.lowercase()) {
-            s.replaceFirstChar { c -> c.uppercase() }
-            // If the slug is multiple words, split it on uppercase characters and join them, capitalizing each word.
-        } else {
-            s.split(Regex("(?<!^)(?=[A-Z])"))
-                .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
-        }
-    }
+    val tags: List<String> = FlyerConstants.CATEGORY_SLUGS.split(",")
+    val formattedTags = FlyerConstants.FORMATTED_TAGS
+
     LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
         // Upcoming and dropdown menu
         item {

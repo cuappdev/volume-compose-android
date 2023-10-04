@@ -339,6 +339,7 @@ fun VolumeTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     height: Dp = 36.dp,
+    maxLines: Int = 1,
     icon: (@Composable () -> Unit)? = null,
 ) {
     VolumeInputContainer(modifier = modifier.height(height), icon = icon) {
@@ -348,6 +349,8 @@ fun VolumeTextField(
                 .fillMaxWidth(),
             onValueChange = onValueChange,
             textStyle = TextStyle(fontFamily = lato, color = GrayFive),
+            maxLines = maxLines,
+            singleLine = (maxLines == 1)
         )
     }
 }

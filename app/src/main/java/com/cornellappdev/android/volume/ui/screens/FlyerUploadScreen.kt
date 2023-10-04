@@ -1,8 +1,15 @@
 package com.cornellappdev.android.volume.ui.screens
 
+import android.net.Uri
+import android.provider.OpenableColumns
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,13 +21,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,6 +52,7 @@ import com.cornellappdev.android.volume.ui.theme.GrayOne
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
+import com.cornellappdev.android.volume.util.FlyerConstants
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.DatePickerDefaults
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
@@ -48,24 +60,86 @@ import com.vanpra.composematerialdialogs.datetime.time.TimePickerDefaults
 import com.vanpra.composematerialdialogs.datetime.time.timepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+
 
 @Composable
 fun FlyerUploadScreen(organization: Organization) {
+    val context = LocalContext.current
+
     var flyerName by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
-    var redirectLink by remember { mutableStateOf("") }
-    var uploadEnabled by remember { mutableStateOf(false) }
+    var redirectLink: String? by remember { mutableStateOf(null) }
     var startDate: LocalDate? by remember { mutableStateOf(null) }
     var endDate: LocalDate? by remember { mutableStateOf(null) }
     var startTime: LocalTime? by remember { mutableStateOf(null) }
     var endTime: LocalTime? by remember { mutableStateOf(null) }
+    var flyerImageUri: Uri? by remember { mutableStateOf(null) }
+    var flyerCategory: String by remember { mutableStateOf("") }
 
+    var uploadEnabled by remember { mutableStateOf(false) }
+    DisposableEffect(
+        key1 = arrayOf(
+            flyerName,
+            location,
+            redirectLink,
+            startDate,
+            endDate,
+            startTime,
+            endTime,
+            flyerImageUri,
+            flyerCategory
+        ), effect = {
+            Log.d(
+                "TAG",
+                "FlyerUploadScreen: Changed, flyer name $flyerName, blank: ${flyerName.isNotBlank()}"
+            )
+
+            uploadEnabled = flyerName.isNotBlank() &&
+                    location.isNotBlank() &&
+                    startDate != null &&
+                    endDate != null &&
+                    startTime != null &&
+                    endTime != null &&
+                    flyerImageUri != null &&
+                    flyerCategory.isNotBlank()
+            onDispose { }
+        })
+
+    var categoryDropdownShowing by remember { mutableStateOf(false) }
+
+    var fileName: String? by remember { mutableStateOf(null) }
 
     val startDatePickerDialog = rememberMaterialDialogState()
     val endDatePickerDialog = rememberMaterialDialogState()
     val startTimePickerDialog = rememberMaterialDialogState()
     val endTimePickerDialog = rememberMaterialDialogState()
+
+    val categories: List<String> = FlyerConstants.FORMATTED_TAGS
+    val slugs: List<String> = FlyerConstants.CATEGORY_SLUGS.split(",")
+
+    val imagePickerLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            flyerImageUri = uri
+        }
+    DisposableEffect(key1 = flyerImageUri, effect = {
+        val contentResolver = context.contentResolver
+        flyerImageUri?.let { uri ->
+            val cursor = contentResolver.query(uri, null, null, null, null)
+            if (cursor != null && cursor.moveToFirst()) {
+                val colIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (colIndex != -1) {
+                    val displayName = cursor.getString(colIndex)
+                    fileName = displayName
+                }
+                cursor.close()
+            }
+            cursor?.close()
+        }
+        onDispose { }
+    })
 
     val datePickerColors = DatePickerDefaults.colors(
         headerBackgroundColor = VolumeOrange,
@@ -180,7 +254,11 @@ fun FlyerUploadScreen(organization: Organization) {
                         contentDescription = ""
                     )
                 }) {
-                    // TODO add date text
+                    Text(
+                        text = formatDateTime(startTime, startDate),
+                        fontSize = 14.sp,
+                        color = GrayFive
+                    )
                 }
             }
             Column(modifier = Modifier.weight(1f)) {
@@ -196,7 +274,11 @@ fun FlyerUploadScreen(organization: Organization) {
                         contentDescription = ""
                     )
                 }) {
-                    // TODO add date text
+                    Text(
+                        text = formatDateTime(endTime, endDate),
+                        fontSize = 14.sp,
+                        color = GrayFive
+                    )
                 }
             }
         }
@@ -211,7 +293,11 @@ fun FlyerUploadScreen(organization: Organization) {
                     color = GrayFive
                 )
                 Spacer(Modifier.height(8.dp))
-                VolumeTextField(value = location, onValueChange = { location = it })
+                VolumeTextField(
+                    value = location,
+                    onValueChange = { location = it },
+                    modifier = Modifier.height(48.dp)
+                )
             }
         }
 
@@ -224,12 +310,35 @@ fun FlyerUploadScreen(organization: Organization) {
                 color = GrayFive
             )
             Spacer(Modifier.height(8.dp))
-            VolumeInputContainer(onClick = { /*TODO*/ }, icon = {
-                Icon(
-                    imageVector = Icons.Outlined.ArrowDropDown,
-                    contentDescription = "Dropdown arrow"
-                )
-            })
+            Box {
+                VolumeInputContainer(onClick = {
+                    categoryDropdownShowing = !categoryDropdownShowing
+                }, icon = {
+                    Icon(
+                        imageVector = Icons.Outlined.ArrowDropDown,
+                        contentDescription = "Dropdown arrow"
+                    )
+                }) {
+                    Text(
+                        text = flyerCategory,
+                        fontSize = 14.sp,
+                        color = GrayFive,
+                        fontFamily = lato
+                    )
+                }
+                DropdownMenu(
+                    expanded = categoryDropdownShowing,
+                    onDismissRequest = { categoryDropdownShowing = false }) {
+                    categories.forEach { category ->
+                        DropdownMenuItem(
+                            text = { Text(text = category, fontFamily = lato, color = GrayFive) },
+                            onClick = {
+                                categoryDropdownShowing = !categoryDropdownShowing
+                                flyerCategory = category
+                            })
+                    }
+                }
+            }
         }
         // Flyer redirect link input
         Column {
@@ -247,14 +356,24 @@ fun FlyerUploadScreen(organization: Organization) {
                 color = GrayOne
             )
             Spacer(Modifier.height(8.dp))
-            VolumeTextField(value = redirectLink, onValueChange = { redirectLink = it })
+            VolumeTextField(
+                value = redirectLink.orEmpty(),
+                onValueChange = { if (it.isBlank()) redirectLink = null else redirectLink = it },
+                modifier = Modifier.height(48.dp)
+            )
         }
         // Upload image button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(width = 1.dp, shape = RoundedCornerShape(4.dp), color = VolumeOrange)
-                .clickable { /* TODO */ }
+                .clickable {
+                    imagePickerLauncher.launch(
+                        PickVisualMediaRequest(
+                            mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                        )
+                    )
+                }
                 .padding(vertical = 12.dp, horizontal = 16.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
@@ -266,7 +385,11 @@ fun FlyerUploadScreen(organization: Organization) {
                 modifier = Modifier.size(16.dp)
             )
             Spacer(Modifier.width(8.dp))
-            Text(text = "Select an image...", color = VolumeOrange, fontFamily = lato)
+            Text(
+                text = fileName ?: "Select an image...",
+                color = VolumeOrange,
+                fontFamily = lato
+            )
         }
         // Upload flyer button
         VolumeButton(
@@ -278,9 +401,18 @@ fun FlyerUploadScreen(organization: Organization) {
     }
 }
 
+fun formatDateTime(time: LocalTime?, date: LocalDate?): String {
+    if (time == null || date == null) {
+        return ""
+    }
+    val dateTime = LocalDateTime.of(date, time)
+    val formatter = DateTimeFormatter.ofPattern("M/d h:mm a")
+    return formatter.format(dateTime)
+}
 
 @Composable
 @Preview
 fun FlyerUploadPreview() {
     FlyerUploadScreen(Organization(name = "Cornell AppDev", categorySlug = "", websiteURL = ""))
 }
+
