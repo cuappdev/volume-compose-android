@@ -8,12 +8,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -303,33 +305,80 @@ fun SearchBar(
 }
 
 @Composable
-fun VolumeTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    height: Dp = 36.dp,
-    borderColor: Color = GrayFour,
+fun VolumeInputContainer(
+    onClick: () -> Unit = {},
     icon: (@Composable () -> Unit)? = null,
+    borderColor: Color = GrayFour,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit = {},
 ) {
-    Box(modifier = modifier) {
+    Box(modifier = modifier.clickable { onClick() }) {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .border(1.dp, borderColor, shape = RoundedCornerShape(4.dp))
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BasicTextField(
-                value = value,
-                modifier = Modifier.fillMaxWidth(),
-                onValueChange = onValueChange,
-                textStyle = TextStyle(fontFamily = lato, color = GrayFive),
-            )
+            content()
+            Spacer(modifier = Modifier.weight(1f))
             icon?.let {
                 Box(modifier = Modifier.requiredSize(16.dp)) {
                     it()
                 }
             }
         }
+    }
+}
+
+/**
+ * A generic text field component styled for Volume.
+ */
+@Composable
+fun VolumeTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    height: Dp = 36.dp,
+    icon: (@Composable () -> Unit)? = null,
+) {
+    VolumeInputContainer(modifier = modifier.height(height), icon = icon) {
+        BasicTextField(
+            value = value,
+            modifier = Modifier
+                .fillMaxWidth(),
+            onValueChange = onValueChange,
+            textStyle = TextStyle(fontFamily = lato, color = GrayFive),
+        )
+    }
+}
+
+/**
+ * A generic button component styled for Volume
+ */
+@Composable
+fun VolumeButton(
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .background(
+                if (enabled) VolumeOrange else Color(0xFFF4EFEF),
+                shape = RoundedCornerShape(4.dp)
+            )
+            .clickable { onClick() }
+            .padding(vertical = 12.dp, horizontal = 16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = text,
+            fontFamily = lato,
+            color = if (enabled) Color.White else GrayFive,
+            fontSize = 16.sp
+        )
     }
 }
 

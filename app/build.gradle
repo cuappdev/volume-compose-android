@@ -83,7 +83,6 @@ kapt {
 }
 
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'com.google.android.material:material:1.8.0-alpha01'
     implementation 'androidx.compose.material3:material3:1.0.0-beta01'
@@ -145,8 +144,8 @@ dependencies {
     // Bouqet (PDF Viewing)
     implementation 'io.github.grizzi91:bouquet:1.0.1'
 
-    // Moshi (JSON Parsing)
-//    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.6.0'
+    // Date time picker from Compose Material Dialogs
+    implementation "io.github.vanpra.compose-material-dialogs:datetime:0.9.0"
 }
 
 apollo {
