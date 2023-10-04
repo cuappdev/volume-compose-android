@@ -92,11 +92,6 @@ fun FlyerUploadScreen(organization: Organization) {
             flyerImageUri,
             flyerCategory
         ), effect = {
-            Log.d(
-                "TAG",
-                "FlyerUploadScreen: Changed, flyer name $flyerName, blank: ${flyerName.isNotBlank()}"
-            )
-
             uploadEnabled = flyerName.isNotBlank() &&
                     location.isNotBlank() &&
                     startDate != null &&
