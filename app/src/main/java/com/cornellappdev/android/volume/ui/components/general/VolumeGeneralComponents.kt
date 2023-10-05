@@ -22,13 +22,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.Icon
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -357,6 +361,10 @@ fun VolumeTextField(
 
 /**
  * A generic button component styled for Volume
+ * @param text button text
+ * @param onClick action
+ * @param enabled whether the button is enabled, the style and functionality depend on this
+ * @param modifier modifier is applied to the button
  */
 @Composable
 fun VolumeButton(
@@ -382,6 +390,19 @@ fun VolumeButton(
             color = if (enabled) Color.White else GrayFive,
             fontSize = 16.sp
         )
+    }
+}
+
+@Composable
+fun ErrorMessage(message: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = Icons.Outlined.Warning,
+            contentDescription = "error",
+            tint = Color(0xFFCB2E2E),
+            modifier = Modifier.size(16.dp)
+        )
+        Text(text = message, fontFamily = lato, fontSize = 14.sp)
     }
 }
 

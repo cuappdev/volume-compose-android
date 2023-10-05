@@ -2,7 +2,6 @@ package com.cornellappdev.android.volume.ui.screens
 
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.data.models.Organization
+import com.cornellappdev.android.volume.ui.components.general.ErrorMessage
 import com.cornellappdev.android.volume.ui.components.general.VolumeButton
 import com.cornellappdev.android.volume.ui.components.general.VolumeInputContainer
 import com.cornellappdev.android.volume.ui.components.general.VolumeTextField
@@ -53,6 +53,7 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.util.FlyerConstants
+import com.cornellappdev.android.volume.util.letIfAllNotNull
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.DatePickerDefaults
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
@@ -78,6 +79,7 @@ fun FlyerUploadScreen(organization: Organization) {
     var endTime: LocalTime? by remember { mutableStateOf(null) }
     var flyerImageUri: Uri? by remember { mutableStateOf(null) }
     var flyerCategory: String by remember { mutableStateOf("") }
+    var hasTimeError: Boolean by remember { mutableStateOf(false) }
 
     var uploadEnabled by remember { mutableStateOf(false) }
     DisposableEffect(
@@ -91,17 +93,25 @@ fun FlyerUploadScreen(organization: Organization) {
             endTime,
             flyerImageUri,
             flyerCategory
-        ), effect = {
-            uploadEnabled = flyerName.isNotBlank() &&
-                    location.isNotBlank() &&
-                    startDate != null &&
-                    endDate != null &&
-                    startTime != null &&
-                    endTime != null &&
-                    flyerImageUri != null &&
-                    flyerCategory.isNotBlank()
-            onDispose { }
-        })
+        )
+    ) {
+        uploadEnabled = flyerName.isNotBlank() &&
+                location.isNotBlank() &&
+                startDate != null &&
+                endDate != null &&
+                startTime != null &&
+                endTime != null &&
+                flyerImageUri != null &&
+                flyerCategory.isNotBlank()
+        // TODO figure out type errors
+        letIfAllNotNull(startTime, startDate, endTime, endDate) {
+            val (st, sd, et, ed) = it
+            if (LocalDateTime.of(sd, st) > LocalDateTime.of(ed, et)) {
+
+            }
+        }
+        onDispose { }
+    }
 
     var categoryDropdownShowing by remember { mutableStateOf(false) }
 
@@ -232,51 +242,56 @@ fun FlyerUploadScreen(organization: Organization) {
             )
         }
         // Date inputs
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Start Time",
-                    fontFamily = notoserif,
-                    fontSize = 16.sp,
-                    color = GrayFive
-                )
-                VolumeInputContainer(onClick = { startDatePickerDialog.show() }, icon = {
-                    Icon(
-                        imageVector = Icons.Outlined.AccessTime,
-                        contentDescription = ""
-                    )
-                }) {
+        Column {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = formatDateTime(startTime, startDate),
-                        fontSize = 14.sp,
+                        text = "Start Time",
+                        fontFamily = notoserif,
+                        fontSize = 16.sp,
                         color = GrayFive
                     )
+                    VolumeInputContainer(onClick = { startDatePickerDialog.show() }, icon = {
+                        Icon(
+                            imageVector = Icons.Outlined.AccessTime,
+                            contentDescription = ""
+                        )
+                    }) {
+                        Text(
+                            text = formatDateTime(startTime, startDate),
+                            fontSize = 14.sp,
+                            color = GrayFive
+                        )
+                    }
                 }
-            }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "End Time",
-                    fontFamily = notoserif,
-                    fontSize = 16.sp,
-                    color = GrayFive
-                )
-                VolumeInputContainer(onClick = { endDatePickerDialog.show() }, icon = {
-                    Icon(
-                        imageVector = Icons.Outlined.AccessTime,
-                        contentDescription = ""
-                    )
-                }) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = formatDateTime(endTime, endDate),
-                        fontSize = 14.sp,
+                        text = "End Time",
+                        fontFamily = notoserif,
+                        fontSize = 16.sp,
                         color = GrayFive
                     )
+                    VolumeInputContainer(onClick = { endDatePickerDialog.show() }, icon = {
+                        Icon(
+                            imageVector = Icons.Outlined.AccessTime,
+                            contentDescription = ""
+                        )
+                    }) {
+                        Text(
+                            text = formatDateTime(endTime, endDate),
+                            fontSize = 14.sp,
+                            color = GrayFive
+                        )
+                    }
                 }
             }
+            Spacer(Modifier.height(8.dp))
+            ErrorMessage(message = "End time must be after start time.")
         }
+
 
         // Location input
         Column {
