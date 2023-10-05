@@ -104,11 +104,13 @@ fun FlyerUploadScreen(organization: Organization) {
                 flyerImageUri != null &&
                 flyerCategory.isNotBlank()
         // TODO figure out type errors
-        letIfAllNotNull(startTime, startDate, endTime, endDate) {
-            val (st, sd, et, ed) = it
-            if (LocalDateTime.of(sd, st) > LocalDateTime.of(ed, et)) {
+        letIfAllNotNull(startTime, endTime) { times ->
+            val (st, et) = times
+            letIfAllNotNull(startDate, endDate) { dates ->
+                val (sd, ed) = dates
 
             }
+            st
         }
         onDispose { }
     }
