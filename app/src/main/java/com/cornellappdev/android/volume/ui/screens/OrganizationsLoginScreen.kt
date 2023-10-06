@@ -16,14 +16,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.android.volume.ui.components.general.ErrorMessage
 import com.cornellappdev.android.volume.ui.components.general.VolumeButton
+import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
 import com.cornellappdev.android.volume.ui.components.general.VolumeTextField
+import com.cornellappdev.android.volume.ui.states.ResponseState
 import com.cornellappdev.android.volume.ui.theme.notoserif
+import com.cornellappdev.android.volume.ui.viewmodels.OrganizationLoginViewModel
 
 @Composable
-fun OrganizationsLoginScreen() {
+fun OrganizationsLoginScreen(
+    onSuccessfulLogin: (orgId: String) -> Unit,
+    organizationLoginViewModel: OrganizationLoginViewModel = hiltViewModel(),
+) {
     var slug by remember { mutableStateOf("") }
     var accessCode by remember { mutableStateOf("") }
+    var hasTriedLogin by remember { mutableStateOf(false) }
 
     var authenticateEnabled by remember { mutableStateOf(false) }
 
@@ -76,9 +85,35 @@ fun OrganizationsLoginScreen() {
         Spacer(modifier = Modifier.height(32.dp))
         VolumeButton(
             text = "Authenticate",
-            onClick = { /*TODO*/ },
+            onClick = {
+                hasTriedLogin = true
+                organizationLoginViewModel.checkAccessCode(
+                    accessCode.trim(),
+                    slug.trim()
+                )
+            },
             enabled = authenticateEnabled,
             modifier = Modifier.fillMaxWidth(),
         )
+        Spacer(Modifier.height(8.dp))
+        when (val res =
+            organizationLoginViewModel.organizationsLoginUiState.checkAccessCodeResult) {
+            is ResponseState.Success -> {
+                onSuccessfulLogin(res.data.id)
+            }
+
+            is ResponseState.Error -> {
+                ErrorMessage(
+                    message = res.errors.firstOrNull()?.message.toString()
+                        ?: "Incorrect slug or access code"
+                )
+            }
+
+            ResponseState.Loading -> {
+                if (hasTriedLogin) {
+                    VolumeLoading()
+                }
+            }
+        }
     }
 }

@@ -2,6 +2,8 @@ package com.cornellappdev.android.volume.ui.screens
 
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Base64
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,19 +41,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cornellappdev.android.volume.data.models.Organization
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.ui.components.general.ErrorMessage
 import com.cornellappdev.android.volume.ui.components.general.VolumeButton
 import com.cornellappdev.android.volume.ui.components.general.VolumeInputContainer
+import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
 import com.cornellappdev.android.volume.ui.components.general.VolumeTextField
+import com.cornellappdev.android.volume.ui.states.ResponseState
 import com.cornellappdev.android.volume.ui.theme.GrayFive
 import com.cornellappdev.android.volume.ui.theme.GrayOne
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
+import com.cornellappdev.android.volume.ui.viewmodels.FlyerUploadViewModel
 import com.cornellappdev.android.volume.util.FlyerConstants
 import com.cornellappdev.android.volume.util.letIfAllNotNull
 import com.vanpra.composematerialdialogs.MaterialDialog
@@ -67,7 +71,10 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun FlyerUploadScreen(organization: Organization) {
+fun FlyerUploadScreen(
+    organizationId: String,
+    flyerUploadViewModel: FlyerUploadViewModel = hiltViewModel(),
+) {
     val context = LocalContext.current
 
     var flyerName by remember { mutableStateOf("") }
@@ -82,6 +89,8 @@ fun FlyerUploadScreen(organization: Organization) {
     var hasTimeError: Boolean by remember { mutableStateOf(false) }
 
     var uploadEnabled by remember { mutableStateOf(false) }
+    var hasTriedUpload by remember { mutableStateOf(false) }
+    flyerUploadViewModel.getOrganization(organizationId)
     DisposableEffect(
         key1 = arrayOf(
             flyerName,
@@ -95,6 +104,15 @@ fun FlyerUploadScreen(organization: Organization) {
             flyerCategory
         )
     ) {
+        letIfAllNotNull(startTime, endTime) { times ->
+            val (st, et) = times
+            letIfAllNotNull(startDate, endDate) { dates ->
+                val (sd, ed) = dates
+                hasTimeError = LocalDateTime.of(ed, et) < LocalDateTime.of(sd, st)
+            }
+            st
+        }
+
         uploadEnabled = flyerName.isNotBlank() &&
                 location.isNotBlank() &&
                 startDate != null &&
@@ -102,16 +120,9 @@ fun FlyerUploadScreen(organization: Organization) {
                 startTime != null &&
                 endTime != null &&
                 flyerImageUri != null &&
-                flyerCategory.isNotBlank()
-        // TODO figure out type errors
-        letIfAllNotNull(startTime, endTime) { times ->
-            val (st, et) = times
-            letIfAllNotNull(startDate, endDate) { dates ->
-                val (sd, ed) = dates
+                flyerCategory.isNotBlank() &&
+                !hasTimeError
 
-            }
-            st
-        }
         onDispose { }
     }
 
@@ -213,7 +224,6 @@ fun FlyerUploadScreen(organization: Organization) {
         }
     }
 
-
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -231,7 +241,20 @@ fun FlyerUploadScreen(organization: Organization) {
         // Organization name
         Column(modifier = Modifier.padding(top = 14.dp)) {
             Text(text = "Organization", fontFamily = notoserif, fontSize = 16.sp, color = GrayFive)
-            Text(text = organization.name, fontSize = 24.sp, fontFamily = notoserif)
+            when (val organization =
+                flyerUploadViewModel.uploadFlyerUiState.organizationInfoResult) {
+                is ResponseState.Success -> {
+                    Text(text = organization.data.name, fontSize = 24.sp, fontFamily = notoserif)
+                }
+
+                is ResponseState.Error -> {
+                    Text(
+                        text = "Failed to load organization, try again",
+                        fontSize = 24.sp,
+                        fontFamily = notoserif
+                    )
+                }
+            }
         }
         // Flyer name input
         Column {
@@ -291,7 +314,9 @@ fun FlyerUploadScreen(organization: Organization) {
                 }
             }
             Spacer(Modifier.height(8.dp))
-            ErrorMessage(message = "End time must be after start time.")
+            if (hasTimeError) {
+                ErrorMessage(message = "End time must be after start time.")
+            }
         }
 
 
@@ -340,12 +365,18 @@ fun FlyerUploadScreen(organization: Organization) {
                 }
                 DropdownMenu(
                     expanded = categoryDropdownShowing,
-                    onDismissRequest = { categoryDropdownShowing = false }) {
+                    onDismissRequest = {
+                        Log.d(
+                            "TAG",
+                            "FlyerUploadScreen: Dismiss request"
+                        ); categoryDropdownShowing = false
+                    }) {
                     categories.forEach { category ->
                         DropdownMenuItem(
                             text = { Text(text = category, fontFamily = lato, color = GrayFive) },
                             onClick = {
-                                categoryDropdownShowing = !categoryDropdownShowing
+                                Log.d("x`", "FlyerUploadScreen: dropdown item clicked")
+                                categoryDropdownShowing = false
                                 flyerCategory = category
                             })
                     }
@@ -404,12 +435,59 @@ fun FlyerUploadScreen(organization: Organization) {
             )
         }
         // Upload flyer button
-        VolumeButton(
-            text = "Upload Flyer",
-            onClick = { /*TODO*/ },
-            enabled = uploadEnabled,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column {
+            VolumeButton(
+                text = "Upload Flyer",
+                onClick = {
+                    hasTriedUpload = true
+                    try {
+                        val bytes =
+                            flyerImageUri?.let {
+                                context.contentResolver.openInputStream(it)?.readBytes()
+                            }
+                        if (bytes == null) {
+                            flyerUploadViewModel.error()
+                        } else {
+                            flyerUploadViewModel.uploadFlyer(
+                                title = flyerName,
+                                startDate = startDate.toString(),
+                                location = location,
+                                flyerURL = redirectLink,
+                                endDate = endDate.toString(),
+                                categorySlug = flyerCategory,
+                                imageBase64 = Base64.encodeToString(bytes, Base64.DEFAULT),
+                                organizationId = organizationId
+                            )
+                        }
+                    } catch (ignored: Exception) {
+                    }
+                },
+                enabled = uploadEnabled,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(8.dp))
+            when (flyerUploadViewModel.uploadFlyerUiState.uploadFlyerResult) {
+                is ResponseState.Error -> {
+                    ErrorMessage(message = "Failed to upload Flyer")
+                }
+
+                is ResponseState.Success -> {
+                    // TODO
+                    Text(text = "Flyer uploaded successfully")
+                }
+
+                ResponseState.Loading -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        if (hasTriedUpload) {
+                            VolumeLoading()
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -420,11 +498,5 @@ fun formatDateTime(time: LocalTime?, date: LocalDate?): String {
     val dateTime = LocalDateTime.of(date, time)
     val formatter = DateTimeFormatter.ofPattern("M/d h:mm a")
     return formatter.format(dateTime)
-}
-
-@Composable
-@Preview
-fun FlyerUploadPreview() {
-    FlyerUploadScreen(Organization(name = "Cornell AppDev", categorySlug = "", websiteURL = ""))
 }
 

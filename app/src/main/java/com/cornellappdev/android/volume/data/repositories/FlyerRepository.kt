@@ -22,9 +22,6 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun fetchFlyersBeforeDate(date: String): List<Flyer> =
         networkApi.fetchFlyersBeforeDate(date).dataAssertNoErrors.mapDataToFlyers()
 
-    suspend fun fetchOrganizationsByCategorySlug(slug: String): List<Organization> =
-        networkApi.fetchOrganizationsByCategory(category = slug).dataAssertNoErrors.mapToOrganizations()
-
     suspend fun fetchFlyersByCategorySlug(slug: String): List<Flyer> =
         networkApi.fetchFlyersByCategorySlug(slug).dataAssertNoErrors.mapDataToFlyers()
 
@@ -57,6 +54,26 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             )
         }
 
+    // Let this one directly go to the network API so it is easier to view errors
+    suspend fun createFlyer(
+        title: String,
+        startDate: String,
+        location: String,
+        flyerURL: String?,
+        endDate: String,
+        categorySlug: String,
+        imageBase64: String,
+        organizationId: String,
+    ) = networkApi.createFlyer(
+        title,
+        startDate,
+        location,
+        flyerURL,
+        endDate,
+        categorySlug,
+        imageBase64,
+        organizationId
+    )
 
     private fun FlyersByIDsQuery.Data.mapDataToFlyers(): List<Flyer> =
         this.getFlyersByIDs.map { flyer ->
@@ -140,6 +157,7 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         websiteURL = this.websiteURL,
         backgroundImageURL = this.backgroundImageURL,
         bio = this.bio,
+        id = this.id
     )
 
     private fun FlyersByIDsQuery.Organization.mapToOrganization(): Organization = Organization(
@@ -148,6 +166,7 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         websiteURL = this.websiteURL,
         backgroundImageURL = this.backgroundImageURL,
         bio = this.bio,
+        id = this.id
     )
 
     private fun FlyersByCategorySlugQuery.Organization.mapToOrganization(): Organization =
@@ -157,6 +176,7 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             websiteURL = this.websiteURL,
             backgroundImageURL = this.backgroundImageURL,
             bio = this.bio,
+            id = this.id
         )
 
     private fun TrendingFlyersQuery.Organization.mapToOrganization(): Organization = Organization(
@@ -165,6 +185,7 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         websiteURL = this.websiteURL,
         backgroundImageURL = this.backgroundImageURL,
         bio = this.bio,
+        id = this.id
     )
 
     private fun FlyersAfterDateQuery.Organization.mapToOrganization(): Organization = Organization(
@@ -173,6 +194,7 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         websiteURL = this.websiteURL,
         backgroundImageURL = this.backgroundImageURL,
         bio = this.bio,
+        id = this.id
     )
 
     private fun FlyersBeforeDateQuery.Organization.mapToOrganization(): Organization = Organization(
@@ -181,6 +203,7 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         websiteURL = this.websiteURL,
         backgroundImageURL = this.backgroundImageURL,
         bio = this.bio,
+        id = this.id
     )
 
     private fun OrganizationsByCategoryQuery.Data.mapToOrganizations(): List<Organization> =
@@ -192,6 +215,7 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
                 websiteURL = it.websiteURL,
                 backgroundImageURL = it.backgroundImageURL,
                 bio = it.bio,
+                id = it.id
             )
         }
 }

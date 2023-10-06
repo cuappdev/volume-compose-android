@@ -400,7 +400,21 @@ private fun MainScreenNavigationConfigurations(
                     animationSpec = tween(durationMillis = 2500)
                 )
             }) {
-            OrganizationsLoginScreen()
+            OrganizationsLoginScreen({ navController.navigate("${Routes.UPLOAD_FLYER.route}/$it") })
+        }
+        composable(route = "${Routes.UPLOAD_FLYER.route}/{organizationId}", enterTransition = {
+            fadeIn(
+                initialAlpha = 0f,
+                animationSpec = tween(durationMillis = 2500)
+            )
+        },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            }) { entry ->
+            val orgId = entry.arguments?.getString("organizationId")
+            FlyerUploadScreen(organizationId = orgId ?: "")
         }
     }
 }
