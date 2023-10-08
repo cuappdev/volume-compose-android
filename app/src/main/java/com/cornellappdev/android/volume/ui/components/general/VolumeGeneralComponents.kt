@@ -379,7 +379,7 @@ fun VolumeButton(
                 if (enabled) VolumeOrange else Color(0xFFF4EFEF),
                 shape = RoundedCornerShape(4.dp)
             )
-            .clickable { onClick() }
+            .clickable(enabled = enabled) { onClick() }
             .padding(vertical = 12.dp, horizontal = 16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally

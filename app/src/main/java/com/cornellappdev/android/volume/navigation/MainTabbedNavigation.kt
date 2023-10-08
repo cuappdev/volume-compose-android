@@ -402,7 +402,13 @@ private fun MainScreenNavigationConfigurations(
             }) {
             OrganizationsLoginScreen({ navController.navigate("${Routes.UPLOAD_FLYER.route}/$it") })
         }
-        composable(route = "${Routes.UPLOAD_FLYER.route}/{organizationId}", enterTransition = {
+        composable(route = "${Routes.UPLOAD_FLYER.route}/{organizationId}") { entry ->
+            val orgId = entry.arguments?.getString("organizationId")
+            FlyerUploadScreen(
+                organizationId = orgId ?: "",
+                onFlyerUploadSuccess = { navController.navigate(Routes.FLYER_SUCCESS.route) })
+        }
+        composable(route = "${Routes.FLYER_SUCCESS.route}", enterTransition = {
             fadeIn(
                 initialAlpha = 0f,
                 animationSpec = tween(durationMillis = 2500)
@@ -412,9 +418,10 @@ private fun MainScreenNavigationConfigurations(
                 fadeOut(
                     animationSpec = tween(durationMillis = 2500)
                 )
-            }) { entry ->
-            val orgId = entry.arguments?.getString("organizationId")
-            FlyerUploadScreen(organizationId = orgId ?: "")
+            }) {
+            FlyerSuccessScreen {
+                navController.navigate(Routes.FLYERS.route)
+            }
         }
     }
 }

@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,7 +47,6 @@ fun OrganizationsLoginScreen(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Settings",
@@ -104,7 +102,7 @@ fun OrganizationsLoginScreen(
 
             is ResponseState.Error -> {
                 ErrorMessage(
-                    message = res.errors.firstOrNull()?.message.toString()
+                    message = res.errors.firstOrNull()?.message
                         ?: "Incorrect slug or access code"
                 )
             }

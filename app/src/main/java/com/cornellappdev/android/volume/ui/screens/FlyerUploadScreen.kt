@@ -73,6 +73,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun FlyerUploadScreen(
     organizationId: String,
+    onFlyerUploadSuccess: () -> Unit,
     flyerUploadViewModel: FlyerUploadViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -162,6 +163,7 @@ fun FlyerUploadScreen(
     val datePickerColors = DatePickerDefaults.colors(
         headerBackgroundColor = VolumeOrange,
         dateActiveBackgroundColor = VolumeOrange,
+        headerTextColor = Color.White,
     )
     val timePickerColors = TimePickerDefaults.colors(
         activeTextColor = Color.White,
@@ -462,20 +464,22 @@ fun FlyerUploadScreen(
                             )
                         }
                     } catch (ignored: Exception) {
+                        flyerUploadViewModel.error()
                     }
                 },
                 enabled = uploadEnabled,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
-            when (flyerUploadViewModel.uploadFlyerUiState.uploadFlyerResult) {
+            when (val res = flyerUploadViewModel.uploadFlyerUiState.uploadFlyerResult) {
                 is ResponseState.Error -> {
-                    ErrorMessage(message = "Failed to upload Flyer")
+                    ErrorMessage(
+                        message = res.errors.firstOrNull()?.message ?: "Failed to upload flyer"
+                    )
                 }
 
                 is ResponseState.Success -> {
-                    // TODO
-                    Text(text = "Flyer uploaded successfully")
+                    onFlyerUploadSuccess()
                 }
 
                 ResponseState.Loading -> {
