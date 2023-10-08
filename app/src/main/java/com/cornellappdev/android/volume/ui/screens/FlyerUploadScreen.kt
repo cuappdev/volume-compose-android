@@ -452,7 +452,9 @@ fun FlyerUploadScreen(
                                 title = flyerName,
                                 startDate = startDate.toString(),
                                 location = location,
-                                flyerURL = redirectLink,
+                                flyerURL = redirectLink?.let {
+                                    if (it.startsWith("http://") || it.startsWith("https://")) it else "http://$it"
+                                },
                                 endDate = endDate.toString(),
                                 categorySlug = flyerCategory,
                                 imageBase64 = Base64.encodeToString(bytes, Base64.DEFAULT),
