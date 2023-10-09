@@ -55,8 +55,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -348,6 +347,8 @@ fun VolumeTextField(
     height: Dp = 36.dp,
     maxLines: Int = 1,
     icon: (@Composable () -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(),
 ) {
     VolumeInputContainer(modifier = modifier.height(height), icon = icon) {
         BasicTextField(
@@ -358,8 +359,8 @@ fun VolumeTextField(
             textStyle = TextStyle(fontFamily = lato, color = GrayFive),
             maxLines = maxLines,
             singleLine = (maxLines == 1),
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            visualTransformation = visualTransformation,
+            keyboardOptions = keyboardOptions
         )
     }
 }
