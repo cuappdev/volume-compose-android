@@ -91,6 +91,7 @@ fun FlyerUploadScreen(
     var flyerImageUri: Uri? by remember { mutableStateOf(null) }
     var flyerCategory: String by remember { mutableStateOf("") }
     var hasTimeError: Boolean by remember { mutableStateOf(false) }
+    var currentErrorMessage: String by remember { mutableStateOf("Flyer upload failed") }
 
     var uploadEnabled by remember { mutableStateOf(false) }
     var hasTriedUpload by remember { mutableStateOf(false) }
@@ -454,7 +455,13 @@ fun FlyerUploadScreen(
                             flyerImageUri?.let {
                                 context.contentResolver.openInputStream(it)?.readBytes()
                             }
+                        Log.d("size", "FlyerUploadScreen: ${bytes?.size}")
                         if (bytes == null) {
+                            currentErrorMessage = "Failed to upload flyer."
+                            flyerUploadViewModel.error()
+                        } else if (bytes.size >= (50000000)) {
+                            currentErrorMessage =
+                                "Image too large, please use a lower quality image."
                             flyerUploadViewModel.error()
                         } else {
                             letIfAllNotNull(startDate, endDate) { (sd, ed) ->
@@ -466,7 +473,8 @@ fun FlyerUploadScreen(
                                             )
 
                                     val endDateString =
-                                        LocalDateTime.of(ed, et).atZone(ZoneOffset.systemDefault())
+                                        LocalDateTime.of(ed, et)
+                                            .atZone(ZoneOffset.systemDefault())
                                             .format(
                                                 DateTimeFormatter.ISO_OFFSET_DATE_TIME
                                             )
@@ -482,7 +490,10 @@ fun FlyerUploadScreen(
                                         endDate = endDateString,
                                         categorySlug = flyerCategory.replace(" ", "")
                                             .replaceFirstChar { c -> c.lowercase() },
-                                        imageBase64 = Base64.encodeToString(bytes, Base64.DEFAULT),
+                                        imageBase64 = Base64.encodeToString(
+                                            bytes,
+                                            Base64.DEFAULT
+                                        ),
                                         organizationId = organizationId
                                     )
                                 }
@@ -500,7 +511,7 @@ fun FlyerUploadScreen(
             when (val res = flyerUploadViewModel.uploadFlyerUiState.uploadFlyerResult) {
                 is ResponseState.Error -> {
                     ErrorMessage(
-                        message = res.errors.firstOrNull()?.message ?: "Failed to upload flyer"
+                        message = res.errors.firstOrNull()?.message ?: currentErrorMessage
                     )
                 }
 

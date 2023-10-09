@@ -88,6 +88,10 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
         Routes.READS.route -> {
             showBottomBar.value = true
         }
+
+        Routes.FLYERS.route -> {
+            showBottomBar.value = true
+        }
     }
 
     Scaffold(
