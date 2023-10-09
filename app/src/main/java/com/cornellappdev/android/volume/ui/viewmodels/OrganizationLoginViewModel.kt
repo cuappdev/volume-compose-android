@@ -10,7 +10,6 @@ import com.cornellappdev.android.volume.data.models.Organization
 import com.cornellappdev.android.volume.data.repositories.OrganizationRepository
 import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.volume.ui.states.ResponseState
-import com.cornellappdev.android.volume.util.letIfAllNotNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,12 +30,11 @@ class OrganizationLoginViewModel @Inject constructor
 
     init {
         viewModelScope.launch {
-            letIfAllNotNull(
-                userPreferencesRepository.fetchOrgAccessCode(),
-                userPreferencesRepository.fetchOrgSlug()
-            ) { (accessCode, slug) ->
+            val accessCode = userPreferencesRepository.fetchOrgAccessCode()
+            val orgSlug = userPreferencesRepository.fetchOrgSlug()
+            if (!orgSlug.isNullOrBlank() && !accessCode.isNullOrBlank()) {
                 // We don't need to save here because we already have information
-                checkAccessCode(accessCode, slug, false)
+                checkAccessCode(accessCode, orgSlug, false)
             }
         }
     }

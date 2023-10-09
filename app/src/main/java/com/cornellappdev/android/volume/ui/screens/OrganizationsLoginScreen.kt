@@ -13,7 +13,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,10 +56,6 @@ fun OrganizationsLoginScreen(
             onDispose { }
         },
     )
-
-    LaunchedEffect(key1 = "org login code") {
-//        val currentAccessCode =
-    }
 
     Column(
         modifier = Modifier

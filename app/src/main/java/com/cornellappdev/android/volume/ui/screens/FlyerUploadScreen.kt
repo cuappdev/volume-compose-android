@@ -96,9 +96,12 @@ fun FlyerUploadScreen(
     var uploadEnabled by remember { mutableStateOf(false) }
     var hasTriedUpload by remember { mutableStateOf(false) }
 
+    // Start by getting info about their organization
     LaunchedEffect(key1 = "launch") {
         flyerUploadViewModel.getOrganization(organizationId)
     }
+
+    // Effect to update whether button is enabled based on form values
     DisposableEffect(
         key1 = arrayOf(
             flyerName,
@@ -144,12 +147,13 @@ fun FlyerUploadScreen(
     val endTimePickerDialog = rememberMaterialDialogState()
 
     val categories: List<String> = FlyerConstants.FORMATTED_TAGS
-    val slugs: List<String> = FlyerConstants.CATEGORY_SLUGS.split(",")
 
     val imagePickerLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             flyerImageUri = uri
         }
+
+    // Effect to update image upload text based on flyer name
     DisposableEffect(key1 = flyerImageUri, effect = {
         val contentResolver = context.contentResolver
         flyerImageUri?.let { uri ->
@@ -167,6 +171,7 @@ fun FlyerUploadScreen(
         onDispose { }
     })
 
+    // Styles for date and time pickers
     val datePickerColors = DatePickerDefaults.colors(
         headerBackgroundColor = VolumeOrange,
         dateActiveBackgroundColor = VolumeOrange,
@@ -182,6 +187,8 @@ fun FlyerUploadScreen(
         inactivePeriodBackground = Color.White,
         borderColor = Color.Black,
     )
+
+
     // Dialogs for date and time picking
     MaterialDialog(
         dialogState = startDatePickerDialog,
@@ -234,12 +241,73 @@ fun FlyerUploadScreen(
         }
     }
 
+    // Set up upload functionality
+    fun onUploadClick() {
+        hasTriedUpload = true
+        try {
+            val bytes =
+                flyerImageUri?.let {
+                    context.contentResolver.openInputStream(it)?.readBytes()
+                }
+            Log.d("size", "FlyerUploadScreen: ${bytes?.size}")
+            if (bytes == null) {
+                currentErrorMessage = "Failed to upload flyer."
+                flyerUploadViewModel.error()
+            } else if (bytes.size >= (50000000)) {
+                currentErrorMessage =
+                    "Image too large, please use a lower quality image."
+                flyerUploadViewModel.error()
+            } else {
+                letIfAllNotNull(startDate, endDate) { (sd, ed) ->
+                    letIfAllNotNull(startTime, endTime) { (st, et) ->
+                        val startDateString =
+                            LocalDateTime.of(sd, st).atZone(ZoneId.systemDefault())
+                                .format(
+                                    DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                )
+
+                        val endDateString =
+                            LocalDateTime.of(ed, et)
+                                .atZone(ZoneOffset.systemDefault())
+                                .format(
+                                    DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                )
+
+                        flyerUploadViewModel.uploadFlyer(
+                            title = flyerName,
+                            startDate = startDateString,
+                            location = location,
+                            flyerURL = if (redirectLink.isBlank()) "" else (if (redirectLink.startsWith(
+                                    "http://"
+                                ) || redirectLink.startsWith("https://")
+                            ) redirectLink else "http://$redirectLink"),
+                            endDate = endDateString,
+                            categorySlug = flyerCategory.replace(" ", "")
+                                .replaceFirstChar { c -> c.lowercase() },
+                            imageBase64 = Base64.encodeToString(
+                                bytes,
+                                Base64.DEFAULT
+                            ),
+                            organizationId = organizationId
+                        )
+                    }
+                    sd
+                }
+            }
+        } catch (ignored: Exception) {
+            flyerUploadViewModel.error()
+        }
+    }
+
+
+    // Screen starts
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
+        // Settings title
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             Text(
                 text = "Settings",
@@ -248,6 +316,7 @@ fun FlyerUploadScreen(
                 modifier = Modifier.padding(top = 16.dp),
             )
         }
+
         // Organization name
         Column(modifier = Modifier.padding(top = 14.dp)) {
             Text(text = "Organization", fontFamily = notoserif, fontSize = 16.sp, color = GrayFive)
@@ -266,6 +335,7 @@ fun FlyerUploadScreen(
                 }
             }
         }
+
         // Flyer name input
         Column {
             Text(text = "Flyer Name", fontFamily = notoserif, fontSize = 16.sp, color = GrayFive)
@@ -276,6 +346,7 @@ fun FlyerUploadScreen(
                 modifier = Modifier.height(48.dp)
             )
         }
+
         // Date inputs
         Column {
             Row(
@@ -328,7 +399,6 @@ fun FlyerUploadScreen(
                 ErrorMessage(message = "End time must be after start time.")
             }
         }
-
 
         // Location input
         Column {
@@ -393,6 +463,7 @@ fun FlyerUploadScreen(
                 }
             }
         }
+
         // Flyer redirect link input
         Column {
             Text(
@@ -415,6 +486,7 @@ fun FlyerUploadScreen(
                 modifier = Modifier.height(48.dp)
             )
         }
+
         // Upload image button
         Row(
             modifier = Modifier
@@ -448,62 +520,7 @@ fun FlyerUploadScreen(
         Column {
             VolumeButton(
                 text = "Upload Flyer",
-                onClick = {
-                    hasTriedUpload = true
-                    try {
-                        val bytes =
-                            flyerImageUri?.let {
-                                context.contentResolver.openInputStream(it)?.readBytes()
-                            }
-                        Log.d("size", "FlyerUploadScreen: ${bytes?.size}")
-                        if (bytes == null) {
-                            currentErrorMessage = "Failed to upload flyer."
-                            flyerUploadViewModel.error()
-                        } else if (bytes.size >= (50000000)) {
-                            currentErrorMessage =
-                                "Image too large, please use a lower quality image."
-                            flyerUploadViewModel.error()
-                        } else {
-                            letIfAllNotNull(startDate, endDate) { (sd, ed) ->
-                                letIfAllNotNull(startTime, endTime) { (st, et) ->
-                                    val startDateString =
-                                        LocalDateTime.of(sd, st).atZone(ZoneId.systemDefault())
-                                            .format(
-                                                DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                            )
-
-                                    val endDateString =
-                                        LocalDateTime.of(ed, et)
-                                            .atZone(ZoneOffset.systemDefault())
-                                            .format(
-                                                DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                            )
-
-                                    flyerUploadViewModel.uploadFlyer(
-                                        title = flyerName,
-                                        startDate = startDateString,
-                                        location = location,
-                                        flyerURL = if (redirectLink.isBlank()) "" else (if (redirectLink.startsWith(
-                                                "http://"
-                                            ) || redirectLink.startsWith("https://")
-                                        ) redirectLink else "http://$redirectLink"),
-                                        endDate = endDateString,
-                                        categorySlug = flyerCategory.replace(" ", "")
-                                            .replaceFirstChar { c -> c.lowercase() },
-                                        imageBase64 = Base64.encodeToString(
-                                            bytes,
-                                            Base64.DEFAULT
-                                        ),
-                                        organizationId = organizationId
-                                    )
-                                }
-                                sd
-                            }
-                        }
-                    } catch (ignored: Exception) {
-                        flyerUploadViewModel.error()
-                    }
-                },
+                onClick = { onUploadClick() },
                 enabled = uploadEnabled,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -534,7 +551,10 @@ fun FlyerUploadScreen(
     }
 }
 
-fun formatDateTime(time: LocalTime?, date: LocalDate?): String {
+/**
+ * Formats the selected date and time to be displayed in the box during Flyer upload
+ */
+private fun formatDateTime(time: LocalTime?, date: LocalDate?): String {
     if (time == null || date == null) {
         return ""
     }
