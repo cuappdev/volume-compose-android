@@ -27,4 +27,10 @@ message UserPreferences {
 
   // The list of flyer ids the user has bookmarked
   repeated string  bookmarked_flyers = 9;
+
+  // The access code to login as an organization
+  string org_access_code = 10;
+
+  // The organization slug
+  string org_slug = 11;
 }

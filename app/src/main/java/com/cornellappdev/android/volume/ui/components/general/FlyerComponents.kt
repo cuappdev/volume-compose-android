@@ -189,7 +189,8 @@ fun SmallFlyer(
         Box(modifier = Modifier.clickable {
             flyersViewModel.incrementTimesClicked(flyer.id)
 
-            val uri = Uri.parse(flyer.flyerURL ?: flyer.organization.websiteURL)
+            val uri: Uri =
+                Uri.parse(if (flyer.flyerURL.isNullOrBlank()) flyer.organization.websiteURL else flyer.flyerURL)
             try {
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 openLinkLauncher.launch(intent)

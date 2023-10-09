@@ -32,6 +32,7 @@ import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,6 +68,8 @@ import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 
@@ -80,7 +83,7 @@ fun FlyerUploadScreen(
 
     var flyerName by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
-    var redirectLink: String? by remember { mutableStateOf(null) }
+    var redirectLink: String by remember { mutableStateOf("") }
     var startDate: LocalDate? by remember { mutableStateOf(null) }
     var endDate: LocalDate? by remember { mutableStateOf(null) }
     var startTime: LocalTime? by remember { mutableStateOf(null) }
@@ -91,7 +94,10 @@ fun FlyerUploadScreen(
 
     var uploadEnabled by remember { mutableStateOf(false) }
     var hasTriedUpload by remember { mutableStateOf(false) }
-    flyerUploadViewModel.getOrganization(organizationId)
+
+    LaunchedEffect(key1 = "launch") {
+        flyerUploadViewModel.getOrganization(organizationId)
+    }
     DisposableEffect(
         key1 = arrayOf(
             flyerName,
@@ -164,6 +170,7 @@ fun FlyerUploadScreen(
         headerBackgroundColor = VolumeOrange,
         dateActiveBackgroundColor = VolumeOrange,
         headerTextColor = Color.White,
+        dateActiveTextColor = Color.White
     )
     val timePickerColors = TimePickerDefaults.colors(
         activeTextColor = Color.White,
@@ -402,8 +409,8 @@ fun FlyerUploadScreen(
             )
             Spacer(Modifier.height(8.dp))
             VolumeTextField(
-                value = redirectLink.orEmpty(),
-                onValueChange = { if (it.isBlank()) redirectLink = null else redirectLink = it },
+                value = redirectLink,
+                onValueChange = { redirectLink = it.ifBlank { "" } },
                 modifier = Modifier.height(48.dp)
             )
         }
@@ -450,18 +457,37 @@ fun FlyerUploadScreen(
                         if (bytes == null) {
                             flyerUploadViewModel.error()
                         } else {
-                            flyerUploadViewModel.uploadFlyer(
-                                title = flyerName,
-                                startDate = startDate.toString(),
-                                location = location,
-                                flyerURL = redirectLink?.let {
-                                    if (it.startsWith("http://") || it.startsWith("https://")) it else "http://$it"
-                                },
-                                endDate = endDate.toString(),
-                                categorySlug = flyerCategory,
-                                imageBase64 = Base64.encodeToString(bytes, Base64.DEFAULT),
-                                organizationId = organizationId
-                            )
+                            letIfAllNotNull(startDate, endDate) { (sd, ed) ->
+                                letIfAllNotNull(startTime, endTime) { (st, et) ->
+                                    val startDateString =
+                                        LocalDateTime.of(sd, st).atZone(ZoneId.systemDefault())
+                                            .format(
+                                                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                            )
+
+                                    val endDateString =
+                                        LocalDateTime.of(ed, et).atZone(ZoneOffset.systemDefault())
+                                            .format(
+                                                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                                            )
+
+                                    flyerUploadViewModel.uploadFlyer(
+                                        title = flyerName,
+                                        startDate = startDateString,
+                                        location = location,
+                                        flyerURL = if (redirectLink.isBlank()) "" else (if (redirectLink.startsWith(
+                                                "http://"
+                                            ) || redirectLink.startsWith("https://")
+                                        ) redirectLink else "http://$redirectLink"),
+                                        endDate = endDateString,
+                                        categorySlug = flyerCategory.replace(" ", "")
+                                            .replaceFirstChar { c -> c.lowercase() },
+                                        imageBase64 = Base64.encodeToString(bytes, Base64.DEFAULT),
+                                        organizationId = organizationId
+                                    )
+                                }
+                                sd
+                            }
                         }
                     } catch (ignored: Exception) {
                         flyerUploadViewModel.error()

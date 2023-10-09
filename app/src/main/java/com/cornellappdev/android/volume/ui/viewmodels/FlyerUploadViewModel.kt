@@ -53,7 +53,7 @@ class FlyerUploadViewModel @Inject constructor
         title: String,
         startDate: String,
         location: String,
-        flyerURL: String?,
+        flyerURL: String,
         endDate: String,
         categorySlug: String,
         imageBase64: String,

@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import com.cornellappdev.android.volume.UserPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -117,8 +118,22 @@ class UserPreferencesRepository @Inject constructor(
             }
         }
     }
+
+    suspend fun updateOrgAccessCode(orgAccessCode: String) {
+        userPreferencesStore.updateData { currentPreferences ->
+            currentPreferences.toBuilder().setOrgAccessCode(orgAccessCode).build()
+        }
+    }
+
+    suspend fun updateOrgSlug(slug: String) {
+        userPreferencesStore.updateData { currentPreferences ->
+            currentPreferences.toBuilder().setOrgSlug(slug).build()
+        }
+    }
+
     suspend fun fetchBookmarkedMagazineIds(): List<String> =
         userPreferencesFlow.first().bookmarkedMagazinesList
+
     suspend fun fetchBookmarkedArticleIds(): List<String> =
         userPreferencesFlow.first().bookmarkedArticlesList
 
@@ -139,4 +154,8 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun fetchNotificationFlowStatus(): Boolean =
         userPreferencesFlow.first().notificationFlowCompleted
+
+    suspend fun fetchOrgAccessCode(): String? = userPreferencesFlow.firstOrNull()?.orgAccessCode
+    suspend fun fetchOrgSlug(): String? = userPreferencesFlow.firstOrNull()?.orgSlug
+
 }

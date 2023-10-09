@@ -59,7 +59,7 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         title: String,
         startDate: String,
         location: String,
-        flyerURL: String?,
+        flyerURL: String,
         endDate: String,
         categorySlug: String,
         imageBase64: String,

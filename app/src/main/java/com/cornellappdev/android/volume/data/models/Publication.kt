@@ -29,9 +29,9 @@ data class Publication(
     val contentTypes: List<ContentType>,
     val numArticles: Double,
     val mostRecentArticle: Article? = null,
-    val socials: List<Social>
+    val socials: List<Social>,
 )
 
-enum class ContentType{
+enum class ContentType {
     MAGAZINES, ARTICLES
 }
