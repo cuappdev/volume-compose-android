@@ -1,6 +1,5 @@
 package com.cornellappdev.android.volume.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -58,7 +57,6 @@ fun PublicationsMenu(
 
                 PublicationsRetrievalState.Error -> {
                     ErrorState()
-                    Log.d(TAG, "PublicationsMenu: Error state")
                 }
 
                 is PublicationsRetrievalState.Success -> {
@@ -97,7 +95,6 @@ fun PublicationsMenu(
                 item {
                     ErrorState()
                 }
-                Log.d(TAG, "PublicationsMenu: Error2")
             }
 
             is PublicationsRetrievalState.Success -> {

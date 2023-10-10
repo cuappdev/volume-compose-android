@@ -3,7 +3,6 @@ package com.cornellappdev.android.volume.ui.screens
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Base64
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -249,7 +248,6 @@ fun FlyerUploadScreen(
                 flyerImageUri?.let {
                     context.contentResolver.openInputStream(it)?.readBytes()
                 }
-            Log.d("size", "FlyerUploadScreen: ${bytes?.size}")
             if (bytes == null) {
                 currentErrorMessage = "Failed to upload flyer."
                 flyerUploadViewModel.error()
@@ -446,16 +444,12 @@ fun FlyerUploadScreen(
                 DropdownMenu(
                     expanded = categoryDropdownShowing,
                     onDismissRequest = {
-                        Log.d(
-                            "TAG",
-                            "FlyerUploadScreen: Dismiss request"
-                        ); categoryDropdownShowing = false
+                        categoryDropdownShowing = false
                     }) {
                     categories.forEach { category ->
                         DropdownMenuItem(
                             text = { Text(text = category, fontFamily = lato, color = GrayFive) },
                             onClick = {
-                                Log.d("x`", "FlyerUploadScreen: dropdown item clicked")
                                 categoryDropdownShowing = false
                                 flyerCategory = category
                             })

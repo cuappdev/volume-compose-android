@@ -1,7 +1,6 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -219,10 +218,6 @@ fun BookmarkedFlyersView(
                                 DropdownMenuItem(onClick = {
                                     upcomingSelectedIndex = index
                                     upcomingExpanded = false
-                                    Log.d(
-                                        "TAG",
-                                        "FlyersScreen: Querying for tag ${tags[upcomingSelectedIndex]} "
-                                    )
                                     bookmarkViewModel.applyQuery(
                                         tags[upcomingSelectedIndex],
                                         isUpcoming = true
@@ -363,10 +358,6 @@ fun BookmarkedFlyersView(
                                 DropdownMenuItem(onClick = {
                                     pastSelectedIndex = index
                                     pastExpanded = false
-                                    Log.d(
-                                        "TAG",
-                                        "FlyersScreen: Querying for tag ${tags[pastSelectedIndex]} "
-                                    )
                                     bookmarkViewModel.applyQuery(
                                         tags[pastSelectedIndex],
                                         isUpcoming = false
