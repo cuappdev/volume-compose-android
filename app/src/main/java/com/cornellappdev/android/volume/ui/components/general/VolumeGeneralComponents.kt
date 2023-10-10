@@ -7,21 +7,33 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Icon
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,12 +53,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.volume.R
+import com.cornellappdev.android.volume.ui.theme.GrayFive
+import com.cornellappdev.android.volume.ui.theme.GrayFour
 import com.cornellappdev.android.volume.ui.theme.GrayTwo
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
@@ -291,6 +308,109 @@ fun SearchBar(
     )
     if (source.collectIsPressedAsState().value)
         onClick()
+}
+
+@Composable
+fun VolumeInputContainer(
+    onClick: () -> Unit = {},
+    icon: (@Composable () -> Unit)? = null,
+    borderColor: Color = GrayFour,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit = {},
+) {
+    Box(modifier = modifier.clickable { onClick() }) {
+        Row(
+            modifier = Modifier
+                .border(1.dp, borderColor, shape = RoundedCornerShape(4.dp))
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            content()
+            Spacer(modifier = Modifier.weight(1f))
+            icon?.let {
+                Box(modifier = Modifier.requiredSize(16.dp)) {
+                    it()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * A generic text field component styled for Volume.
+ */
+@Composable
+fun VolumeTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    height: Dp = 36.dp,
+    maxLines: Int = 1,
+    icon: (@Composable () -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(),
+) {
+    VolumeInputContainer(modifier = modifier.height(height), icon = icon) {
+        BasicTextField(
+            value = value,
+            modifier = Modifier
+                .fillMaxWidth(),
+            onValueChange = onValueChange,
+            textStyle = TextStyle(fontFamily = lato, color = GrayFive),
+            maxLines = maxLines,
+            singleLine = (maxLines == 1),
+            visualTransformation = visualTransformation,
+            keyboardOptions = keyboardOptions
+        )
+    }
+}
+
+/**
+ * A generic button component styled for Volume
+ * @param text button text
+ * @param onClick action
+ * @param enabled whether the button is enabled, the style and functionality depend on this
+ * @param modifier modifier is applied to the button
+ */
+@Composable
+fun VolumeButton(
+    text: String,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .background(
+                if (enabled) VolumeOrange else Color(0xFFF4EFEF),
+                shape = RoundedCornerShape(4.dp)
+            )
+            .clickable(enabled = enabled) { onClick() }
+            .padding(vertical = 12.dp, horizontal = 16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = text,
+            fontFamily = lato,
+            color = if (enabled) Color.White else GrayFive,
+            fontSize = 16.sp
+        )
+    }
+}
+
+@Composable
+fun ErrorMessage(message: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = Icons.Outlined.Warning,
+            contentDescription = "error",
+            tint = Color(0xFFCB2E2E),
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(text = message, fontFamily = lato, fontSize = 14.sp)
+    }
 }
 
 fun Int.toComposeColor(): Color {

@@ -11,6 +11,7 @@ val VolumeOffWhite = Color(0xFFFAFAFA)
 val GrayFour = Color(0xFFC4C4C4)
 val GrayThree = Color(0xFFEEEEEE)
 val GrayTwo = Color(0xFF999999)
+val GrayFive = Color(0xFF586069)
 
 
 @SuppressLint("ConflictingOnColor")

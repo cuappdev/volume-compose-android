@@ -74,6 +74,14 @@ type Mutation {
     deleteFlyer(id: String!): Flyer!
 
     """
+    Edit <Flyer> with ID <id> via given <categorySlug>, <endDate>, <flyerURL>,
+    <imageB64>, <location>, <startDate>, and <title>.
+    <startDate> and <endDate> must be in UTC ISO8601 format (e.g. YYYY-mm-ddTHH:MM:ssZ).
+    <imageB64> must be a Base64 encrypted string without 'data:image/png;base64,' prepended
+    """
+    editFlyer(title: String, startDate: String, location: String, imageB64: String, flyerURL: String, endDate: String, categorySlug: String, id: String!): Flyer!
+
+    """
     Increments the shoutouts of an <Magazine> with the given <id>.
     Increments the numShoutouts given of the user with the given [uuid].
     """
@@ -254,17 +262,13 @@ type Query {
 
     """
     Returns a list of <Flyers> <since> a given date, limited by <limit>.
-    <since> is formatted as an compliant RFC 2822 timestamp. Valid examples
-    include: "2019-01-31", "Aug 9, 1995", "Wed, 09 Aug 1995 00:00:00", etc.
-    Default <limit> is 25
+    <since> must be in UTC ISO8601 format (e.g. YYYY-mm-ddTHH:MM:ssZ). Default <limit> is 25
     """
     getFlyersAfterDate(limit: Float = 25, since: String!): [Flyer!]!
 
     """
     Returns a list of <Flyers> <before> a given date, limited by <limit>.
-    <before> is formatted as an compliant RFC 2822 timestamp. Valid examples
-    include: "2019-01-31", "Aug 9, 1995", "Wed, 09 Aug 1995 00:00:00", etc.
-    Default <limit> is 25
+    <before> must be in UTC ISO8601 format (e.g. YYYY-mm-ddTHH:MM:ssZ). Default <limit> is 25
     """
     getFlyersBeforeDate(limit: Float = 25, before: String!): [Flyer!]!
 
@@ -283,6 +287,11 @@ type Query {
     start date descending. Results can be offsetted by <offset> >= 0. Default <limit> is 25
     """
     getFlyersByCategorySlug(offset: Float = 0, limit: Float = 25, categorySlug: String!): [Flyer!]!
+
+    """
+    Returns a list of <Strings> representing all of the categories of the different flyers in this database
+    """
+    getAllFlyerCategories: [String!]!
 
     """
     Returns a list of <Magazines> of size <limit> with offset <offset>. Default <limit> is 25 and default <offset> is 0
@@ -333,6 +342,9 @@ type Query {
 
     """Returns a single <Organization> via a given <slug>"""
     getOrganizationBySlug(slug: String!): Organization
+
+    """Returns the <Organization> given a <slug> and <accessCode>."""
+    checkAccessCode(slug: String!, accessCode: String!): Organization
 
     """Returns a list of all <Publications>"""
     getAllPublications: [Publication!]!

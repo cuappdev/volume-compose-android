@@ -12,6 +12,8 @@ import com.cornellappdev.android.volume.ArticlesByIDsQuery
 import com.cornellappdev.android.volume.ArticlesByPublicationSlugQuery
 import com.cornellappdev.android.volume.ArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.BookmarkArticleMutation
+import com.cornellappdev.android.volume.CheckAccessCodeQuery
+import com.cornellappdev.android.volume.CreateFlyerMutation
 import com.cornellappdev.android.volume.CreateUserMutation
 import com.cornellappdev.android.volume.FeaturedMagazinesQuery
 import com.cornellappdev.android.volume.FlyersAfterDateQuery
@@ -28,6 +30,7 @@ import com.cornellappdev.android.volume.MagazinesByIDsQuery
 import com.cornellappdev.android.volume.MagazinesByPublicationSlugQuery
 import com.cornellappdev.android.volume.MagazinesBySemesterQuery
 import com.cornellappdev.android.volume.OrganizationsByCategoryQuery
+import com.cornellappdev.android.volume.OrganizationsByIdQuery
 import com.cornellappdev.android.volume.PublicationBySlugQuery
 import com.cornellappdev.android.volume.ReadArticleMutation
 import com.cornellappdev.android.volume.SearchArticlesQuery
@@ -149,6 +152,9 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     suspend fun fetchOrganizationsByCategory(category: String): ApolloResponse<OrganizationsByCategoryQuery.Data> =
         apolloClient.query(OrganizationsByCategoryQuery(categorySlug = category)).execute()
 
+    suspend fun fetchOrganizationById(id: String): ApolloResponse<OrganizationsByIdQuery.Data> =
+        apolloClient.query(OrganizationsByIdQuery(id = id)).execute()
+
     suspend fun incrementShoutout(
         id: String,
         uuid: String,
@@ -177,6 +183,38 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         )
     ).execute()
 
+    suspend fun verifyAccessCode(
+        accessCode: String,
+        organizationSlug: String,
+    ): ApolloResponse<CheckAccessCodeQuery.Data> = apolloClient.query(
+        CheckAccessCodeQuery(
+            accessCode = accessCode,
+            slug = organizationSlug
+        )
+    ).execute()
+
+    suspend fun createFlyer(
+        title: String,
+        startDate: String,
+        location: String,
+        flyerURL: String,
+        endDate: String,
+        categorySlug: String,
+        imageBase64: String,
+        organizationId: String,
+    ): ApolloResponse<CreateFlyerMutation.Data> = apolloClient.mutation(
+        CreateFlyerMutation(
+            title = title,
+            startDate = startDate,
+            organizationID = organizationId,
+            location = location,
+            imageB64 = imageBase64,
+            flyerURL = Optional.presentIfNotNull(flyerURL),
+            endDate = endDate,
+            categorySlug = categorySlug,
+        )
+    ).execute()
+
     suspend fun getUser(uuid: String): ApolloResponse<GetUserQuery.Data> =
         apolloClient.query(GetUserQuery(uuid)).execute()
 
@@ -202,4 +240,6 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         uuid: String,
     ): ApolloResponse<BookmarkArticleMutation.Data> =
         apolloClient.mutation(BookmarkArticleMutation(uuid)).execute()
+
+
 }

@@ -1,10 +1,8 @@
 package com.cornellappdev.android.volume.data.models
 
-import com.squareup.moshi.JsonClass
-
-@JsonClass(generateAdapter = true)
 data class Organization(
     val name: String,
+    val id: String,
     val categorySlug: String,
     val websiteURL: String,
     val backgroundImageURL: String? = null,

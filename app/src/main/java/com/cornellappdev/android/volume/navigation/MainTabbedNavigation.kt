@@ -88,6 +88,10 @@ fun TabbedNavigationSetup(onboardingCompleted: Boolean) {
         Routes.READS.route -> {
             showBottomBar.value = true
         }
+
+        Routes.FLYERS.route -> {
+            showBottomBar.value = true
+        }
     }
 
     Scaffold(
@@ -347,9 +351,11 @@ private fun MainScreenNavigationConfigurations(
                     animationSpec = tween(durationMillis = 2500)
                 )
             }) {
-            SettingsScreen {
-                navController.navigate(Routes.ABOUT_US.route)
-            }
+            SettingsScreen(
+                onAboutUsClicked = {
+                    navController.navigate(Routes.ABOUT_US.route)
+                },
+                onOrganizationLoginClicked = { navController.navigate(Routes.ORGANIZATION_LOGIN.route) })
         }
         composable(Routes.ABOUT_US.route,
             enterTransition = {
@@ -385,6 +391,41 @@ private fun MainScreenNavigationConfigurations(
             }, onMagazineClick = { magazine ->
                 navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.SEARCH.route}")
             }, defaultTab = tabIndex ?: 0)
+        }
+        composable(route = Routes.ORGANIZATION_LOGIN.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 1000)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 1000)
+                )
+            }) {
+            OrganizationsLoginScreen({ navController.navigate("${Routes.UPLOAD_FLYER.route}/$it") })
+        }
+        composable(route = "${Routes.UPLOAD_FLYER.route}/{organizationId}") { entry ->
+            val orgId = entry.arguments?.getString("organizationId")
+            FlyerUploadScreen(
+                organizationId = orgId ?: "",
+                onFlyerUploadSuccess = { navController.navigate(Routes.FLYER_SUCCESS.route) })
+        }
+        composable(route = "${Routes.FLYER_SUCCESS.route}", enterTransition = {
+            fadeIn(
+                initialAlpha = 0f,
+                animationSpec = tween(durationMillis = 1000)
+            )
+        },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 1000)
+                )
+            }) {
+            FlyerSuccessScreen {
+                navController.navigate(Routes.FLYERS.route)
+            }
         }
     }
 }

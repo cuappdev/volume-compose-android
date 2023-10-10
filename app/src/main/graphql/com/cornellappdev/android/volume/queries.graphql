@@ -825,6 +825,35 @@ query OrganizationsByCategory($categorySlug: String!){
         clicks
     }
 }
+query OrganizationsById($id: String!){
+    getOrganizationByID(id: $id){
+        id
+        backgroundImageURL
+        bio
+        categorySlug
+        name
+        profileImageURL
+        slug
+        shoutouts
+        websiteURL
+        clicks
+    }
+}
+
+query CheckAccessCode($slug: String!, $accessCode: String!){
+    checkAccessCode(slug: $slug, accessCode: $accessCode){
+        id
+        backgroundImageURL
+        bio
+        categorySlug
+        name
+        profileImageURL
+        slug
+        shoutouts
+        websiteURL
+        clicks
+    }
+}
 
 query TrendingFlyers($limit: Float){
     getTrendingFlyers(limit: $limit){
@@ -1041,6 +1070,34 @@ mutation ReadArticle($articleID: String!, $uuid: String!) {
 mutation BookmarkArticle($uuid: String!) {
     bookmarkArticle(uuid: $uuid) {
         uuid
+    }
+}
+
+mutation createFlyer($title: String!, $startDate: String!, $organizationID: String!, $location: String!, $imageB64: String!, $flyerURL: String, $endDate: String!, $categorySlug: String!){
+    createFlyer(title: $title, startDate: $startDate, organizationID: $organizationID, location: $location, imageB64: $imageB64, flyerURL: $flyerURL, endDate: $endDate, categorySlug: $categorySlug){
+        id
+        categorySlug
+        endDate
+        flyerURL
+        imageURL
+        location
+        organization{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            clicks
+        }
+        organizationSlug
+        startDate
+        timesClicked
+        title
+        trendiness
     }
 }
 

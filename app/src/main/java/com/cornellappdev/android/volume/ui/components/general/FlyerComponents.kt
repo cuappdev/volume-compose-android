@@ -1,11 +1,11 @@
 package com.cornellappdev.android.volume.ui.components.general
 
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -81,7 +81,6 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltV
     Column(modifier = Modifier.width(imgSize)) {
         // Image and tag
         Box {
-
             Box(
                 modifier = Modifier
                     .padding(start = 8.dp, top = 8.dp)
@@ -111,14 +110,7 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltV
                     .zIndex(0F)
                     .background(color = averageColor)
                     .clickable {
-                        flyersViewModel.incrementTimesClicked(flyer.id)
-
-                        val uri = Uri.parse(flyer.flyerURL ?: flyer.organization.websiteURL)
-                        try {
-                            val intent = Intent(Intent.ACTION_VIEW, uri)
-                            openLinkLauncher.launch(intent)
-                        } catch (ignored: ActivityNotFoundException) {
-                        }
+                        onFlyerClick(flyer, flyersViewModel, openLinkLauncher)
                     },
             )
         }
@@ -189,12 +181,7 @@ fun SmallFlyer(
         Box(modifier = Modifier.clickable {
             flyersViewModel.incrementTimesClicked(flyer.id)
 
-            val uri = Uri.parse(flyer.flyerURL ?: flyer.organization.websiteURL)
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, uri)
-                openLinkLauncher.launch(intent)
-            } catch (ignored: ActivityNotFoundException) {
-            }
+            onFlyerClick(flyer, flyersViewModel, openLinkLauncher)
         }) {
             AsyncImage(
                 model = flyer.imageURL,
@@ -421,6 +408,25 @@ private fun getAverageColor(immutableBitmap: Bitmap): Int {
 }
 
 /**
+ * Defines behavior for when the image of a flyer is clicked
+ */
+private fun onFlyerClick(
+    flyer: Flyer,
+    flyersViewModel: FlyersViewModel,
+    openLinkLauncher: ManagedActivityResultLauncher<Intent, androidx.activity.result.ActivityResult>,
+) {
+    flyersViewModel.incrementTimesClicked(flyer.id)
+
+    val uri: Uri =
+        Uri.parse(if (flyer.flyerURL.isNullOrBlank()) flyer.organization.websiteURL else flyer.flyerURL)
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        openLinkLauncher.launch(intent)
+    } catch (ignored: Exception) {
+    }
+}
+
+/**
  * Formats date string in the desired format for displaying.
  */
 private fun formatDateString(startDateTime: LocalDateTime, endDateTime: LocalDateTime): String =
@@ -450,3 +456,4 @@ private fun shareFlyer(context: Context, url: String) {
     }
     context.startActivity(Intent.createChooser(intent, "Share To:"))
 }
+
