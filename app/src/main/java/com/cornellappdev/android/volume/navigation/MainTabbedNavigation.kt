@@ -396,12 +396,12 @@ private fun MainScreenNavigationConfigurations(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 1000)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 1000)
                 )
             }) {
             OrganizationsLoginScreen({ navController.navigate("${Routes.UPLOAD_FLYER.route}/$it") })
@@ -415,12 +415,12 @@ private fun MainScreenNavigationConfigurations(
         composable(route = "${Routes.FLYER_SUCCESS.route}", enterTransition = {
             fadeIn(
                 initialAlpha = 0f,
-                animationSpec = tween(durationMillis = 2500)
+                animationSpec = tween(durationMillis = 1000)
             )
         },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 1000)
                 )
             }) {
             FlyerSuccessScreen {
