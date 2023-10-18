@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.R
-import com.cornellappdev.android.volume.data.models.ContentType
 import com.cornellappdev.android.volume.data.models.Publication
 import com.cornellappdev.android.volume.ui.components.general.CreatePublicationColumn
 import com.cornellappdev.android.volume.ui.components.general.CreatePublicationRow
@@ -99,28 +98,26 @@ fun PublicationsMenu(
 
             is PublicationsRetrievalState.Success -> {
                 itemsIndexed(morePublicationsState.publications) { index, publication ->
-                    if (!publication.contentTypes.contains(ContentType.MAGAZINES)) {
-                        Box(
-                            Modifier.padding(
-                                end = 12.dp,
-                                start = 12.dp,
-                                // Handles the padding between items
-                                top = if (index != 0) 24.dp else 0.dp
-                            )
-                        ) {
-                            CreatePublicationRow(
-                                publication = publication,
-                                onPublicationClick
-                            ) { publicationFromCallback, isFollowing ->
-                                if (isFollowing) {
-                                    publicationsViewModel.followPublication(
-                                        publicationFromCallback.slug
-                                    )
-                                } else {
-                                    publicationsViewModel.unfollowPublication(
-                                        publicationFromCallback.slug
-                                    )
-                                }
+                    Box(
+                        Modifier.padding(
+                            end = 12.dp,
+                            start = 12.dp,
+                            // Handles the padding between items
+                            top = if (index != 0) 24.dp else 0.dp
+                        )
+                    ) {
+                        CreatePublicationRow(
+                            publication = publication,
+                            onPublicationClick
+                        ) { publicationFromCallback, isFollowing ->
+                            if (isFollowing) {
+                                publicationsViewModel.followPublication(
+                                    publicationFromCallback.slug
+                                )
+                            } else {
+                                publicationsViewModel.unfollowPublication(
+                                    publicationFromCallback.slug
+                                )
                             }
                         }
                     }

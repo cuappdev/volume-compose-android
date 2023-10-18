@@ -11,7 +11,6 @@ import com.cornellappdev.android.volume.ShuffledArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.TrendingArticlesQuery
 import com.cornellappdev.android.volume.data.NetworkApi
 import com.cornellappdev.android.volume.data.models.Article
-import com.cornellappdev.android.volume.data.models.ContentType
 import com.cornellappdev.android.volume.data.models.Publication
 import com.cornellappdev.android.volume.data.models.Social
 import javax.inject.Inject
@@ -70,13 +69,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    /*
-                    * FIXME content types is an empty list, since the backend gives an internal
-                    * server error when searching articles and looking for content types.
-                    * Once this is fixed we should be searching for articles and
-                    * include their content types.
-                    */
-                    contentTypes = listOf(),
                     websiteURL = publication.websiteURL,
                     numArticles = publication.numArticles,
                     socials = publication.socials
@@ -107,9 +99,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes.map {
-                        ContentType.valueOf(it.uppercase())
-                    },
                     websiteURL = publication.websiteURL,
                     numArticles = publication.numArticles,
                     socials = publication.socials
@@ -140,9 +129,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes.map {
-                        ContentType.valueOf(it.uppercase())
-                    },
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -172,9 +158,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes.map {
-                        ContentType.valueOf(it.uppercase())
-                    },
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -204,9 +187,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes.map {
-                        ContentType.valueOf(it.uppercase())
-                    },
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -236,9 +216,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes.map {
-                        ContentType.valueOf(it.uppercase())
-                    },
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -268,9 +245,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes.map {
-                        ContentType.valueOf(it.uppercase())
-                    },
                     numArticles = publication.numArticles,
                     websiteURL = publication.websiteURL,
                     socials = publication.socials
@@ -300,9 +274,6 @@ class ArticleRepository @Inject constructor(private val networkApi: NetworkApi) 
                     rssURL = publication.rssURL,
                     slug = publication.slug,
                     shoutouts = publication.shoutouts,
-                    contentTypes = publication.contentTypes.map {
-                        ContentType.valueOf(it.uppercase())
-                    },
                     websiteURL = publication.websiteURL,
                     numArticles = publication.numArticles,
                     socials = publication.socials
