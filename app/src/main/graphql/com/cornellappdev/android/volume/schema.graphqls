@@ -154,7 +154,6 @@ type Publication {
     slug: String!
     shoutouts: Float!
     websiteURL: String!
-    contentTypes: [String!]!
 
     """The most recent <Article> of a <Publication>"""
     mostRecentArticle: Article

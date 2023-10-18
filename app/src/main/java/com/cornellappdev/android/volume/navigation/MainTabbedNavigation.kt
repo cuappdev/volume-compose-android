@@ -412,7 +412,7 @@ private fun MainScreenNavigationConfigurations(
                 organizationId = orgId ?: "",
                 onFlyerUploadSuccess = { navController.navigate(Routes.FLYER_SUCCESS.route) })
         }
-        composable(route = "${Routes.FLYER_SUCCESS.route}", enterTransition = {
+        composable(route = Routes.FLYER_SUCCESS.route, enterTransition = {
             fadeIn(
                 initialAlpha = 0f,
                 animationSpec = tween(durationMillis = 1000)

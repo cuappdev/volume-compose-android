@@ -11,7 +11,6 @@ query AllArticles ($limit: Float) {
             rssURL
             slug
             shoutouts
-            contentTypes
             websiteURL
             numArticles
             socials {
@@ -55,7 +54,6 @@ query AllPublications {
         shoutouts
         websiteURL
         numArticles
-        contentTypes
         socials {
             social
             url:URL
@@ -83,7 +81,6 @@ query PublicationBySlug($slug: String!) {
         slug
         shoutouts
         websiteURL
-        contentTypes
         numArticles
         socials {
             social
@@ -114,7 +111,6 @@ query TrendingArticles ($limit: Float) {
             rssURL
             slug
             shoutouts
-            contentTypes
             numArticles
             websiteURL
             socials {
@@ -154,7 +150,6 @@ query ArticlesByPublicationSlug($slug: String!) {
             rssURL
             slug
             shoutouts
-            contentTypes
             websiteURL
             numArticles
             socials {
@@ -226,7 +221,6 @@ query ShuffledArticlesByPublicationSlugs($timeRange: Float, $offset: Float, $lim
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
             socials{
                 social
@@ -262,7 +256,6 @@ query MagazinesBySemester($offset: Float, $limit: Float, $semester: String!){
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
             socials{
                 social
@@ -299,7 +292,6 @@ query MagazineById($id: String!){
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
             socials{
                 social
@@ -334,7 +326,6 @@ query MagazinesByIDs($ids: [String!]!){
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
             socials{
                 social
@@ -370,7 +361,6 @@ query FeaturedMagazines($limit: Float){
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
             socials{
                 social
@@ -406,7 +396,6 @@ query MagazinesByPublicationSlug($offset: Float, $limit: Float, $slug: String!){
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
             socials{
                 social
@@ -443,7 +432,6 @@ query AllMagazines ($limit: Float) {
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
             socials{
                 social
@@ -478,7 +466,6 @@ query SearchMagazines($limit: Float, $query: String!){
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
             socials {
                 social
@@ -504,7 +491,6 @@ query ArticlesByIDs($ids:[String!]!) {
             rssURL
             slug
             shoutouts
-            contentTypes
             websiteURL
             numArticles
             socials {
@@ -542,7 +528,6 @@ query ArticleByID($id: String!) {
             rssURL
             slug
             shoutouts
-            contentTypes
             websiteURL
             numArticles
             socials {
@@ -582,7 +567,6 @@ query ArticlesByPublicationSlugs($slugs: [String!]!) {
             rssURL
             slug
             shoutouts
-            contentTypes
             numArticles
             websiteURL
             socials {
@@ -623,7 +607,6 @@ query ArticlesAfterDate($since: String!) {
             rssURL
             slug
             shoutouts
-            contentTypes
             numArticles
             websiteURL
             socials {
@@ -961,7 +944,6 @@ mutation IncrementMagazineShoutouts($id: String!, $uuid: String!){
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
         }
         publicationSlug
@@ -992,7 +974,6 @@ mutation IncrementShoutouts($id: String!, $uuid: String!){
             slug
             shoutouts
             websiteURL
-            contentTypes
             numArticles
         }
         publicationSlug
