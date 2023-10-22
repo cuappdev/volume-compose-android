@@ -1,0 +1,195 @@
+package com.cornellappdev.android.volume.ui.screens
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
+import androidx.compose.material.Tab
+import androidx.compose.material.TabRow
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CloudUpload
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.android.volume.data.models.Organization
+import com.cornellappdev.android.volume.ui.components.general.ErrorState
+import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
+import com.cornellappdev.android.volume.ui.components.general.SmallFlyer
+import com.cornellappdev.android.volume.ui.states.ResponseState
+import com.cornellappdev.android.volume.ui.theme.VolumeOrange
+import com.cornellappdev.android.volume.ui.theme.notoserif
+import com.cornellappdev.android.volume.ui.viewmodels.OrganizationsHomeViewModel
+
+@Composable
+fun OrganizationHome(
+    organization: Organization,
+    organizationsHomeViewModel: OrganizationsHomeViewModel = hiltViewModel(),
+) {
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf("Current", "Past", "Removed")
+    organizationsHomeViewModel.initViewModel(organization.id)
+
+    val currentFlyers = organizationsHomeViewModel.currentFlyersFlow.collectAsState().value
+    val pastFlyers = organizationsHomeViewModel.pastFlyersFlow.collectAsState().value
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        // Page header
+        Text(
+            text = "Organization Home",
+            fontFamily = notoserif,
+            fontSize = 20.sp,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 16.dp)
+        )
+
+        Spacer(modifier = Modifier.height(38.dp))
+
+        // Organization name
+        Text(text = organization.name, fontSize = 24.sp, fontFamily = notoserif)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Upload Flyer button
+        Box(
+            modifier = Modifier
+                .requiredHeight(128.dp)
+                .fillMaxWidth()
+                .border(
+                    BorderStroke(width = 4.dp, color = Color(208, 112, 0, 52)),
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .background(Color(208, 112, 0, 13))
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .clickable {
+                    // TODO upload Flyer
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Outlined.CloudUpload,
+                    contentDescription = "Upload",
+                    tint = VolumeOrange,
+                    modifier = Modifier.requiredSize(24.dp),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = "Upload a New Flyer", color = VolumeOrange, fontSize = 16.sp)
+            }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            contentColor = Color.Black,
+        ) {
+            tabs.forEachIndexed { index, text ->
+                Tab(
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    text = {
+                        Text(text = text, fontSize = 16.sp, fontFamily = notoserif)
+                    },
+                    selectedContentColor = Color.White,
+                    unselectedContentColor = Color.White,
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        when (selectedTabIndex) {
+            0 -> {
+                Text(text = "Current Flyers", fontSize = 20.sp, fontFamily = notoserif)
+            }
+
+            1 -> {
+                Text(text = "Past Flyers", fontSize = 20.sp, fontFamily = notoserif)
+            }
+        }
+        LazyColumn {
+            when (selectedTabIndex) {
+                // Current Flyers
+                0 -> {
+                    when (currentFlyers) {
+                        is ResponseState.Loading -> {
+                            items(5) {
+                                ShimmeringFlyer()
+                            }
+                        }
+
+                        is ResponseState.Success -> {
+                            items(currentFlyers.data) {
+                                SmallFlyer(isExtraSmall = false, flyer = it)
+                            }
+                        }
+
+                        is ResponseState.Error -> {
+                            item {
+                                ErrorState()
+                            }
+                        }
+                    }
+                }
+                // Past Flyers
+                1 -> {
+                    when (pastFlyers) {
+                        is ResponseState.Loading -> {
+                            items(5) {
+                                ShimmeringFlyer()
+                            }
+                        }
+
+                        is ResponseState.Success -> {
+                            items(pastFlyers.data) {
+                                SmallFlyer(isExtraSmall = false, flyer = it)
+                            }
+                        }
+
+                        is ResponseState.Error -> {
+                            item {
+                                ErrorState()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun OrganizationHomePreview() {
+    OrganizationHome(
+        organization = Organization(
+            name = "Women in Computing at Cornell",
+            id = "",
+            categorySlug = "wicc",
+            websiteURL = "",
+        )
+    )
+}

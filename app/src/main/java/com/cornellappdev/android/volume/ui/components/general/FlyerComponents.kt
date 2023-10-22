@@ -8,8 +8,10 @@ import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -149,6 +152,8 @@ fun SmallFlyer(
     flyer: Flyer,
     flyersViewModel: FlyersViewModel = hiltViewModel(),
     showTag: Boolean = !isExtraSmall,
+    showMenuIcon: Boolean = false,
+    onMenuIconClick: () -> Unit = {},
 ) {
     val imageURL = flyer.imageURL
     val context = LocalContext.current
@@ -200,7 +205,8 @@ fun SmallFlyer(
                 iconSize = 20.dp,
                 url = flyer.flyerURL ?: flyer.organization.websiteURL,
                 context = LocalContext.current,
-                flyerId = flyer.id
+                flyerId = flyer.id,
+                showMenuIcon = showMenuIcon,
             )
             // Flyer title
             Text(
@@ -276,6 +282,7 @@ fun OrganizationAndIconsRow(
     url: String,
     context: Context,
     flyerId: String,
+    showMenuIcon: Boolean = false,
     flyersViewModel: FlyersViewModel = hiltViewModel(),
 ) {
     var isBookmarked by remember { mutableStateOf(false) }
@@ -306,32 +313,48 @@ fun OrganizationAndIconsRow(
         )
         Spacer(modifier = Modifier.weight(1F))
         // Bookmark icon
-        Image(
-            painter = painterResource(
-                id =
-                if (isBookmarked) R.drawable.ic_bookmark_orange_filled
-                else R.drawable.ic_bookmark_orange_empty
-            ),
-            contentDescription = null,
-            modifier = Modifier
-                .size(iconSize)
-                .clickable {
-                    if (isBookmarked) flyersViewModel.removeBookmarkedFlyer(flyerId)
-                    else flyersViewModel.addBookmarkedFlyer(flyerId)
-                    isBookmarked = !isBookmarked
+        if (showMenuIcon) {
+            @Composable
+            fun Circle() {
+                Box(
+                    Modifier
+                        .border(
+                            BorderStroke(width = 0.dp, color = Color.Transparent),
+                            shape = CircleShape
+                        )
+                        .background(Color(0xFF6B6B6B))
+                ) {
+
                 }
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        // Share icon
-        Icon(
-            painter = painterResource(id = R.drawable.ic_share_black),
-            contentDescription = null,
-            modifier = Modifier
-                .size(iconSize)
-                .clickable {
-                    shareFlyer(context = context, url = url)
-                },
-        )
+            }
+        } else {
+            Image(
+                painter = painterResource(
+                    id =
+                    if (isBookmarked) R.drawable.ic_bookmark_orange_filled
+                    else R.drawable.ic_bookmark_orange_empty
+                ),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(iconSize)
+                    .clickable {
+                        if (isBookmarked) flyersViewModel.removeBookmarkedFlyer(flyerId)
+                        else flyersViewModel.addBookmarkedFlyer(flyerId)
+                        isBookmarked = !isBookmarked
+                    }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            // Share icon
+            Icon(
+                painter = painterResource(id = R.drawable.ic_share_black),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(iconSize)
+                    .clickable {
+                        shareFlyer(context = context, url = url)
+                    },
+            )
+        }
     }
 }
 

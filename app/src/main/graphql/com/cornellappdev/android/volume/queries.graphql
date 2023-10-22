@@ -794,6 +794,34 @@ query FlyersByCategorySlug($offset: Float, $limit: Float, $categorySlug: String!
     }
 }
 
+query FlyersByOrganizationId($offset: Float, $limit: Float, $organizationId: String!){
+    getFlyersByOrganizationID(offset: $offset, limit: $limit, organizationID: $organizationId){
+        id
+        categorySlug
+        endDate
+        flyerURL
+        imageURL
+        location
+        organization{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            clicks
+        }
+        organizationSlug
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
 query OrganizationsByCategory($categorySlug: String!){
     getOrganizationsByCategory(categorySlug: $categorySlug){
         id

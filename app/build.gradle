@@ -15,7 +15,6 @@ secretsProperties.load(new FileInputStream(secretsPropertiesFile))
 
 android {
     compileSdk 33
-
     defaultConfig {
         applicationId "com.cornellappdev.android.volume"
         minSdk 27
