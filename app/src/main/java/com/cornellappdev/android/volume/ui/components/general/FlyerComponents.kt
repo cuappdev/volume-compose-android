@@ -153,7 +153,7 @@ fun SmallFlyer(
     flyersViewModel: FlyersViewModel = hiltViewModel(),
     showTag: Boolean = !isExtraSmall,
     showMenuIcon: Boolean = false,
-    onMenuIconClick: () -> Unit = {},
+    onMenuIconClick: (() -> Unit)? = null,
 ) {
     val imageURL = flyer.imageURL
     val context = LocalContext.current

@@ -1,12 +1,10 @@
 package com.cornellappdev.android.volume.data.models
 
-import com.squareup.moshi.JsonClass
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-@JsonClass(generateAdapter = true)
 data class Flyer(
     val id: String,
     val title: String,

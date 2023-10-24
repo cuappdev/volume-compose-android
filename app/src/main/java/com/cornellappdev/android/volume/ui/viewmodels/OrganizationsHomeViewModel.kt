@@ -3,6 +3,7 @@ package com.cornellappdev.android.volume.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.volume.data.models.Flyer
+import com.cornellappdev.android.volume.data.models.Organization
 import com.cornellappdev.android.volume.data.repositories.FlyerRepository
 import com.cornellappdev.android.volume.data.repositories.OrganizationRepository
 import com.cornellappdev.android.volume.ui.states.ResponseState
@@ -19,14 +20,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OrganizationsHomeViewModel @Inject constructor(
-    private val organizationRepository: OrganizationRepository,
     private val flyerRepository: FlyerRepository,
+    private val orgRepository: OrganizationRepository,
 ) : ViewModel() {
 
     private val _orgFlyersFlow: MutableStateFlow<ResponseState<List<Flyer>>> =
         MutableStateFlow(ResponseState.Loading)
 
     private val orgFlyersFlow: StateFlow<ResponseState<List<Flyer>>> = _orgFlyersFlow.asStateFlow()
+
+    private val _orgFlow: MutableStateFlow<ResponseState<Organization>> =
+        MutableStateFlow(ResponseState.Loading)
+
+    val orgFlow = _orgFlow.asStateFlow()
 
     val currentFlyersFlow = orgFlyersFlow.map { apiResponse ->
         when (apiResponse) {
@@ -39,7 +45,7 @@ class OrganizationsHomeViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, ResponseState.Loading)
 
-    val pastFlyersFlow: StateFlow<ResponseState<List<Flyer>>> = orgFlyersFlow.map { apiResponse ->
+    val pastFlyersFlow = orgFlyersFlow.map { apiResponse ->
         when (apiResponse) {
             ResponseState.Loading -> ResponseState.Loading
             is ResponseState.Error -> ResponseState.Error()
@@ -50,13 +56,16 @@ class OrganizationsHomeViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, ResponseState.Loading)
 
-    fun initViewModel(organizationId: String) = viewModelScope.launch {
+    fun initViewModel(organizationSlug: String) = viewModelScope.launch {
         try {
             _orgFlyersFlow.value =
-                ResponseState.Success(flyerRepository.fetchFlyersByOrganizationId(organizationId))
-        } catch (_: Exception) {
+                ResponseState.Success(flyerRepository.fetchFlyersByOrganizationSlug(organizationSlug))
+            // Non-null assertion is ok because we are in try-catch
+            _orgFlow.value = orgRepository.getOrganizationBySlug(organizationSlug)?.let {
+                ResponseState.Success(it)
+            } ?: ResponseState.Error()
+        } catch (e: Exception) {
             _orgFlyersFlow.value = ResponseState.Error()
         }
     }
-
 }

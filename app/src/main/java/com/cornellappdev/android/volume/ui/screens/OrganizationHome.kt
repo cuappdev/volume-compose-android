@@ -22,6 +22,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CloudUpload
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,11 +31,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cornellappdev.android.volume.data.models.Organization
 import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
 import com.cornellappdev.android.volume.ui.components.general.SmallFlyer
@@ -45,15 +44,20 @@ import com.cornellappdev.android.volume.ui.viewmodels.OrganizationsHomeViewModel
 
 @Composable
 fun OrganizationHome(
-    organization: Organization,
+    organizationSlug: String,
     organizationsHomeViewModel: OrganizationsHomeViewModel = hiltViewModel(),
+    onFlyerUploadClicked: () -> Unit,
+    onFlyerEditClicked: (flyerId: String) -> Unit,
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf("Current", "Past", "Removed")
-    organizationsHomeViewModel.initViewModel(organization.id)
+    LaunchedEffect(key1 = "launch", block = {
+        organizationsHomeViewModel.initViewModel(organizationSlug)
+    })
 
     val currentFlyers = organizationsHomeViewModel.currentFlyersFlow.collectAsState().value
     val pastFlyers = organizationsHomeViewModel.pastFlyersFlow.collectAsState().value
+    val currentOrg = organizationsHomeViewModel.orgFlow.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -73,7 +77,13 @@ fun OrganizationHome(
         Spacer(modifier = Modifier.height(38.dp))
 
         // Organization name
-        Text(text = organization.name, fontSize = 24.sp, fontFamily = notoserif)
+        Text(
+            text = when (currentOrg) {
+                ResponseState.Loading -> "Loading..."
+                is ResponseState.Error -> "Error loading organization, reload the app"
+                is ResponseState.Success -> currentOrg.data.name
+            }, fontSize = 24.sp, fontFamily = notoserif
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         // Upload Flyer button
@@ -86,10 +96,10 @@ fun OrganizationHome(
                     shape = RoundedCornerShape(4.dp)
                 )
                 .background(Color(208, 112, 0, 13))
-                .padding(horizontal = 16.dp, vertical = 12.dp)
                 .clickable {
-                    // TODO upload Flyer
-                },
+                    onFlyerUploadClicked()
+                }
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -113,7 +123,12 @@ fun OrganizationHome(
                     selected = selectedTabIndex == index,
                     onClick = { selectedTabIndex = index },
                     text = {
-                        Text(text = text, fontSize = 16.sp, fontFamily = notoserif)
+                        Text(
+                            text = text,
+                            fontSize = 16.sp,
+                            fontFamily = notoserif,
+                            color = Color.Black
+                        )
                     },
                     selectedContentColor = Color.White,
                     unselectedContentColor = Color.White,
@@ -179,17 +194,4 @@ fun OrganizationHome(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun OrganizationHomePreview() {
-    OrganizationHome(
-        organization = Organization(
-            name = "Women in Computing at Cornell",
-            id = "",
-            categorySlug = "wicc",
-            websiteURL = "",
-        )
-    )
 }

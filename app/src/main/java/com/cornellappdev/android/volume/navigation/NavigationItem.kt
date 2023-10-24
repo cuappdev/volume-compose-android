@@ -91,4 +91,5 @@ enum class Routes(override var route: String) : NavUnit {
     ORGANIZATION_LOGIN("organization_login"),
     UPLOAD_FLYER("upload_flyer"),
     FLYER_SUCCESS("flyer_success"),
+    ORGANIZATION_HOME("organization_home"),
 }

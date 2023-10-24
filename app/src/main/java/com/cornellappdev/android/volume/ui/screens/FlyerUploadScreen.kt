@@ -74,9 +74,10 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun FlyerUploadScreen(
-    organizationId: String,
+    organizationSlug: String,
     onFlyerUploadSuccess: () -> Unit,
     flyerUploadViewModel: FlyerUploadViewModel = hiltViewModel(),
+    editingFlyerId: String? = null,
 ) {
     val context = LocalContext.current
 
@@ -97,7 +98,7 @@ fun FlyerUploadScreen(
 
     // Start by getting info about their organization
     LaunchedEffect(key1 = "launch") {
-        flyerUploadViewModel.getOrganization(organizationId)
+        flyerUploadViewModel.getOrganization(organizationSlug)
     }
 
     // Effect to update whether button is enabled based on form values
@@ -286,7 +287,7 @@ fun FlyerUploadScreen(
                                 bytes,
                                 Base64.DEFAULT
                             ),
-                            organizationId = organizationId
+                            organizationId = organizationSlug
                         )
                     }
                     sd

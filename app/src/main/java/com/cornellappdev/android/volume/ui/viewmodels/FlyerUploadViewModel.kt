@@ -27,18 +27,17 @@ class FlyerUploadViewModel @Inject constructor
     var uploadFlyerUiState by mutableStateOf(FlyerUploadUiState())
         private set
 
-    fun getOrganization(id: String) = viewModelScope.launch {
+    fun getOrganization(slug: String) = viewModelScope.launch {
         uploadFlyerUiState = try {
             uploadFlyerUiState.copy(
                 organizationInfoResult = ResponseState.Success(
-                    organizationsRepository.getOrganizationById(
-                        id
-                    )!!
+                    // Non-null assertion is ok since we are inside try catch
+                    organizationsRepository.getOrganizationBySlug(slug)!!
                 )
             )
         } catch (e: Exception) {
             uploadFlyerUiState.copy(
-                organizationInfoResult = ResponseState.Error(listOf())
+                organizationInfoResult = ResponseState.Error()
             )
         }
     }
