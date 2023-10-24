@@ -13,13 +13,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -27,12 +30,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
@@ -206,7 +212,7 @@ fun SmallFlyer(
                 url = flyer.flyerURL ?: flyer.organization.websiteURL,
                 context = LocalContext.current,
                 flyerId = flyer.id,
-                showMenuIcon = showMenuIcon,
+                onMenuItemClick = onMenuIconClick,
             )
             // Flyer title
             Text(
@@ -282,7 +288,7 @@ fun OrganizationAndIconsRow(
     url: String,
     context: Context,
     flyerId: String,
-    showMenuIcon: Boolean = false,
+    onMenuItemClick: (() -> Unit)? = null,
     flyersViewModel: FlyersViewModel = hiltViewModel(),
 ) {
     var isBookmarked by remember { mutableStateOf(false) }
@@ -313,7 +319,7 @@ fun OrganizationAndIconsRow(
         )
         Spacer(modifier = Modifier.weight(1F))
         // Bookmark icon
-        if (showMenuIcon) {
+        if (onMenuItemClick != null) {
             @Composable
             fun Circle() {
                 Box(
@@ -323,8 +329,14 @@ fun OrganizationAndIconsRow(
                             shape = CircleShape
                         )
                         .background(Color(0xFF6B6B6B))
-                ) {
-
+                        .requiredSize(3.dp)
+                )
+            }
+            Row(modifier = Modifier.clickable {
+                onMenuItemClick()
+            }, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                repeat(3) {
+                    Circle()
                 }
             }
         } else {
@@ -372,6 +384,43 @@ fun IconTextRow(text: String, iconId: Int, modifier: Modifier = Modifier) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+@Composable
+fun FlyerWithContextDropdown(flyer: Flyer) {
+    var contextDropdownShowing by remember { mutableStateOf(false) }
+    Box(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.TopEnd
+    ) {
+        Box {
+            SmallFlyer(
+                isExtraSmall = false,
+                flyer = flyer,
+                onMenuIconClick = {
+                    contextDropdownShowing = true
+                }
+            )
+        }
+        Box {
+            DropdownMenu(
+                expanded = contextDropdownShowing,
+                onDismissRequest = { contextDropdownShowing = false },
+                modifier = Modifier
+                    .align(Alignment.TopEnd),  // Add this line
+            ) {
+                DropdownMenuItem(
+                    text = { Text(text = "Edit Flyer") },
+                    onClick = { /*TODO*/ }
+                )
+                DropdownMenuItem(
+                    text = { Text(text = "Remove Flyer") },
+                    onClick = { /*TODO*/ }
+                )
+            }
+        }
     }
 }
 

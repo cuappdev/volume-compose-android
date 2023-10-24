@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.ui.components.general.ErrorState
+import com.cornellappdev.android.volume.ui.components.general.FlyerWithContextDropdown
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
-import com.cornellappdev.android.volume.ui.components.general.SmallFlyer
 import com.cornellappdev.android.volume.ui.states.ResponseState
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.notoserif
@@ -158,7 +158,7 @@ fun OrganizationHome(
 
                         is ResponseState.Success -> {
                             items(currentFlyers.data) {
-                                SmallFlyer(isExtraSmall = false, flyer = it)
+                                FlyerWithContextDropdown(flyer = it)
                             }
                         }
 
@@ -180,7 +180,7 @@ fun OrganizationHome(
 
                         is ResponseState.Success -> {
                             items(pastFlyers.data) {
-                                SmallFlyer(isExtraSmall = false, flyer = it)
+                                FlyerWithContextDropdown(flyer = it)
                             }
                         }
 
