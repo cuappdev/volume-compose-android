@@ -160,6 +160,7 @@ fun SmallFlyer(
     showTag: Boolean = !isExtraSmall,
     showMenuIcon: Boolean = false,
     onMenuIconClick: (() -> Unit)? = null,
+    clickAction: (() -> Unit)? = null,
 ) {
     val imageURL = flyer.imageURL
     val context = LocalContext.current
@@ -190,9 +191,13 @@ fun SmallFlyer(
         // For some reason image clickability only works when it's in a box in this case
         // This is the cover image
         Box(modifier = Modifier.clickable {
-            flyersViewModel.incrementTimesClicked(flyer.id)
+            if (clickAction == null) {
+                flyersViewModel.incrementTimesClicked(flyer.id)
 
-            onFlyerClick(flyer, flyersViewModel, openLinkLauncher)
+                onFlyerClick(flyer, flyersViewModel, openLinkLauncher)
+            } else {
+                clickAction()
+            }
         }) {
             AsyncImage(
                 model = flyer.imageURL,
@@ -388,7 +393,7 @@ fun IconTextRow(text: String, iconId: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun FlyerWithContextDropdown(flyer: Flyer) {
+fun FlyerWithContextDropdown(flyer: Flyer, onEditClick: () -> Unit, onRemoveClick: () -> Unit) {
     var contextDropdownShowing by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -401,7 +406,8 @@ fun FlyerWithContextDropdown(flyer: Flyer) {
                 flyer = flyer,
                 onMenuIconClick = {
                     contextDropdownShowing = true
-                }
+                },
+                clickAction = onEditClick
             )
         }
         Box {
@@ -413,11 +419,11 @@ fun FlyerWithContextDropdown(flyer: Flyer) {
             ) {
                 DropdownMenuItem(
                     text = { Text(text = "Edit Flyer") },
-                    onClick = { /*TODO*/ }
+                    onClick = { onEditClick() }
                 )
                 DropdownMenuItem(
                     text = { Text(text = "Remove Flyer") },
-                    onClick = { /*TODO*/ }
+                    onClick = { onRemoveClick() }
                 )
             }
         }

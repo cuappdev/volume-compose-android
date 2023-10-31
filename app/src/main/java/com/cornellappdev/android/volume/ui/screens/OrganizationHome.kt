@@ -114,6 +114,7 @@ fun OrganizationHome(
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
+        // Tabbed Flyers view
         TabRow(
             selectedTabIndex = selectedTabIndex,
             contentColor = Color.Black,
@@ -145,6 +146,7 @@ fun OrganizationHome(
                 Text(text = "Past Flyers", fontSize = 20.sp, fontFamily = notoserif)
             }
         }
+        Spacer(Modifier.height(16.dp))
         LazyColumn {
             when (selectedTabIndex) {
                 // Current Flyers
@@ -158,7 +160,13 @@ fun OrganizationHome(
 
                         is ResponseState.Success -> {
                             items(currentFlyers.data) {
-                                FlyerWithContextDropdown(flyer = it)
+                                FlyerWithContextDropdown(
+                                    flyer = it,
+                                    onEditClick = { onFlyerEditClicked(it.id) },
+                                    onRemoveClick = {
+                                        // TODO
+                                    }
+                                )
                             }
                         }
 
@@ -180,7 +188,12 @@ fun OrganizationHome(
 
                         is ResponseState.Success -> {
                             items(pastFlyers.data) {
-                                FlyerWithContextDropdown(flyer = it)
+                                FlyerWithContextDropdown(
+                                    flyer = it,
+                                    onEditClick = { onFlyerEditClicked(it.id) },
+                                    onRemoveClick = {
+                                        // TODO
+                                    })
                             }
                         }
 
