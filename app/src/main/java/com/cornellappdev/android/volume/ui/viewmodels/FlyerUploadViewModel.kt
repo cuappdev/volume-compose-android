@@ -1,15 +1,15 @@
 package com.cornellappdev.android.volume.ui.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.android.volume.data.models.Flyer
 import com.cornellappdev.android.volume.data.models.Organization
 import com.cornellappdev.android.volume.data.repositories.FlyerRepository
 import com.cornellappdev.android.volume.data.repositories.OrganizationRepository
 import com.cornellappdev.android.volume.ui.states.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,33 +19,40 @@ class FlyerUploadViewModel @Inject constructor
     private val organizationsRepository: OrganizationRepository,
     private val flyersRepository: FlyerRepository,
 ) : ViewModel() {
-    data class FlyerUploadUiState(
-        val uploadFlyerResult: ResponseState<String> = ResponseState.Loading,
-        val organizationInfoResult: ResponseState<Organization> = ResponseState.Loading,
-    )
+    private val _orgFlow: MutableStateFlow<ResponseState<Organization>> =
+        MutableStateFlow(ResponseState.Loading)
+    val orgFlow = _orgFlow.asStateFlow()
 
-    var uploadFlyerUiState by mutableStateOf(FlyerUploadUiState())
-        private set
+    private val _flyerFlow: MutableStateFlow<ResponseState<Flyer>> =
+        MutableStateFlow(ResponseState.Loading)
+    val flyerFlow = _flyerFlow.asStateFlow()
 
-    fun getOrganization(slug: String) = viewModelScope.launch {
-        uploadFlyerUiState = try {
-            uploadFlyerUiState.copy(
-                organizationInfoResult = ResponseState.Success(
-                    // Non-null assertion is ok since we are inside try catch
-                    organizationsRepository.getOrganizationBySlug(slug)!!
-                )
-            )
-        } catch (e: Exception) {
-            uploadFlyerUiState.copy(
-                organizationInfoResult = ResponseState.Error()
-            )
+    private val _uploadResult: MutableStateFlow<ResponseState<Flyer>> =
+        MutableStateFlow(ResponseState.Loading)
+    val uploadResultFlow = _uploadResult.asStateFlow()
+
+    fun initViewModel(organizationSlug: String, flyerId: String?) = viewModelScope.launch {
+        try {
+            _orgFlow.value =
+                ResponseState.Success(organizationsRepository.getOrganizationBySlug(organizationSlug)!!)
+        } catch (_: Exception) {
+            _orgFlow.value = ResponseState.Error()
+        }
+        try {
+            flyerId?.let {
+                _flyerFlow.value = ResponseState.Success(flyersRepository.fetchFlyerById(flyerId))
+            }
+        } catch (_: Exception) {
+            _flyerFlow.value = ResponseState.Error()
         }
     }
 
-    fun error() {
-        uploadFlyerUiState = uploadFlyerUiState.copy(
-            uploadFlyerResult = ResponseState.Error(listOf())
-        )
+    /**
+     * Updates the Flyer view model to show an error state for the upload result. Even though this
+     * does violate encapsulation in a way,
+     */
+    fun errorFlyerUpload() {
+        _uploadResult.value = ResponseState.Error()
     }
 
     fun uploadFlyer(
@@ -70,14 +77,28 @@ class FlyerUploadViewModel @Inject constructor
                 organizationId
             )
             res.errors?.let {
-                uploadFlyerUiState = uploadFlyerUiState.copy(
-                    uploadFlyerResult = ResponseState.Error(it)
-                )
+                _uploadResult.value = ResponseState.Error(it)
             }
             res.data?.let {
                 val createdFlyer = it.createFlyer
-                uploadFlyerUiState = uploadFlyerUiState.copy(
-                    uploadFlyerResult = ResponseState.Success(title)
+                _uploadResult.value = ResponseState.Success(
+                    Flyer(
+                        id = createdFlyer.id,
+                        categorySlug = createdFlyer.categorySlug,
+                        startDate = createdFlyer.startDate.toString(),
+                        endDate = createdFlyer.endDate.toString(),
+                        flyerURL = createdFlyer.flyerURL,
+                        imageURL = createdFlyer.imageURL,
+                        location = createdFlyer.location,
+                        organization = Organization(
+                            id = createdFlyer.organization.id,
+                            categorySlug = createdFlyer.organization.categorySlug,
+                            name = createdFlyer.organization.name,
+                            slug = createdFlyer.organization.slug,
+                            websiteURL = createdFlyer.organization.websiteURL
+                        ),
+                        title = createdFlyer.title
+                    )
                 )
             }
         }

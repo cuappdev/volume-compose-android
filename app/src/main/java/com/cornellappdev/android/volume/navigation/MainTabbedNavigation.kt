@@ -413,7 +413,7 @@ private fun MainScreenNavigationConfigurations(
                 onFlyerUploadClicked = { navController.navigate("${Routes.UPLOAD_FLYER.route}/$orgSlug") },
                 onFlyerEditClicked = { flyerId ->
                     navController.navigate(
-                        "${Routes.UPLOAD_FLYER.route}/$orgSlug/${flyerId}"
+                        "${Routes.UPLOAD_FLYER.route}/$orgSlug/$flyerId"
                     )
                 }
             )

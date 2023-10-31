@@ -16,6 +16,7 @@ import com.cornellappdev.android.volume.CheckAccessCodeQuery
 import com.cornellappdev.android.volume.CreateFlyerMutation
 import com.cornellappdev.android.volume.CreateUserMutation
 import com.cornellappdev.android.volume.FeaturedMagazinesQuery
+import com.cornellappdev.android.volume.FlyerByIDQuery
 import com.cornellappdev.android.volume.FlyersAfterDateQuery
 import com.cornellappdev.android.volume.FlyersBeforeDateQuery
 import com.cornellappdev.android.volume.FlyersByCategorySlugQuery
@@ -158,6 +159,9 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
 
     suspend fun fetchOrganizationById(id: String): ApolloResponse<OrganizationsByIdQuery.Data> =
         apolloClient.query(OrganizationsByIdQuery(id = id)).execute()
+
+    suspend fun fetchFlyerById(id: String): ApolloResponse<FlyerByIDQuery.Data> =
+        apolloClient.query(FlyerByIDQuery(id = id)).execute()
 
     suspend fun incrementShoutout(
         id: String,

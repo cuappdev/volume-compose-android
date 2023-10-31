@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.data.repositories
 
+import com.cornellappdev.android.volume.FlyerByIDQuery
 import com.cornellappdev.android.volume.FlyersAfterDateQuery
 import com.cornellappdev.android.volume.FlyersBeforeDateQuery
 import com.cornellappdev.android.volume.FlyersByCategorySlugQuery
@@ -27,6 +28,9 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
 
     suspend fun fetchFlyersByIds(ids: List<String>): List<Flyer> =
         networkApi.fetchFlyersByIds(ids).dataAssertNoErrors.mapDataToFlyers()
+
+    suspend fun fetchFlyerById(id: String): Flyer =
+        networkApi.fetchFlyerById(id).dataAssertNoErrors.mapDataToFlyer()
 
     suspend fun incrementTimesClicked(id: String) {
         networkApi.incrementTimesClicked(id)
@@ -78,6 +82,27 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         imageBase64,
         organizationId
     )
+
+    private fun FlyerByIDQuery.Data.mapDataToFlyer(): Flyer {
+        val flyerData = this.getFlyerByID!!
+        return Flyer(
+            id = flyerData.id,
+            title = flyerData.title,
+            organization = Organization(
+                id = flyerData.organization.id,
+                categorySlug = flyerData.organization.categorySlug,
+                name = flyerData.organization.name,
+                slug = flyerData.organization.slug,
+                websiteURL = flyerData.organization.websiteURL
+            ),
+            location = flyerData.location,
+            flyerURL = flyerData.flyerURL,
+            categorySlug = flyerData.categorySlug,
+            endDate = flyerData.endDate.toString(),
+            imageURL = flyerData.imageURL,
+            startDate = flyerData.startDate.toString()
+        )
+    }
 
     private fun FlyersByOrganizationSlugQuery.Data.mapDataToFlyers(): List<Flyer> =
         this.getFlyersByOrganizationSlug.map { flyer ->

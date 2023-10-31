@@ -399,6 +399,41 @@ fun VolumeButton(
     }
 }
 
+/**
+ * Outlined variation of the Volume button
+ * @param text the button label
+ * @param onClick the action to perform when the button is pressed
+ * @param modifier the modifier parameter, applied to the parent most element of the button
+ */
+@Composable
+fun OutlinedVolumeButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: (@Composable () -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier
+            .border(width = 1.dp, shape = RoundedCornerShape(4.dp), color = VolumeOrange)
+            .clickable {
+                onClick()
+            }
+            .padding(vertical = 12.dp, horizontal = 16.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        icon?.let {
+            it()
+            Spacer(Modifier.width(8.dp))
+        }
+        Text(
+            text = text,
+            color = VolumeOrange,
+            fontFamily = lato
+        )
+    }
+}
+
 @Composable
 fun ErrorMessage(message: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
