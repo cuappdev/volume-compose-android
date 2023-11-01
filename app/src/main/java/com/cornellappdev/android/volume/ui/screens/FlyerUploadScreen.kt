@@ -1,7 +1,6 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.net.Uri
-import android.provider.OpenableColumns
 import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -55,6 +54,7 @@ import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.FlyerUploadViewModel
 import com.cornellappdev.android.volume.util.FlyerConstants
+import com.cornellappdev.android.volume.util.deriveFileName
 import com.cornellappdev.android.volume.util.letIfAllNotNull
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.DatePickerDefaults
@@ -184,18 +184,8 @@ fun FlyerUploadScreen(
 
     // Effect to update image upload text based on flyer name
     DisposableEffect(key1 = flyerImageUri, effect = {
-        val contentResolver = context.contentResolver
         flyerImageUri?.let { uri ->
-            val cursor = contentResolver.query(uri, null, null, null, null)
-            if (cursor != null && cursor.moveToFirst()) {
-                val colIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (colIndex != -1) {
-                    val displayName = cursor.getString(colIndex)
-                    fileName = displayName
-                }
-                cursor.close()
-            }
-            cursor?.close()
+            fileName = deriveFileName(uri, context)
         }
         onDispose { }
     })
@@ -281,7 +271,7 @@ fun FlyerUploadScreen(
             if (bytes == null) {
                 currentErrorMessage = "Failed to upload flyer."
                 flyerUploadViewModel.errorFlyerUpload()
-            } else if (bytes.size >= (50000000)) {
+            } else if (bytes.size >= (16_000_000)) {
                 currentErrorMessage =
                     "Image too large, please use a lower quality image."
                 flyerUploadViewModel.errorFlyerUpload()

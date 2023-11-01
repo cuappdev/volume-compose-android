@@ -1,5 +1,7 @@
 package com.cornellappdev.android.volume.data
 
+import android.content.Context
+import android.net.Uri
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
@@ -42,6 +44,13 @@ import com.cornellappdev.android.volume.ShuffledArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.TrendingArticlesQuery
 import com.cornellappdev.android.volume.TrendingFlyersQuery
 import com.cornellappdev.android.volume.UnfollowPublicationMutation
+import com.cornellappdev.android.volume.data.models.Flyer
+import com.cornellappdev.android.volume.util.deriveFileName
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -162,6 +171,50 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
 
     suspend fun fetchFlyerById(id: String): ApolloResponse<FlyerByIDQuery.Data> =
         apolloClient.query(FlyerByIDQuery(id = id)).execute()
+
+    suspend fun createFlyer(flyer: Flyer, imageUri: Uri, context: Context) {
+        val client = OkHttpClient()
+        val formBody = createFlyerFormData(flyer, imageUri, includeID = false, context = context)
+    }
+
+    suspend fun editFlyer() {
+
+    }
+
+    /**
+     * Returns a MultipartBody for form data requests based on provided flyer
+     * As with other functions in NetworkApi, this function is unsafe and should only be used in
+     * a try-catch statement.
+     */
+    private fun createFlyerFormData(
+        flyer: Flyer,
+        imageUri: Uri,
+        includeID: Boolean,
+        context: Context,
+    ) =
+        MultipartBody.Builder().apply {
+            setType(MultipartBody.FORM)
+
+            // Using a non-null assertions since all of the following has to be non-null for the upload to succeed.
+            // Also this method will only be called by network API which should be put in try catch
+            val path = imageUri.path!!
+            val type = context.contentResolver.getType(imageUri)!!.toMediaType()
+            val filename = deriveFileName(imageUri, context)!!
+
+            addFormDataPart("categorySlug", flyer.categorySlug)
+            addFormDataPart("endDate", flyer.endDate)
+            addFormDataPart("flyerURL", flyer.flyerURL ?: flyer.organization.websiteURL)
+            addFormDataPart("location", flyer.location)
+            addFormDataPart("organizationID", flyer.organization.id)
+            addFormDataPart("startDate", flyer.startDate)
+            addFormDataPart("title", flyer.title)
+            addFormDataPart("image", filename, File(path).asRequestBody(type))
+
+            if (includeID) {
+                addFormDataPart("id", flyer.id)
+            }
+        }.build()
+
 
     suspend fun incrementShoutout(
         id: String,

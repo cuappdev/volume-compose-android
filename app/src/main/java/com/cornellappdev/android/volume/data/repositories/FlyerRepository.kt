@@ -45,6 +45,10 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun fetchFlyersByOrganizationSlug(slug: String): List<Flyer> =
         networkApi.fetchFlyersByOrganizationSlug(slug).dataAssertNoErrors.mapDataToFlyers()
 
+    /*
+    Create and remove flyer operations send
+     */
+
 
     // These functions map the apollo query types to types of the models that are in place.
     private fun SearchFlyersQuery.Data.mapDataToFlyers(): List<Flyer> =
