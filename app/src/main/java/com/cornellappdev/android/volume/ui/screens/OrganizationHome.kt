@@ -50,7 +50,7 @@ fun OrganizationHome(
     onFlyerEditClicked: (flyerId: String) -> Unit,
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabs = listOf("Current", "Past", "Removed")
+    val tabs = listOf("Current", "Past")
     LaunchedEffect(key1 = "launch", block = {
         organizationsHomeViewModel.initViewModel(organizationSlug)
     })

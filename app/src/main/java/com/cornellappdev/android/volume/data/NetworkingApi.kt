@@ -14,6 +14,7 @@ import com.cornellappdev.android.volume.ArticlesByIDsQuery
 import com.cornellappdev.android.volume.ArticlesByPublicationSlugQuery
 import com.cornellappdev.android.volume.ArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.BookmarkArticleMutation
+import com.cornellappdev.android.volume.BuildConfig
 import com.cornellappdev.android.volume.CheckAccessCodeQuery
 import com.cornellappdev.android.volume.CreateFlyerMutation
 import com.cornellappdev.android.volume.CreateUserMutation
@@ -49,6 +50,7 @@ import com.cornellappdev.android.volume.util.deriveFileName
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import javax.inject.Inject
@@ -172,13 +174,36 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     suspend fun fetchFlyerById(id: String): ApolloResponse<FlyerByIDQuery.Data> =
         apolloClient.query(FlyerByIDQuery(id = id)).execute()
 
-    suspend fun createFlyer(flyer: Flyer, imageUri: Uri, context: Context) {
+    /**
+     * Function to mutate a Flyer.
+     * Takes the intended Flyer object, an imageUri for a new image for the flyer,
+     * @param flyer the flyer to send to the backend
+     * @param imageUri the image URI to use to update the flyer
+     * @param context application context
+     * @param organizationId the id of the organization uploading the flyer
+     * @param isUpdating whether the Flyer should be created or updated
+     * @return boolean that represents whether the mutation was successful
+     */
+    suspend fun mutateFlyer(
+        flyer: Flyer,
+        imageUri: Uri?,
+        context: Context,
+        isUpdating: Boolean,
+    ): Boolean {
         val client = OkHttpClient()
-        val formBody = createFlyerFormData(flyer, imageUri, includeID = false, context = context)
-    }
 
-    suspend fun editFlyer() {
+        val formBody =
+            createFlyerFormData(flyer, imageUri, isUpdating = isUpdating, context = context)
 
+        val request =
+            Request.Builder()
+                .url(if (isUpdating) "${BuildConfig.ENDPOINT}/flyers/edit/" else "${BuildConfig.ENDPOINT}/flyers/")
+                .post(formBody)
+                .build()
+
+        client.newCall(request).execute().use { response ->
+            return response.isSuccessful
+        }
     }
 
     /**
@@ -188,8 +213,8 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
      */
     private fun createFlyerFormData(
         flyer: Flyer,
-        imageUri: Uri,
-        includeID: Boolean,
+        imageUri: Uri?,
+        isUpdating: Boolean,
         context: Context,
     ) =
         MultipartBody.Builder().apply {
@@ -197,9 +222,11 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
 
             // Using a non-null assertions since all of the following has to be non-null for the upload to succeed.
             // Also this method will only be called by network API which should be put in try catch
-            val path = imageUri.path!!
-            val type = context.contentResolver.getType(imageUri)!!.toMediaType()
-            val filename = deriveFileName(imageUri, context)!!
+            if (!isUpdating) {
+                // Assert that the image URI is non-null if they are creating a new Flyer
+                imageUri!!
+                assert(flyer.id.isNotBlank())
+            }
 
             addFormDataPart("categorySlug", flyer.categorySlug)
             addFormDataPart("endDate", flyer.endDate)
@@ -208,9 +235,14 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
             addFormDataPart("organizationID", flyer.organization.id)
             addFormDataPart("startDate", flyer.startDate)
             addFormDataPart("title", flyer.title)
-            addFormDataPart("image", filename, File(path).asRequestBody(type))
+            imageUri?.let {
+                val path = it.path!!
+                val type = context.contentResolver.getType(it)!!.toMediaType()
+                val filename = deriveFileName(it, context)!!
+                addFormDataPart("image", filename, File(path).asRequestBody(type))
+            }
 
-            if (includeID) {
+            if (isUpdating) {
                 addFormDataPart("id", flyer.id)
             }
         }.build()

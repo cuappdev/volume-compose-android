@@ -1,7 +1,6 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.net.Uri
-import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,6 +39,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.android.volume.data.models.Flyer
 import com.cornellappdev.android.volume.ui.components.general.ErrorMessage
 import com.cornellappdev.android.volume.ui.components.general.OutlinedVolumeButton
 import com.cornellappdev.android.volume.ui.components.general.VolumeButton
@@ -271,27 +271,35 @@ fun FlyerUploadScreen(
             if (bytes == null) {
                 currentErrorMessage = "Failed to upload flyer."
                 flyerUploadViewModel.errorFlyerUpload()
-            } else if (bytes.size >= (16_000_000)) {
+                return
+            }
+            if (bytes.size >= (15_000_000)) {
                 currentErrorMessage =
                     "Image too large, please use a lower quality image."
                 flyerUploadViewModel.errorFlyerUpload()
-            } else {
-                letIfAllNotNull(startDate, endDate) { (sd, ed) ->
-                    letIfAllNotNull(startTime, endTime) { (st, et) ->
-                        val startDateString =
-                            LocalDateTime.of(sd, st).atZone(ZoneId.systemDefault())
-                                .format(
-                                    DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                )
+                return
+            }
+            if (organization !is ResponseState.Success) {
+                currentErrorMessage = "Error fetching organization"
+                return
+            }
+            letIfAllNotNull(startDate, endDate) { (sd, ed) ->
+                letIfAllNotNull(startTime, endTime) { (st, et) ->
+                    val startDateString =
+                        LocalDateTime.of(sd, st).atZone(ZoneId.systemDefault())
+                            .format(
+                                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                            )
 
-                        val endDateString =
-                            LocalDateTime.of(ed, et)
-                                .atZone(ZoneOffset.systemDefault())
-                                .format(
-                                    DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                )
-
-                        flyerUploadViewModel.uploadFlyer(
+                    val endDateString =
+                        LocalDateTime.of(ed, et)
+                            .atZone(ZoneOffset.systemDefault())
+                            .format(
+                                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                            )
+                     
+                    flyerUploadViewModel.uploadFlyer(
+                        Flyer(
                             title = flyerTitle,
                             startDate = startDateString,
                             location = location,
@@ -302,15 +310,16 @@ fun FlyerUploadScreen(
                             endDate = endDateString,
                             categorySlug = flyerCategory.replace(" ", "")
                                 .replaceFirstChar { c -> c.lowercase() },
-                            imageBase64 = Base64.encodeToString(
-                                bytes,
-                                Base64.DEFAULT
-                            ),
-                            organizationId = organizationSlug
-                        )
-                    }
-                    sd
+                            organization = organization.data,
+                            id = editingFlyerId ?: "",
+                            imageURL = ""
+                        ),
+                        context = context,
+                        imageUri = flyerImageUri!!,
+                        isUpdating = isEditing
+                    )
                 }
+                sd
             }
         } catch (ignored: Exception) {
             flyerUploadViewModel.errorFlyerUpload()
@@ -357,7 +366,7 @@ fun FlyerUploadScreen(
         if (isEditing) {
             OutlinedVolumeButton(
                 text = "Remove Flyer",
-                onClick = {/* TODO */ },
+                onClick = { /* TODO */ },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
