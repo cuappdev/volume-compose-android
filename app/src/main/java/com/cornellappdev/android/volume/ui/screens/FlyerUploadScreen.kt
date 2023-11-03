@@ -1,7 +1,6 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -330,7 +329,6 @@ fun FlyerUploadScreen(
                 sd
             }
         } catch (e: Exception) {
-            Log.d("UPLOAD", "onUploadClick: flyer upload failed, ${e.message}")
             flyerUploadViewModel.errorFlyerUpload()
         }
     }

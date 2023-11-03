@@ -2,7 +2,6 @@ package com.cornellappdev.android.volume.ui.viewmodels
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.volume.data.NetworkApi
@@ -69,9 +68,7 @@ class FlyerUploadViewModel @Inject constructor
                 _uploadResult.value =
                     if (result) ResponseState.Success(flyer) else ResponseState.Error()
             } catch (e: Exception) {
-                Log.d("UPLOAD", "uploadFlyer: $e, ${e.stackTraceToString()}")
                 _uploadResult.value = ResponseState.Error()
             }
-
         }
 }

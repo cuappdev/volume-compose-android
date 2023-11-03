@@ -2,7 +2,6 @@ package com.cornellappdev.android.volume.data
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
@@ -206,9 +205,6 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
                 .build()
 
         client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                Log.d("UPLOAD", "mutateFlyer: ${response.code}, ${response.body.toString()}")
-            }
             return response.isSuccessful
         }
     }
