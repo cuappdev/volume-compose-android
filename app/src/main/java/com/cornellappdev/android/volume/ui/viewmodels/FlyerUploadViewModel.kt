@@ -45,7 +45,7 @@ class FlyerUploadViewModel @Inject constructor
         }
         try {
             flyerId?.let {
-                _flyerFlow.value = ResponseState.Success(flyersRepository.fetchFlyerById(flyerId))
+                _flyerFlow.value = ResponseState.Success(flyersRepository.fetchFlyerById(it))
             }
         } catch (_: Exception) {
             _flyerFlow.value = ResponseState.Error()
