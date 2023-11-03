@@ -1,6 +1,7 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -147,7 +148,9 @@ fun FlyerUploadScreen(
             val (st, et) = times
             letIfAllNotNull(startDate, endDate) { dates ->
                 val (sd, ed) = dates
-                hasTimeError = LocalDateTime.of(ed, et) < LocalDateTime.of(sd, st)
+                hasTimeError =
+                    LocalDateTime.of(ed, et) < LocalDateTime.of(sd, st) ||
+                            (LocalDateTime.of(sd, st) < LocalDateTime.now() && !isEditing)
             }
             st
         }
@@ -158,7 +161,8 @@ fun FlyerUploadScreen(
                 endDate != null &&
                 startTime != null &&
                 endTime != null &&
-                flyerImageUri != null &&
+                // either an image is required or your editing in which case we can have original
+                (flyerImageUri != null || isEditing) &&
                 flyerCategory.isNotBlank() &&
                 flyerCategory != "Error retrieving category, select again" &&
                 !hasTimeError
@@ -264,21 +268,24 @@ fun FlyerUploadScreen(
     fun onUploadClick() {
         hasTriedUpload = true
         try {
-            val bytes =
-                flyerImageUri?.let {
-                    context.contentResolver.openInputStream(it)?.readBytes()
+            if (!isEditing) {
+                val bytes =
+                    flyerImageUri?.let {
+                        context.contentResolver.openInputStream(it)?.readBytes()
+                    }
+                if (bytes == null) {
+                    currentErrorMessage = "Failed to upload flyer."
+                    flyerUploadViewModel.errorFlyerUpload()
+                    return
                 }
-            if (bytes == null) {
-                currentErrorMessage = "Failed to upload flyer."
-                flyerUploadViewModel.errorFlyerUpload()
-                return
+                if (bytes.size >= (15_000_000)) {
+                    currentErrorMessage =
+                        "Image too large, please use a lower quality image."
+                    flyerUploadViewModel.errorFlyerUpload()
+                    return
+                }
             }
-            if (bytes.size >= (15_000_000)) {
-                currentErrorMessage =
-                    "Image too large, please use a lower quality image."
-                flyerUploadViewModel.errorFlyerUpload()
-                return
-            }
+
             if (organization !is ResponseState.Success) {
                 currentErrorMessage = "Error fetching organization"
                 return
@@ -297,7 +304,7 @@ fun FlyerUploadScreen(
                             .format(
                                 DateTimeFormatter.ISO_OFFSET_DATE_TIME
                             )
-                     
+
                     flyerUploadViewModel.uploadFlyer(
                         Flyer(
                             title = flyerTitle,
@@ -315,13 +322,15 @@ fun FlyerUploadScreen(
                             imageURL = ""
                         ),
                         context = context,
-                        imageUri = flyerImageUri!!,
+                        // If we are uploading a new flyer the image URI must not be null
+                        imageUri = if (!isEditing) flyerImageUri!! else flyerImageUri,
                         isUpdating = isEditing
                     )
                 }
                 sd
             }
-        } catch (ignored: Exception) {
+        } catch (e: Exception) {
+            Log.d("UPLOAD", "onUploadClick: flyer upload failed, ${e.message}")
             flyerUploadViewModel.errorFlyerUpload()
         }
     }
@@ -437,7 +446,11 @@ fun FlyerUploadScreen(
             }
             Spacer(Modifier.height(8.dp))
             if (hasTimeError) {
-                ErrorMessage(message = "End time must be after start time.")
+                if (LocalDateTime.of(startDate, startTime) < LocalDateTime.now()) {
+                    ErrorMessage(message = "You can only post events that will happen in the future.")
+                } else {
+                    ErrorMessage(message = "End time must be after start time.")
+                }
             }
         }
 

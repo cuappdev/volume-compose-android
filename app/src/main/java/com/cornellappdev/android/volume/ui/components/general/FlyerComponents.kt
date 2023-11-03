@@ -392,6 +392,10 @@ fun IconTextRow(text: String, iconId: Int, modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Creates a Flyer with a context dropdown for editing and removing the Flyer.
+ * Used for the Organizations home screen, and should only be viewable by organiztions.
+ */
 @Composable
 fun FlyerWithContextDropdown(flyer: Flyer, onEditClick: () -> Unit, onRemoveClick: () -> Unit) {
     var contextDropdownShowing by remember { mutableStateOf(false) }

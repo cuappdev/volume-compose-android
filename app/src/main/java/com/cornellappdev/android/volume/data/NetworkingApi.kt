@@ -2,6 +2,7 @@ package com.cornellappdev.android.volume.data
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
@@ -16,8 +17,8 @@ import com.cornellappdev.android.volume.ArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.BookmarkArticleMutation
 import com.cornellappdev.android.volume.BuildConfig
 import com.cornellappdev.android.volume.CheckAccessCodeQuery
-import com.cornellappdev.android.volume.CreateFlyerMutation
 import com.cornellappdev.android.volume.CreateUserMutation
+import com.cornellappdev.android.volume.DeleteFlyerMutation
 import com.cornellappdev.android.volume.FeaturedMagazinesQuery
 import com.cornellappdev.android.volume.FlyerByIDQuery
 import com.cornellappdev.android.volume.FlyersAfterDateQuery
@@ -174,6 +175,7 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     suspend fun fetchFlyerById(id: String): ApolloResponse<FlyerByIDQuery.Data> =
         apolloClient.query(FlyerByIDQuery(id = id)).execute()
 
+
     /**
      * Function to mutate a Flyer.
      * Takes the intended Flyer object, an imageUri for a new image for the flyer,
@@ -184,7 +186,7 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
      * @param isUpdating whether the Flyer should be created or updated
      * @return boolean that represents whether the mutation was successful
      */
-    suspend fun mutateFlyer(
+    fun mutateFlyer(
         flyer: Flyer,
         imageUri: Uri?,
         context: Context,
@@ -195,13 +197,18 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         val formBody =
             createFlyerFormData(flyer, imageUri, isUpdating = isUpdating, context = context)
 
+        val expressEndpoint = BuildConfig.ENDPOINT.replace("/graphql", "")
+
         val request =
             Request.Builder()
-                .url(if (isUpdating) "${BuildConfig.ENDPOINT}/flyers/edit/" else "${BuildConfig.ENDPOINT}/flyers/")
+                .url(if (isUpdating) "$expressEndpoint/flyers/edit/" else "$expressEndpoint/flyers/")
                 .post(formBody)
                 .build()
 
         client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                Log.d("UPLOAD", "mutateFlyer: ${response.code}, ${response.body.toString()}")
+            }
             return response.isSuccessful
         }
     }
@@ -225,8 +232,12 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
             if (!isUpdating) {
                 // Assert that the image URI is non-null if they are creating a new Flyer
                 imageUri!!
+            } else {
+                // If we are updating a flyer we need to know the id of the flyer we should update
                 assert(flyer.id.isNotBlank())
+                addFormDataPart("flyerID", flyer.id)
             }
+            val contentResolver = context.contentResolver
 
             addFormDataPart("categorySlug", flyer.categorySlug)
             addFormDataPart("endDate", flyer.endDate)
@@ -236,10 +247,17 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
             addFormDataPart("startDate", flyer.startDate)
             addFormDataPart("title", flyer.title)
             imageUri?.let {
-                val path = it.path!!
-                val type = context.contentResolver.getType(it)!!.toMediaType()
+                val type = contentResolver.getType(it)!!.toMediaType()
                 val filename = deriveFileName(it, context)!!
-                addFormDataPart("image", filename, File(path).asRequestBody(type))
+                val file = File(context.cacheDir, filename)
+
+                contentResolver.openInputStream(imageUri)?.use { input ->
+                    file.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+
+                addFormDataPart("image", filename, file.asRequestBody(type))
             }
 
             if (isUpdating) {
@@ -286,27 +304,8 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         )
     ).execute()
 
-    suspend fun createFlyer(
-        title: String,
-        startDate: String,
-        location: String,
-        flyerURL: String,
-        endDate: String,
-        categorySlug: String,
-        imageBase64: String,
-        organizationId: String,
-    ): ApolloResponse<CreateFlyerMutation.Data> = apolloClient.mutation(
-        CreateFlyerMutation(
-            title = title,
-            startDate = startDate,
-            organizationID = organizationId,
-            location = location,
-            imageB64 = imageBase64,
-            flyerURL = Optional.presentIfNotNull(flyerURL),
-            endDate = endDate,
-            categorySlug = categorySlug,
-        )
-    ).execute()
+    suspend fun deleteFlyer(id: String): ApolloResponse<DeleteFlyerMutation.Data> =
+        apolloClient.mutation(DeleteFlyerMutation(id)).execute()
 
     suspend fun getUser(uuid: String): ApolloResponse<GetUserQuery.Data> =
         apolloClient.query(GetUserQuery(uuid)).execute()

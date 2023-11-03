@@ -1153,3 +1153,31 @@ mutation createFlyer($title: String!, $startDate: String!, $organizationID: Stri
     }
 }
 
+mutation DeleteFlyer($id: String!){
+    deleteFlyer(id: $id){
+        id
+        categorySlug
+        endDate
+        flyerURL
+        imageURL
+        location
+        organization{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            clicks
+        }
+        organizationSlug
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+

@@ -34,6 +34,11 @@ class OrganizationsHomeViewModel @Inject constructor(
 
     val orgFlow = _orgFlow.asStateFlow()
 
+    private val _deletionResponseFlow: MutableStateFlow<ResponseState<Boolean>> =
+        MutableStateFlow(ResponseState.Loading)
+
+    val deletionResponseFlow = _deletionResponseFlow.asStateFlow()
+
     val currentFlyersFlow = orgFlyersFlow.map { apiResponse ->
         when (apiResponse) {
             ResponseState.Loading -> ResponseState.Loading
@@ -58,9 +63,7 @@ class OrganizationsHomeViewModel @Inject constructor(
 
     fun initViewModel(organizationSlug: String) = viewModelScope.launch {
         try {
-            _orgFlyersFlow.value =
-                ResponseState.Success(flyerRepository.fetchFlyersByOrganizationSlug(organizationSlug))
-            // Non-null assertion is ok because we are in try-catch
+            reloadFlyers(organizationSlug)
             _orgFlow.value = orgRepository.getOrganizationBySlug(organizationSlug)?.let {
                 ResponseState.Success(it)
             } ?: ResponseState.Error()
@@ -68,4 +71,28 @@ class OrganizationsHomeViewModel @Inject constructor(
             _orgFlyersFlow.value = ResponseState.Error()
         }
     }
+
+    fun deleteFlyer(flyerId: String) = viewModelScope.launch {
+        val response = flyerRepository.deleteFlyer(flyerId)
+        response.errors?.let {
+            if (it.isNotEmpty()) {
+                _deletionResponseFlow.value = ResponseState.Error(it)
+            }
+        }
+        response.data?.let {
+            _deletionResponseFlow.value = ResponseState.Success(true)
+            val currentOrganization = orgFlow.value
+            if (currentOrganization is ResponseState.Success) {
+                reloadFlyers(currentOrganization.data.slug)
+            }
+        }
+    }
+
+    private suspend fun reloadFlyers(organizationSlug: String) {
+        _orgFlyersFlow.value = ResponseState.Loading
+        _orgFlyersFlow.value =
+            ResponseState.Success(flyerRepository.fetchFlyersByOrganizationSlug(organizationSlug))
+    }
+
+
 }

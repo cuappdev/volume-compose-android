@@ -1,5 +1,7 @@
 package com.cornellappdev.android.volume.data.repositories
 
+import com.apollographql.apollo3.api.ApolloResponse
+import com.cornellappdev.android.volume.DeleteFlyerMutation
 import com.cornellappdev.android.volume.FlyerByIDQuery
 import com.cornellappdev.android.volume.FlyersAfterDateQuery
 import com.cornellappdev.android.volume.FlyersBeforeDateQuery
@@ -45,6 +47,9 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun fetchFlyersByOrganizationSlug(slug: String): List<Flyer> =
         networkApi.fetchFlyersByOrganizationSlug(slug).dataAssertNoErrors.mapDataToFlyers()
 
+    suspend fun deleteFlyer(id: String): ApolloResponse<DeleteFlyerMutation.Data> =
+        networkApi.deleteFlyer(id)
+
     /*
     Create and remove flyer operations send
      */
@@ -65,27 +70,6 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
                 categorySlug = flyer.categorySlug,
             )
         }
-
-    // Let this one directly go to the network API so it is easier to view errors
-    suspend fun createFlyer(
-        title: String,
-        startDate: String,
-        location: String,
-        flyerURL: String,
-        endDate: String,
-        categorySlug: String,
-        imageBase64: String,
-        organizationId: String,
-    ) = networkApi.createFlyer(
-        title,
-        startDate,
-        location,
-        flyerURL,
-        endDate,
-        categorySlug,
-        imageBase64,
-        organizationId
-    )
 
     private fun FlyerByIDQuery.Data.mapDataToFlyer(): Flyer {
         val flyerData = this.getFlyerByID!!

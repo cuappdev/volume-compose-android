@@ -2,6 +2,7 @@ package com.cornellappdev.android.volume.ui.viewmodels
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.volume.data.NetworkApi
@@ -11,6 +12,7 @@ import com.cornellappdev.android.volume.data.repositories.FlyerRepository
 import com.cornellappdev.android.volume.data.repositories.OrganizationRepository
 import com.cornellappdev.android.volume.ui.states.ResponseState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -60,9 +62,16 @@ class FlyerUploadViewModel @Inject constructor
     }
 
     fun uploadFlyer(flyer: Flyer, imageUri: Uri?, context: Context, isUpdating: Boolean) =
-        viewModelScope.launch {
-            val result = networkApi.mutateFlyer(flyer, imageUri, context, isUpdating = isUpdating)
-            _uploadResult.value =
-                if (result) ResponseState.Success(flyer) else ResponseState.Error()
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val result =
+                    networkApi.mutateFlyer(flyer, imageUri, context, isUpdating = isUpdating)
+                _uploadResult.value =
+                    if (result) ResponseState.Success(flyer) else ResponseState.Error()
+            } catch (e: Exception) {
+                Log.d("UPLOAD", "uploadFlyer: $e, ${e.stackTraceToString()}")
+                _uploadResult.value = ResponseState.Error()
+            }
+
         }
 }

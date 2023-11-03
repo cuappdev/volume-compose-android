@@ -425,7 +425,7 @@ private fun MainScreenNavigationConfigurations(
             val flyerId = entry.arguments?.getString("flyerId")
             FlyerUploadScreen(
                 organizationSlug = orgSlug ?: "",
-                onFlyerUploadSuccess = { navController.navigate(Routes.FLYER_SUCCESS.route) },
+                onFlyerUploadSuccess = { navController.navigate("${Routes.ORGANIZATION_HOME.route}/$orgSlug") },
                 editingFlyerId = flyerId
             )
         }
@@ -436,7 +436,7 @@ private fun MainScreenNavigationConfigurations(
             val flyerId: String? = entry.arguments?.getString("flyerId")
             FlyerUploadScreen(
                 organizationSlug = orgSlug ?: "",
-                onFlyerUploadSuccess = { navController.navigate(Routes.FLYER_SUCCESS.route) },
+                onFlyerUploadSuccess = { navController.navigate("${Routes.ORGANIZATION_HOME.route}/$orgSlug") },
                 editingFlyerId = flyerId
             )
         }
