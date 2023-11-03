@@ -15,7 +15,9 @@ fun deriveFileName(uri: Uri, context: Context): String? {
     if (cursor != null && cursor.moveToFirst()) {
         val colIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
         if (colIndex != -1) {
-            return cursor.getString(colIndex)
+            val filename = cursor.getString(colIndex)
+            cursor.close()
+            return filename
         }
         cursor.close()
     }
