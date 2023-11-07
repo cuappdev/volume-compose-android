@@ -32,8 +32,6 @@ class OrganizationsHomeViewModel @Inject constructor(
     private val _orgFlow: MutableStateFlow<ResponseState<Organization>> =
         MutableStateFlow(ResponseState.Loading)
 
-    val orgFlow = _orgFlow.asStateFlow()
-
     private val _deletionResponseFlow: MutableStateFlow<ResponseState<Boolean>> =
         MutableStateFlow(ResponseState.Loading)
 
@@ -81,7 +79,7 @@ class OrganizationsHomeViewModel @Inject constructor(
         }
         response.data?.let {
             _deletionResponseFlow.value = ResponseState.Success(true)
-            val currentOrganization = orgFlow.value
+            val currentOrganization = _orgFlow.value
             if (currentOrganization is ResponseState.Success) {
                 reloadFlyers(currentOrganization.data.slug)
             }
