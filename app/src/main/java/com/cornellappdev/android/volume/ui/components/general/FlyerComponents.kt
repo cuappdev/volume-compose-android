@@ -8,28 +8,37 @@ import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
@@ -149,6 +158,9 @@ fun SmallFlyer(
     flyer: Flyer,
     flyersViewModel: FlyersViewModel = hiltViewModel(),
     showTag: Boolean = !isExtraSmall,
+    showMenuIcon: Boolean = false,
+    onMenuIconClick: (() -> Unit)? = null,
+    clickAction: (() -> Unit)? = null,
 ) {
     val imageURL = flyer.imageURL
     val context = LocalContext.current
@@ -179,9 +191,13 @@ fun SmallFlyer(
         // For some reason image clickability only works when it's in a box in this case
         // This is the cover image
         Box(modifier = Modifier.clickable {
-            flyersViewModel.incrementTimesClicked(flyer.id)
+            if (clickAction == null) {
+                flyersViewModel.incrementTimesClicked(flyer.id)
 
-            onFlyerClick(flyer, flyersViewModel, openLinkLauncher)
+                onFlyerClick(flyer, flyersViewModel, openLinkLauncher)
+            } else {
+                clickAction()
+            }
         }) {
             AsyncImage(
                 model = flyer.imageURL,
@@ -200,7 +216,8 @@ fun SmallFlyer(
                 iconSize = 20.dp,
                 url = flyer.flyerURL ?: flyer.organization.websiteURL,
                 context = LocalContext.current,
-                flyerId = flyer.id
+                flyerId = flyer.id,
+                onMenuItemClick = onMenuIconClick,
             )
             // Flyer title
             Text(
@@ -276,6 +293,7 @@ fun OrganizationAndIconsRow(
     url: String,
     context: Context,
     flyerId: String,
+    onMenuItemClick: (() -> Unit)? = null,
     flyersViewModel: FlyersViewModel = hiltViewModel(),
 ) {
     var isBookmarked by remember { mutableStateOf(false) }
@@ -306,32 +324,54 @@ fun OrganizationAndIconsRow(
         )
         Spacer(modifier = Modifier.weight(1F))
         // Bookmark icon
-        Image(
-            painter = painterResource(
-                id =
-                if (isBookmarked) R.drawable.ic_bookmark_orange_filled
-                else R.drawable.ic_bookmark_orange_empty
-            ),
-            contentDescription = null,
-            modifier = Modifier
-                .size(iconSize)
-                .clickable {
-                    if (isBookmarked) flyersViewModel.removeBookmarkedFlyer(flyerId)
-                    else flyersViewModel.addBookmarkedFlyer(flyerId)
-                    isBookmarked = !isBookmarked
+        if (onMenuItemClick != null) {
+            @Composable
+            fun Circle() {
+                Box(
+                    Modifier
+                        .border(
+                            BorderStroke(width = 0.dp, color = Color.Transparent),
+                            shape = CircleShape
+                        )
+                        .background(Color(0xFF6B6B6B))
+                        .requiredSize(3.dp)
+                )
+            }
+            Row(modifier = Modifier.clickable {
+                onMenuItemClick()
+            }, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                repeat(3) {
+                    Circle()
                 }
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        // Share icon
-        Icon(
-            painter = painterResource(id = R.drawable.ic_share_black),
-            contentDescription = null,
-            modifier = Modifier
-                .size(iconSize)
-                .clickable {
-                    shareFlyer(context = context, url = url)
-                },
-        )
+            }
+        } else {
+            Image(
+                painter = painterResource(
+                    id =
+                    if (isBookmarked) R.drawable.ic_bookmark_orange_filled
+                    else R.drawable.ic_bookmark_orange_empty
+                ),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(iconSize)
+                    .clickable {
+                        if (isBookmarked) flyersViewModel.removeBookmarkedFlyer(flyerId)
+                        else flyersViewModel.addBookmarkedFlyer(flyerId)
+                        isBookmarked = !isBookmarked
+                    }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            // Share icon
+            Icon(
+                painter = painterResource(id = R.drawable.ic_share_black),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(iconSize)
+                    .clickable {
+                        shareFlyer(context = context, url = url)
+                    },
+            )
+        }
     }
 }
 
@@ -349,6 +389,48 @@ fun IconTextRow(text: String, iconId: Int, modifier: Modifier = Modifier) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+/**
+ * Creates a Flyer with a context dropdown for editing and removing the Flyer.
+ * Used for the Organizations home screen, and should only be viewable by organiztions.
+ */
+@Composable
+fun FlyerWithContextDropdown(flyer: Flyer, onEditClick: () -> Unit, onRemoveClick: () -> Unit) {
+    var contextDropdownShowing by remember { mutableStateOf(false) }
+    Box(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.TopEnd
+    ) {
+        Box {
+            SmallFlyer(
+                isExtraSmall = false,
+                flyer = flyer,
+                onMenuIconClick = {
+                    contextDropdownShowing = true
+                },
+                clickAction = onEditClick
+            )
+        }
+        Box {
+            DropdownMenu(
+                expanded = contextDropdownShowing,
+                onDismissRequest = { contextDropdownShowing = false },
+                modifier = Modifier
+                    .align(Alignment.TopEnd),  // Add this line
+            ) {
+                DropdownMenuItem(
+                    text = { Text(text = "Edit Flyer") },
+                    onClick = { onEditClick() }
+                )
+                DropdownMenuItem(
+                    text = { Text(text = "Remove Flyer") },
+                    onClick = { onRemoveClick() }
+                )
+            }
+        }
     }
 }
 

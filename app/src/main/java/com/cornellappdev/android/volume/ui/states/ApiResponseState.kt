@@ -5,7 +5,7 @@ package com.cornellappdev.android.volume.ui.states
  */
 sealed class ResponseState<out T> {
     object Loading : ResponseState<Nothing>()
-    data class Error(val errors: List<com.apollographql.apollo3.api.Error>) :
+    data class Error(val errors: List<com.apollographql.apollo3.api.Error> = listOf()) :
         ResponseState<Nothing>()
 
     data class Success<T>(val data: T) : ResponseState<T>()

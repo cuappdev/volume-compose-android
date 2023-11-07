@@ -30,7 +30,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,6 +48,9 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.FlyersViewModel
 import com.cornellappdev.android.volume.util.FlyerConstants
+
+private const val NO_FLYERS_MESSAGE =
+    "If you want to see your organization's events on Volume, email us at volumeappdev@gmail.com"
 
 @Composable
 fun FlyersScreen(
@@ -70,8 +72,7 @@ fun FlyersScreen(
     }
     var expanded by remember { mutableStateOf(false) }
     val uiState = flyersViewModel.flyersUiState
-    val NO_FLYERS_MESSAGE =
-        "If you want to see your organization's events on Volume, email us at volumeappdev@gmail.com"
+
 
     LazyColumn(modifier = Modifier.padding(start = 16.dp)) {
         // Page title
@@ -353,27 +354,5 @@ fun FlyersScreen(
                 modifier = Modifier.padding(bottom = 141.dp)
             )
         }
-    }
-}
-
-@Composable
-fun NoMoreText(text: String) {
-    Row {
-        Spacer(modifier = Modifier.weight(1f))
-        Column(modifier = Modifier.width(219.dp)) {
-            Text(
-                text = text,
-                fontSize = 18.sp,
-                fontFamily = notoserif,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "If you want to see your organization’s events on Volume, email us at volumeappdev@gmail.com",
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center
-            )
-        }
-        Spacer(modifier = Modifier.weight(1f))
     }
 }

@@ -1,5 +1,7 @@
 package com.cornellappdev.android.volume.data
 
+import android.content.Context
+import android.net.Uri
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
@@ -12,14 +14,17 @@ import com.cornellappdev.android.volume.ArticlesByIDsQuery
 import com.cornellappdev.android.volume.ArticlesByPublicationSlugQuery
 import com.cornellappdev.android.volume.ArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.BookmarkArticleMutation
+import com.cornellappdev.android.volume.BuildConfig
 import com.cornellappdev.android.volume.CheckAccessCodeQuery
-import com.cornellappdev.android.volume.CreateFlyerMutation
 import com.cornellappdev.android.volume.CreateUserMutation
+import com.cornellappdev.android.volume.DeleteFlyerMutation
 import com.cornellappdev.android.volume.FeaturedMagazinesQuery
+import com.cornellappdev.android.volume.FlyerByIDQuery
 import com.cornellappdev.android.volume.FlyersAfterDateQuery
 import com.cornellappdev.android.volume.FlyersBeforeDateQuery
 import com.cornellappdev.android.volume.FlyersByCategorySlugQuery
 import com.cornellappdev.android.volume.FlyersByIDsQuery
+import com.cornellappdev.android.volume.FlyersByOrganizationSlugQuery
 import com.cornellappdev.android.volume.FollowPublicationMutation
 import com.cornellappdev.android.volume.GetUserQuery
 import com.cornellappdev.android.volume.IncrementMagazineShoutoutsMutation
@@ -29,7 +34,7 @@ import com.cornellappdev.android.volume.MagazineByIdQuery
 import com.cornellappdev.android.volume.MagazinesByIDsQuery
 import com.cornellappdev.android.volume.MagazinesByPublicationSlugQuery
 import com.cornellappdev.android.volume.MagazinesBySemesterQuery
-import com.cornellappdev.android.volume.OrganizationsByCategoryQuery
+import com.cornellappdev.android.volume.OrganizationBySlugQuery
 import com.cornellappdev.android.volume.OrganizationsByIdQuery
 import com.cornellappdev.android.volume.PublicationBySlugQuery
 import com.cornellappdev.android.volume.ReadArticleMutation
@@ -40,6 +45,14 @@ import com.cornellappdev.android.volume.ShuffledArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.TrendingArticlesQuery
 import com.cornellappdev.android.volume.TrendingFlyersQuery
 import com.cornellappdev.android.volume.UnfollowPublicationMutation
+import com.cornellappdev.android.volume.data.models.Flyer
+import com.cornellappdev.android.volume.util.deriveFileName
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -149,11 +162,105 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         apolloClient.query(FlyersByCategorySlugQuery(categorySlug = slug))
             .execute()
 
-    suspend fun fetchOrganizationsByCategory(category: String): ApolloResponse<OrganizationsByCategoryQuery.Data> =
-        apolloClient.query(OrganizationsByCategoryQuery(categorySlug = category)).execute()
+    suspend fun fetchFlyersByOrganizationSlug(slug: String): ApolloResponse<FlyersByOrganizationSlugQuery.Data> =
+        apolloClient.query(FlyersByOrganizationSlugQuery(slug = slug)).execute()
+
+    suspend fun fetchOrganizationBySlug(slug: String): ApolloResponse<OrganizationBySlugQuery.Data> =
+        apolloClient.query(OrganizationBySlugQuery(slug = slug)).execute()
 
     suspend fun fetchOrganizationById(id: String): ApolloResponse<OrganizationsByIdQuery.Data> =
         apolloClient.query(OrganizationsByIdQuery(id = id)).execute()
+
+    suspend fun fetchFlyerById(id: String): ApolloResponse<FlyerByIDQuery.Data> =
+        apolloClient.query(FlyerByIDQuery(id = id)).execute()
+
+
+    /**
+     * Function to mutate a Flyer.
+     * Takes the intended Flyer object, an imageUri for a new image for the flyer,
+     * @param flyer the flyer to send to the backend
+     * @param imageUri the image URI to use to update the flyer
+     * @param context application context
+     * @param organizationId the id of the organization uploading the flyer
+     * @param isUpdating whether the Flyer should be created or updated
+     * @return boolean that represents whether the mutation was successful
+     */
+    fun mutateFlyer(
+        flyer: Flyer,
+        imageUri: Uri?,
+        context: Context,
+        isUpdating: Boolean,
+    ): Boolean {
+        val client = OkHttpClient()
+
+        val formBody =
+            createFlyerFormData(flyer, imageUri, isUpdating = isUpdating, context = context)
+
+        val expressEndpoint = BuildConfig.ENDPOINT.replace("/graphql", "")
+
+        val request =
+            Request.Builder()
+                .url(if (isUpdating) "$expressEndpoint/flyers/edit/" else "$expressEndpoint/flyers/")
+                .post(formBody)
+                .build()
+
+        client.newCall(request).execute().use { response ->
+            return response.isSuccessful
+        }
+    }
+
+    /**
+     * Returns a MultipartBody for form data requests based on provided flyer
+     * As with other functions in NetworkApi, this function is unsafe and should only be used in
+     * a try-catch statement.
+     */
+    private fun createFlyerFormData(
+        flyer: Flyer,
+        imageUri: Uri?,
+        isUpdating: Boolean,
+        context: Context,
+    ) =
+        MultipartBody.Builder().apply {
+            setType(MultipartBody.FORM)
+
+            // Using a non-null assertions since all of the following has to be non-null for the upload to succeed.
+            // Also this method will only be called by network API which should be put in try catch
+            if (!isUpdating) {
+                // Assert that the image URI is non-null if they are creating a new Flyer
+                imageUri!!
+            } else {
+                // If we are updating a flyer we need to know the id of the flyer we should update
+                assert(flyer.id.isNotBlank())
+                addFormDataPart("flyerID", flyer.id)
+            }
+            val contentResolver = context.contentResolver
+
+            addFormDataPart("categorySlug", flyer.categorySlug)
+            addFormDataPart("endDate", flyer.endDate)
+            addFormDataPart("flyerURL", flyer.flyerURL ?: flyer.organization.websiteURL)
+            addFormDataPart("location", flyer.location)
+            addFormDataPart("organizationID", flyer.organization.id)
+            addFormDataPart("startDate", flyer.startDate)
+            addFormDataPart("title", flyer.title)
+            imageUri?.let {
+                val type = contentResolver.getType(it)!!.toMediaType()
+                val filename = deriveFileName(it, context)!!
+                val file = File(context.cacheDir, filename)
+
+                contentResolver.openInputStream(imageUri)?.use { input ->
+                    file.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+
+                addFormDataPart("image", filename, file.asRequestBody(type))
+            }
+
+            if (isUpdating) {
+                addFormDataPart("id", flyer.id)
+            }
+        }.build()
+
 
     suspend fun incrementShoutout(
         id: String,
@@ -193,27 +300,8 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         )
     ).execute()
 
-    suspend fun createFlyer(
-        title: String,
-        startDate: String,
-        location: String,
-        flyerURL: String,
-        endDate: String,
-        categorySlug: String,
-        imageBase64: String,
-        organizationId: String,
-    ): ApolloResponse<CreateFlyerMutation.Data> = apolloClient.mutation(
-        CreateFlyerMutation(
-            title = title,
-            startDate = startDate,
-            organizationID = organizationId,
-            location = location,
-            imageB64 = imageBase64,
-            flyerURL = Optional.presentIfNotNull(flyerURL),
-            endDate = endDate,
-            categorySlug = categorySlug,
-        )
-    ).execute()
+    suspend fun deleteFlyer(id: String): ApolloResponse<DeleteFlyerMutation.Data> =
+        apolloClient.mutation(DeleteFlyerMutation(id)).execute()
 
     suspend fun getUser(uuid: String): ApolloResponse<GetUserQuery.Data> =
         apolloClient.query(GetUserQuery(uuid)).execute()

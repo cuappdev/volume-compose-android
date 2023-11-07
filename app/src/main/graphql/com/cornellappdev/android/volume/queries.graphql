@@ -794,6 +794,62 @@ query FlyersByCategorySlug($offset: Float, $limit: Float, $categorySlug: String!
     }
 }
 
+query FlyersByOrganizationId($offset: Float, $limit: Float, $organizationId: String!){
+    getFlyersByOrganizationID(offset: $offset, limit: $limit, organizationID: $organizationId){
+        id
+        categorySlug
+        endDate
+        flyerURL
+        imageURL
+        location
+        organization{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            clicks
+        }
+        organizationSlug
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
+query FlyersByOrganizationSlug($offset: Float, $limit: Float, $slug: String!){
+    getFlyersByOrganizationSlug(offset: $offset, limit: $limit, slug: $slug){
+        id
+        categorySlug
+        endDate
+        flyerURL
+        imageURL
+        location
+        organization{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            clicks
+        }
+        organizationSlug
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
 query OrganizationsByCategory($categorySlug: String!){
     getOrganizationsByCategory(categorySlug: $categorySlug){
         id
@@ -810,6 +866,21 @@ query OrganizationsByCategory($categorySlug: String!){
 }
 query OrganizationsById($id: String!){
     getOrganizationByID(id: $id){
+        id
+        backgroundImageURL
+        bio
+        categorySlug
+        name
+        profileImageURL
+        slug
+        shoutouts
+        websiteURL
+        clicks
+    }
+}
+
+query OrganizationBySlug($slug: String!) {
+    getOrganizationBySlug(slug: $slug) {
         id
         backgroundImageURL
         bio
@@ -1056,6 +1127,34 @@ mutation BookmarkArticle($uuid: String!) {
 
 mutation createFlyer($title: String!, $startDate: String!, $organizationID: String!, $location: String!, $imageB64: String!, $flyerURL: String, $endDate: String!, $categorySlug: String!){
     createFlyer(title: $title, startDate: $startDate, organizationID: $organizationID, location: $location, imageB64: $imageB64, flyerURL: $flyerURL, endDate: $endDate, categorySlug: $categorySlug){
+        id
+        categorySlug
+        endDate
+        flyerURL
+        imageURL
+        location
+        organization{
+            id
+            backgroundImageURL
+            bio
+            categorySlug
+            name
+            profileImageURL
+            slug
+            shoutouts
+            websiteURL
+            clicks
+        }
+        organizationSlug
+        startDate
+        timesClicked
+        title
+        trendiness
+    }
+}
+
+mutation DeleteFlyer($id: String!){
+    deleteFlyer(id: $id){
         id
         categorySlug
         endDate

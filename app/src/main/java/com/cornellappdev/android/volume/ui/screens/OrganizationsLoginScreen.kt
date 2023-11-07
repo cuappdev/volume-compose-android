@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Checkbox
 import androidx.compose.material.CheckboxDefaults
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -37,7 +36,6 @@ import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.OrganizationLoginViewModel
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OrganizationsLoginScreen(
     onSuccessfulLogin: (orgId: String) -> Unit,
@@ -132,7 +130,7 @@ fun OrganizationsLoginScreen(
         when (val res =
             organizationLoginViewModel.organizationsLoginUiState.checkAccessCodeResult) {
             is ResponseState.Success -> {
-                onSuccessfulLogin(res.data.id)
+                onSuccessfulLogin(res.data.slug)
             }
 
             is ResponseState.Error -> {

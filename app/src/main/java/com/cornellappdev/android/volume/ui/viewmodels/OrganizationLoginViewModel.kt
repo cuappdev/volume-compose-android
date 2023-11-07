@@ -59,7 +59,8 @@ class OrganizationLoginViewModel @Inject constructor
                             name = it.name,
                             categorySlug = it.categorySlug,
                             websiteURL = it.websiteURL,
-                            id = it.id
+                            id = it.id,
+                            slug = it.slug
                         )
                     )
                 )

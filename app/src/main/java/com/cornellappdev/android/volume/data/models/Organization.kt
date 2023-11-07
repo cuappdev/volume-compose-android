@@ -7,6 +7,7 @@ data class Organization(
     val websiteURL: String,
     val backgroundImageURL: String? = null,
     val bio: String? = null,
+    val slug: String,
 )
 
 val organizationTypes = listOf(

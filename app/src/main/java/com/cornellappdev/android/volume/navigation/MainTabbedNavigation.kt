@@ -404,13 +404,41 @@ private fun MainScreenNavigationConfigurations(
                     animationSpec = tween(durationMillis = 1000)
                 )
             }) {
-            OrganizationsLoginScreen({ navController.navigate("${Routes.UPLOAD_FLYER.route}/$it") })
+            OrganizationsLoginScreen({ navController.navigate("${Routes.ORGANIZATION_HOME.route}/$it") })
         }
-        composable(route = "${Routes.UPLOAD_FLYER.route}/{organizationId}") { entry ->
-            val orgId = entry.arguments?.getString("organizationId")
+        composable(route = "${Routes.ORGANIZATION_HOME.route}/{organizationSlug}") { entry ->
+            val orgSlug = entry.arguments?.getString("organizationSlug")
+            OrganizationHome(
+                organizationSlug = orgSlug ?: "",
+                onFlyerUploadClicked = { navController.navigate("${Routes.UPLOAD_FLYER.route}/$orgSlug") },
+                onFlyerEditClicked = { flyerId ->
+                    navController.navigate(
+                        "${Routes.UPLOAD_FLYER.route}/$orgSlug/$flyerId"
+                    )
+                }
+            )
+        }
+        composable(
+            route = "${Routes.UPLOAD_FLYER.route}/{organizationSlug}/{flyerId}",
+        ) { entry ->
+            val orgSlug = entry.arguments?.getString("organizationSlug")
+            val flyerId = entry.arguments?.getString("flyerId")
             FlyerUploadScreen(
-                organizationId = orgId ?: "",
-                onFlyerUploadSuccess = { navController.navigate(Routes.FLYER_SUCCESS.route) })
+                organizationSlug = orgSlug ?: "",
+                onFlyerUploadSuccess = { navController.navigate("${Routes.ORGANIZATION_HOME.route}/$orgSlug") },
+                editingFlyerId = flyerId
+            )
+        }
+        composable(
+            route = "${Routes.UPLOAD_FLYER.route}/{organizationSlug}",
+        ) { entry ->
+            val orgSlug = entry.arguments?.getString("organizationSlug")
+            val flyerId: String? = entry.arguments?.getString("flyerId")
+            FlyerUploadScreen(
+                organizationSlug = orgSlug ?: "",
+                onFlyerUploadSuccess = { navController.navigate("${Routes.ORGANIZATION_HOME.route}/$orgSlug") },
+                editingFlyerId = flyerId
+            )
         }
         composable(route = Routes.FLYER_SUCCESS.route, enterTransition = {
             fadeIn(

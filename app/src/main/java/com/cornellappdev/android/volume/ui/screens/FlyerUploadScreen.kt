@@ -1,13 +1,9 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.net.Uri
-import android.provider.OpenableColumns
-import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Icon
@@ -28,15 +22,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -44,7 +39,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.android.volume.data.models.Flyer
 import com.cornellappdev.android.volume.ui.components.general.ErrorMessage
+import com.cornellappdev.android.volume.ui.components.general.OutlinedVolumeButton
 import com.cornellappdev.android.volume.ui.components.general.VolumeButton
 import com.cornellappdev.android.volume.ui.components.general.VolumeInputContainer
 import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
@@ -57,6 +54,7 @@ import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.FlyerUploadViewModel
 import com.cornellappdev.android.volume.util.FlyerConstants
+import com.cornellappdev.android.volume.util.deriveFileName
 import com.cornellappdev.android.volume.util.letIfAllNotNull
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.DatePickerDefaults
@@ -74,13 +72,16 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun FlyerUploadScreen(
-    organizationId: String,
+    organizationSlug: String,
     onFlyerUploadSuccess: () -> Unit,
     flyerUploadViewModel: FlyerUploadViewModel = hiltViewModel(),
+    editingFlyerId: String? = null,
 ) {
     val context = LocalContext.current
 
-    var flyerName by remember { mutableStateOf("") }
+    val isEditing = editingFlyerId != null
+
+    var flyerTitle by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var redirectLink: String by remember { mutableStateOf("") }
     var startDate: LocalDate? by remember { mutableStateOf(null) }
@@ -95,15 +96,43 @@ fun FlyerUploadScreen(
     var uploadEnabled by remember { mutableStateOf(false) }
     var hasTriedUpload by remember { mutableStateOf(false) }
 
-    // Start by getting info about their organization
+    // Start by getting info about their organization and potentially the Flyer if they are editing
     LaunchedEffect(key1 = "launch") {
-        flyerUploadViewModel.getOrganization(organizationId)
+        flyerUploadViewModel.initViewModel(
+            organizationSlug = organizationSlug,
+            flyerId = editingFlyerId,
+        )
     }
+
+    val organization = flyerUploadViewModel.orgFlow.collectAsState().value
+    val flyer = flyerUploadViewModel.flyerFlow.collectAsState().value
+    val uploadResult = flyerUploadViewModel.uploadResultFlow.collectAsState().value
+
+    DisposableEffect(key1 = flyer, effect = {
+        if (flyer is ResponseState.Success) {
+            val flyerData = flyer.data
+            flyerTitle = flyerData.title
+            location = flyerData.location
+            redirectLink = flyerData.flyerURL ?: ""
+            startDate = flyerData.startDateTime.toLocalDate()
+            endDate = flyerData.endDateTime.toLocalDate()
+            startTime = flyerData.startDateTime.toLocalTime()
+            endTime = flyerData.endDateTime.toLocalTime()
+            flyerCategory = flyerData.categorySlug
+
+            val tags = FlyerConstants.CATEGORY_SLUGS.split(",")
+            val displayedCategory = FlyerConstants.FORMATTED_TAGS.firstOrNull { s ->
+                s.replace(" ", "").replaceFirstChar { it.lowercase() } == flyerData.categorySlug
+            }
+            flyerCategory = displayedCategory ?: "Error retrieving category, select again"
+        }
+        onDispose { }
+    })
 
     // Effect to update whether button is enabled based on form values
     DisposableEffect(
         key1 = arrayOf(
-            flyerName,
+            flyerTitle,
             location,
             redirectLink,
             startDate,
@@ -118,19 +147,23 @@ fun FlyerUploadScreen(
             val (st, et) = times
             letIfAllNotNull(startDate, endDate) { dates ->
                 val (sd, ed) = dates
-                hasTimeError = LocalDateTime.of(ed, et) < LocalDateTime.of(sd, st)
+                hasTimeError =
+                    LocalDateTime.of(ed, et) < LocalDateTime.of(sd, st) ||
+                            (LocalDateTime.of(sd, st) < LocalDateTime.now() && !isEditing)
             }
             st
         }
 
-        uploadEnabled = flyerName.isNotBlank() &&
+        uploadEnabled = flyerTitle.isNotBlank() &&
                 location.isNotBlank() &&
                 startDate != null &&
                 endDate != null &&
                 startTime != null &&
                 endTime != null &&
-                flyerImageUri != null &&
+                // either an image is required or your editing in which case we can have original
+                (flyerImageUri != null || isEditing) &&
                 flyerCategory.isNotBlank() &&
+                flyerCategory != "Error retrieving category, select again" &&
                 !hasTimeError
 
         onDispose { }
@@ -154,18 +187,8 @@ fun FlyerUploadScreen(
 
     // Effect to update image upload text based on flyer name
     DisposableEffect(key1 = flyerImageUri, effect = {
-        val contentResolver = context.contentResolver
         flyerImageUri?.let { uri ->
-            val cursor = contentResolver.query(uri, null, null, null, null)
-            if (cursor != null && cursor.moveToFirst()) {
-                val colIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (colIndex != -1) {
-                    val displayName = cursor.getString(colIndex)
-                    fileName = displayName
-                }
-                cursor.close()
-            }
-            cursor?.close()
+            fileName = deriveFileName(uri, context)
         }
         onDispose { }
     })
@@ -244,35 +267,46 @@ fun FlyerUploadScreen(
     fun onUploadClick() {
         hasTriedUpload = true
         try {
-            val bytes =
-                flyerImageUri?.let {
-                    context.contentResolver.openInputStream(it)?.readBytes()
+            if (!isEditing) {
+                val bytes =
+                    flyerImageUri?.let {
+                        context.contentResolver.openInputStream(it)?.readBytes()
+                    }
+                if (bytes == null) {
+                    currentErrorMessage = "Failed to upload flyer."
+                    flyerUploadViewModel.errorFlyerUpload()
+                    return
                 }
-            if (bytes == null) {
-                currentErrorMessage = "Failed to upload flyer."
-                flyerUploadViewModel.error()
-            } else if (bytes.size >= (50000000)) {
-                currentErrorMessage =
-                    "Image too large, please use a lower quality image."
-                flyerUploadViewModel.error()
-            } else {
-                letIfAllNotNull(startDate, endDate) { (sd, ed) ->
-                    letIfAllNotNull(startTime, endTime) { (st, et) ->
-                        val startDateString =
-                            LocalDateTime.of(sd, st).atZone(ZoneId.systemDefault())
-                                .format(
-                                    DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                )
+                if (bytes.size >= (15_000_000)) {
+                    currentErrorMessage =
+                        "Image too large, please use a lower quality image."
+                    flyerUploadViewModel.errorFlyerUpload()
+                    return
+                }
+            }
 
-                        val endDateString =
-                            LocalDateTime.of(ed, et)
-                                .atZone(ZoneOffset.systemDefault())
-                                .format(
-                                    DateTimeFormatter.ISO_OFFSET_DATE_TIME
-                                )
+            if (organization !is ResponseState.Success) {
+                currentErrorMessage = "Error fetching organization"
+                return
+            }
+            letIfAllNotNull(startDate, endDate) { (sd, ed) ->
+                letIfAllNotNull(startTime, endTime) { (st, et) ->
+                    val startDateString =
+                        LocalDateTime.of(sd, st).atZone(ZoneId.systemDefault())
+                            .format(
+                                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                            )
 
-                        flyerUploadViewModel.uploadFlyer(
-                            title = flyerName,
+                    val endDateString =
+                        LocalDateTime.of(ed, et)
+                            .atZone(ZoneOffset.systemDefault())
+                            .format(
+                                DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                            )
+
+                    flyerUploadViewModel.uploadFlyer(
+                        Flyer(
+                            title = flyerTitle,
                             startDate = startDateString,
                             location = location,
                             flyerURL = if (redirectLink.isBlank()) "" else (if (redirectLink.startsWith(
@@ -282,18 +316,20 @@ fun FlyerUploadScreen(
                             endDate = endDateString,
                             categorySlug = flyerCategory.replace(" ", "")
                                 .replaceFirstChar { c -> c.lowercase() },
-                            imageBase64 = Base64.encodeToString(
-                                bytes,
-                                Base64.DEFAULT
-                            ),
-                            organizationId = organizationId
-                        )
-                    }
-                    sd
+                            organization = organization.data,
+                            id = editingFlyerId ?: "",
+                            imageURL = ""
+                        ),
+                        context = context,
+                        // If we are uploading a new flyer the image URI must not be null
+                        imageUri = if (!isEditing) flyerImageUri!! else flyerImageUri,
+                        isUpdating = isEditing
+                    )
                 }
+                sd
             }
-        } catch (ignored: Exception) {
-            flyerUploadViewModel.error()
+        } catch (e: Exception) {
+            flyerUploadViewModel.errorFlyerUpload()
         }
     }
 
@@ -318,8 +354,7 @@ fun FlyerUploadScreen(
         // Organization name
         Column(modifier = Modifier.padding(top = 14.dp)) {
             Text(text = "Organization", fontFamily = notoserif, fontSize = 16.sp, color = GrayFive)
-            when (val organization =
-                flyerUploadViewModel.uploadFlyerUiState.organizationInfoResult) {
+            when (organization) {
                 is ResponseState.Success -> {
                     Text(text = organization.data.name, fontSize = 24.sp, fontFamily = notoserif)
                 }
@@ -334,13 +369,28 @@ fun FlyerUploadScreen(
             }
         }
 
+        // Allow the user to delete their flyer if the user is editing
+        if (isEditing) {
+            OutlinedVolumeButton(
+                text = "Remove Flyer",
+                onClick = { /* TODO */ },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = "Removal icon",
+                    tint = VolumeOrange
+                )
+            }
+        }
+
         // Flyer name input
         Column {
             Text(text = "Flyer Name", fontFamily = notoserif, fontSize = 16.sp, color = GrayFive)
             Spacer(Modifier.height(8.dp))
             VolumeTextField(
-                value = flyerName,
-                onValueChange = { flyerName = it },
+                value = flyerTitle,
+                onValueChange = { flyerTitle = it },
                 modifier = Modifier.height(48.dp)
             )
         }
@@ -394,7 +444,11 @@ fun FlyerUploadScreen(
             }
             Spacer(Modifier.height(8.dp))
             if (hasTimeError) {
-                ErrorMessage(message = "End time must be after start time.")
+                if (LocalDateTime.of(startDate, startTime) < LocalDateTime.now()) {
+                    ErrorMessage(message = "You can only post events that will happen in the future.")
+                } else {
+                    ErrorMessage(message = "End time must be after start time.")
+                }
             }
         }
 
@@ -482,47 +536,34 @@ fun FlyerUploadScreen(
         }
 
         // Upload image button
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(width = 1.dp, shape = RoundedCornerShape(4.dp), color = VolumeOrange)
-                .clickable {
-                    imagePickerLauncher.launch(
-                        PickVisualMediaRequest(
-                            mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
-                        )
-                    )
-                }
-                .padding(vertical = 12.dp, horizontal = 16.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        OutlinedVolumeButton(text = fileName ?: "Select an image...", onClick = {
+            imagePickerLauncher.launch(
+                PickVisualMediaRequest(
+                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+            )
+        }, icon = {
             Icon(
                 imageVector = Icons.Filled.CameraAlt,
                 contentDescription = "Camera",
                 tint = VolumeOrange,
                 modifier = Modifier.size(16.dp)
             )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                text = fileName ?: "Select an image...",
-                color = VolumeOrange,
-                fontFamily = lato
-            )
-        }
+        }, modifier = Modifier.fillMaxWidth())
+
         // Upload flyer button
         Column {
             VolumeButton(
-                text = "Upload Flyer",
+                text = if (isEditing) "Edit Flyer" else "Upload Flyer",
                 onClick = { onUploadClick() },
                 enabled = uploadEnabled,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(8.dp))
-            when (val res = flyerUploadViewModel.uploadFlyerUiState.uploadFlyerResult) {
+            when (uploadResult) {
                 is ResponseState.Error -> {
                     ErrorMessage(
-                        message = res.errors.firstOrNull()?.message ?: currentErrorMessage
+                        message = uploadResult.errors.firstOrNull()?.message ?: currentErrorMessage
                     )
                 }
 
