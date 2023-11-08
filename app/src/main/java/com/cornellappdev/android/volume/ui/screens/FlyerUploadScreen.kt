@@ -1,6 +1,7 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -73,7 +74,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun FlyerUploadScreen(
     organizationSlug: String,
-    onFlyerUploadSuccess: () -> Unit,
+    onFlyerChangeSuccess: () -> Unit,
     flyerUploadViewModel: FlyerUploadViewModel = hiltViewModel(),
     editingFlyerId: String? = null,
 ) {
@@ -107,6 +108,7 @@ fun FlyerUploadScreen(
     val organization = flyerUploadViewModel.orgFlow.collectAsState().value
     val flyer = flyerUploadViewModel.flyerFlow.collectAsState().value
     val uploadResult = flyerUploadViewModel.uploadResultFlow.collectAsState().value
+    val deleteResult = flyerUploadViewModel.deleteResultFlow.collectAsState().value
 
     DisposableEffect(key1 = flyer, effect = {
         if (flyer is ResponseState.Success) {
@@ -165,6 +167,21 @@ fun FlyerUploadScreen(
                 flyerCategory.isNotBlank() &&
                 flyerCategory != "Error retrieving category, select again" &&
                 !hasTimeError
+
+        onDispose { }
+    }
+
+    // Effect to navigate to the organizations home in the event of a successful deletion, display error otherwise
+    DisposableEffect(key1 = deleteResult) {
+        if (deleteResult is ResponseState.Success) {
+            onFlyerChangeSuccess()
+        } else if (deleteResult is ResponseState.Error) {
+            Toast.makeText(
+                context,
+                "Flyer deletion failed: ${deleteResult.errors.firstOrNull()?.message ?: "Unknown error"}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
 
         onDispose { }
     }
@@ -373,7 +390,7 @@ fun FlyerUploadScreen(
         if (isEditing) {
             OutlinedVolumeButton(
                 text = "Remove Flyer",
-                onClick = { /* TODO */ },
+                onClick = { flyerUploadViewModel.deleteFlyer(editingFlyerId ?: "") },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
@@ -568,7 +585,7 @@ fun FlyerUploadScreen(
                 }
 
                 is ResponseState.Success -> {
-                    onFlyerUploadSuccess()
+                    onFlyerChangeSuccess()
                 }
 
                 ResponseState.Loading -> {
