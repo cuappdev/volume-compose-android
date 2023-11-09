@@ -23,8 +23,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -93,6 +96,7 @@ fun FlyerUploadScreen(
     var flyerCategory: String by remember { mutableStateOf("") }
     var hasTimeError: Boolean by remember { mutableStateOf(false) }
     var currentErrorMessage: String by remember { mutableStateOf("Flyer upload failed") }
+    var alertDialogShowing: Boolean by remember { mutableStateOf(false) }
 
     var uploadEnabled by remember { mutableStateOf(false) }
     var hasTriedUpload by remember { mutableStateOf(false) }
@@ -280,6 +284,31 @@ fun FlyerUploadScreen(
         }
     }
 
+    // Dialog for delete confirmation
+    if (alertDialogShowing) {
+        AlertDialog(
+            onDismissRequest = { alertDialogShowing = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    alertDialogShowing = false
+                    flyerUploadViewModel.deleteFlyer(id = editingFlyerId ?: "")
+                }) {
+                    Text(text = "Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { alertDialogShowing = false }) {
+                    Text(text = "Dismiss")
+                }
+            },
+            title = { Text(text = "Remove Flyer?") },
+            icon = { Icon(imageVector = Icons.Outlined.Cancel, contentDescription = "Cancel") },
+            text = {
+                Text(text = "Removing a flyer will delete it from Volume’s feed, but you can always repost the flyer later.")
+            }
+        )
+    }
+
     // Set up upload functionality
     fun onUploadClick() {
         hasTriedUpload = true
@@ -390,7 +419,7 @@ fun FlyerUploadScreen(
         if (isEditing) {
             OutlinedVolumeButton(
                 text = "Remove Flyer",
-                onClick = { flyerUploadViewModel.deleteFlyer(editingFlyerId ?: "") },
+                onClick = { alertDialogShowing = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
