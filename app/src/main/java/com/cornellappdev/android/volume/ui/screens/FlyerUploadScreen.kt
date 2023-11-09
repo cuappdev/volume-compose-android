@@ -1,6 +1,7 @@
 package com.cornellappdev.android.volume.ui.screens
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,8 +23,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -73,7 +77,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun FlyerUploadScreen(
     organizationSlug: String,
-    onFlyerUploadSuccess: () -> Unit,
+    onFlyerChangeSuccess: () -> Unit,
     flyerUploadViewModel: FlyerUploadViewModel = hiltViewModel(),
     editingFlyerId: String? = null,
 ) {
@@ -92,6 +96,7 @@ fun FlyerUploadScreen(
     var flyerCategory: String by remember { mutableStateOf("") }
     var hasTimeError: Boolean by remember { mutableStateOf(false) }
     var currentErrorMessage: String by remember { mutableStateOf("Flyer upload failed") }
+    var alertDialogShowing: Boolean by remember { mutableStateOf(false) }
 
     var uploadEnabled by remember { mutableStateOf(false) }
     var hasTriedUpload by remember { mutableStateOf(false) }
@@ -107,6 +112,7 @@ fun FlyerUploadScreen(
     val organization = flyerUploadViewModel.orgFlow.collectAsState().value
     val flyer = flyerUploadViewModel.flyerFlow.collectAsState().value
     val uploadResult = flyerUploadViewModel.uploadResultFlow.collectAsState().value
+    val deleteResult = flyerUploadViewModel.deleteResultFlow.collectAsState().value
 
     DisposableEffect(key1 = flyer, effect = {
         if (flyer is ResponseState.Success) {
@@ -165,6 +171,21 @@ fun FlyerUploadScreen(
                 flyerCategory.isNotBlank() &&
                 flyerCategory != "Error retrieving category, select again" &&
                 !hasTimeError
+
+        onDispose { }
+    }
+
+    // Effect to navigate to the organizations home in the event of a successful deletion, display error otherwise
+    DisposableEffect(key1 = deleteResult) {
+        if (deleteResult is ResponseState.Success) {
+            onFlyerChangeSuccess()
+        } else if (deleteResult is ResponseState.Error) {
+            Toast.makeText(
+                context,
+                "Flyer deletion failed: ${deleteResult.errors.firstOrNull()?.message ?: "Unknown error"}",
+                Toast.LENGTH_LONG
+            ).show()
+        }
 
         onDispose { }
     }
@@ -261,6 +282,31 @@ fun FlyerUploadScreen(
         timepicker(colors = timePickerColors) { time: LocalTime ->
             endTime = time
         }
+    }
+
+    // Dialog for delete confirmation
+    if (alertDialogShowing) {
+        AlertDialog(
+            onDismissRequest = { alertDialogShowing = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    alertDialogShowing = false
+                    flyerUploadViewModel.deleteFlyer(id = editingFlyerId ?: "")
+                }) {
+                    Text(text = "Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { alertDialogShowing = false }) {
+                    Text(text = "Dismiss")
+                }
+            },
+            title = { Text(text = "Remove Flyer?") },
+            icon = { Icon(imageVector = Icons.Outlined.Cancel, contentDescription = "Cancel") },
+            text = {
+                Text(text = "Removing a flyer will delete it from Volume’s feed, but you can always repost the flyer later.")
+            }
+        )
     }
 
     // Set up upload functionality
@@ -373,7 +419,7 @@ fun FlyerUploadScreen(
         if (isEditing) {
             OutlinedVolumeButton(
                 text = "Remove Flyer",
-                onClick = { /* TODO */ },
+                onClick = { alertDialogShowing = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
@@ -568,7 +614,7 @@ fun FlyerUploadScreen(
                 }
 
                 is ResponseState.Success -> {
-                    onFlyerUploadSuccess()
+                    onFlyerChangeSuccess()
                 }
 
                 ResponseState.Loading -> {

@@ -36,6 +36,10 @@ class FlyerUploadViewModel @Inject constructor
         MutableStateFlow(ResponseState.Loading)
     val uploadResultFlow = _uploadResult.asStateFlow()
 
+    private val _deleteResult: MutableStateFlow<ResponseState<Boolean>> =
+        MutableStateFlow(ResponseState.Loading)
+    val deleteResultFlow = _deleteResult.asStateFlow()
+
     fun initViewModel(organizationSlug: String, flyerId: String?) = viewModelScope.launch {
         try {
             _orgFlow.value =
@@ -71,4 +75,19 @@ class FlyerUploadViewModel @Inject constructor
                 _uploadResult.value = ResponseState.Error()
             }
         }
+
+    fun deleteFlyer(id: String) = viewModelScope.launch {
+        try {
+            val response = networkApi.deleteFlyer(id)
+            val errors = response.errors
+            if (!errors.isNullOrEmpty()) {
+                _deleteResult.value = ResponseState.Error(errors)
+            } else {
+                response.dataAssertNoErrors
+                _deleteResult.value = ResponseState.Success(true)
+            }
+        } catch (_: Exception) {
+            _deleteResult.value = ResponseState.Error()
+        }
+    }
 }

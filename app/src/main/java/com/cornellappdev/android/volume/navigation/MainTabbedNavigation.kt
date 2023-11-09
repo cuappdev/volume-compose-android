@@ -408,7 +408,7 @@ private fun MainScreenNavigationConfigurations(
         }
         composable(route = "${Routes.ORGANIZATION_HOME.route}/{organizationSlug}") { entry ->
             val orgSlug = entry.arguments?.getString("organizationSlug")
-            OrganizationHome(
+            OrganizationHomeScreen(
                 organizationSlug = orgSlug ?: "",
                 onFlyerUploadClicked = { navController.navigate("${Routes.UPLOAD_FLYER.route}/$orgSlug") },
                 onFlyerEditClicked = { flyerId ->
@@ -425,7 +425,7 @@ private fun MainScreenNavigationConfigurations(
             val flyerId = entry.arguments?.getString("flyerId")
             FlyerUploadScreen(
                 organizationSlug = orgSlug ?: "",
-                onFlyerUploadSuccess = { navController.navigate("${Routes.ORGANIZATION_HOME.route}/$orgSlug") },
+                onFlyerChangeSuccess = { navController.navigate("${Routes.ORGANIZATION_HOME.route}/$orgSlug") },
                 editingFlyerId = flyerId
             )
         }
@@ -436,7 +436,7 @@ private fun MainScreenNavigationConfigurations(
             val flyerId: String? = entry.arguments?.getString("flyerId")
             FlyerUploadScreen(
                 organizationSlug = orgSlug ?: "",
-                onFlyerUploadSuccess = { navController.navigate("${Routes.ORGANIZATION_HOME.route}/$orgSlug") },
+                onFlyerChangeSuccess = { navController.navigate("${Routes.ORGANIZATION_HOME.route}/$orgSlug") },
                 editingFlyerId = flyerId
             )
         }

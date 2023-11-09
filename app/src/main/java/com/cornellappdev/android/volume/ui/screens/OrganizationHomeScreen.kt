@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.FlyerWithContextDropdown
+import com.cornellappdev.android.volume.ui.components.general.NothingToShowMessage
 import com.cornellappdev.android.volume.ui.components.general.ShimmeringFlyer
 import com.cornellappdev.android.volume.ui.states.ResponseState
 import com.cornellappdev.android.volume.ui.theme.VolumeOrange
@@ -48,7 +49,7 @@ import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.OrganizationsHomeViewModel
 
 @Composable
-fun OrganizationHome(
+fun OrganizationHomeScreen(
     organizationSlug: String,
     organizationsHomeViewModel: OrganizationsHomeViewModel = hiltViewModel(),
     onFlyerUploadClicked: () -> Unit,
@@ -162,7 +163,7 @@ fun OrganizationHome(
         // Tabbed Flyers view
         TabRow(
             selectedTabIndex = selectedTabIndex,
-            contentColor = Color.Black,
+            contentColor = VolumeOrange,
         ) {
             tabs.forEachIndexed { index, text ->
                 Tab(
@@ -205,15 +206,20 @@ fun OrganizationHome(
                         }
 
                         is ResponseState.Success -> {
+                            if (currentFlyers.data.isEmpty()) {
+                                item {
+                                    Spacer(Modifier.height(100.dp))
+                                    NothingToShowMessage(
+                                        title = "No current flyers",
+                                        message = "If you want to see your event here, upload a flyer"
+                                    )
+                                }
+                            }
                             items(currentFlyers.data) {
                                 FlyerWithContextDropdown(
                                     flyer = it,
                                     onEditClick = {
-                                        Toast.makeText(
-                                            context,
-                                            "Editing is coming soon!",
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                                        onFlyerEditClicked(it.id)
                                     },
                                     onRemoveClick = {
                                         mostRecentlyClickedFlyerId = it.id
@@ -241,6 +247,15 @@ fun OrganizationHome(
                         }
 
                         is ResponseState.Success -> {
+                            if (pastFlyers.data.isEmpty()) {
+                                item {
+                                    Spacer(Modifier.height(100.dp))
+                                    NothingToShowMessage(
+                                        title = "No past flyers",
+                                        message = "If you want to see your event here, upload a flyer"
+                                    )
+                                }
+                            }
                             items(pastFlyers.data) {
                                 FlyerWithContextDropdown(
                                     flyer = it,
