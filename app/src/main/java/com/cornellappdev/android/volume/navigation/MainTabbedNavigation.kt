@@ -214,6 +214,12 @@ private fun MainScreenNavigationConfigurations(
                 navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.INDIVIDUAL_PUBLICATION.route}")
             })
         }
+
+        // This route should be navigated with a valid organization slug, else the screen will not
+        // populate.
+        composable("${Routes.INDIVIDUAL_ORGANIZATION.route}/{organizationSlug}") {
+            IndividualOrganizationScreen()
+        }
         // This route should be navigated with a valid article id.
         composable(
             route = "${Routes.OPEN_ARTICLE.route}/{articleId}/{navigationSourceName}",
@@ -283,6 +289,9 @@ private fun MainScreenNavigationConfigurations(
                 },
                 onSearchClick = {
                     navController.navigate("${Routes.SEARCH.route}/$it")
+                },
+                onOrganizationClick = {
+                    TODO()
                 }
             )
         }

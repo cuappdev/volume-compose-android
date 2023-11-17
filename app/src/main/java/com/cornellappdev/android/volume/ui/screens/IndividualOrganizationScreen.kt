@@ -24,7 +24,6 @@ import java.time.LocalDateTime
 
 @Composable
 fun IndividualOrganizationScreen(
-    onFollowClicked: () -> Unit,
     individualOrganizationViewModel: IndividualOrganizationViewModel = hiltViewModel(),
 ) {
     val isFollowed = individualOrganizationViewModel.isFollowingFlow.collectAsState().value
@@ -67,7 +66,7 @@ fun IndividualOrganizationScreen(
                 item {
                     CreateIndividualPartnerHeading(
                         followButton = if (isFollowed is ResponseState.Success) isFollowed.data else false,
-                        followButtonClicked = { onFollowClicked() },
+                        followButtonClicked = { TODO() },
                         backgroundImageUrl = organization.backgroundImageURL,
                         profileImageURL = organization.profileImageURL,
                         partnerName = organization.name,
