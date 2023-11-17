@@ -1,9 +1,17 @@
 package com.cornellappdev.android.volume.ui.components.general
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,7 +21,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,9 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -34,16 +39,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.cornellappdev.android.volume.R
-import com.cornellappdev.android.volume.data.models.Publication
-import com.cornellappdev.android.volume.data.models.Social.Companion.formattedSocialNameMap
-import com.cornellappdev.android.volume.data.models.Social.Companion.socialLogoMap
-import com.cornellappdev.android.volume.ui.theme.*
+import com.cornellappdev.android.volume.data.models.Social
+import com.cornellappdev.android.volume.ui.theme.GrayOne
+import com.cornellappdev.android.volume.ui.theme.GrayThree
+import com.cornellappdev.android.volume.ui.theme.VolumeOrange
+import com.cornellappdev.android.volume.ui.theme.lato
+import com.cornellappdev.android.volume.ui.theme.notoserif
 
 @Composable
-fun CreateIndividualPublicationHeading(
-    publication: Publication,
+fun CreateIndividualPartnerHeading(
     followButton: Boolean,
     followButtonClicked: (Boolean) -> Unit,
+    backgroundImageUrl: String?,
+    profileImageURL: String?,
+    partnerName: String,
+    statsText: String,
+    bio: String?,
+    socials: List<Social>?,
+    websiteURL: String,
 ) {
     val hasBeenClicked = rememberSaveable { mutableStateOf(followButton) }
     Column(
@@ -53,7 +66,7 @@ fun CreateIndividualPublicationHeading(
     ) {
         Box {
             AsyncImage(
-                model = publication.backgroundImageURL,
+                model = backgroundImageUrl,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -61,7 +74,7 @@ fun CreateIndividualPublicationHeading(
             )
 
             AsyncImage(
-                model = publication.profileImageURL,
+                model = profileImageURL,
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.TopStart,
                 modifier = Modifier
@@ -86,7 +99,7 @@ fun CreateIndividualPublicationHeading(
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 20.dp),
-                    text = publication.name,
+                    text = partnerName,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     fontFamily = notoserif,
@@ -104,7 +117,7 @@ fun CreateIndividualPublicationHeading(
                     shape = RoundedCornerShape(5.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked.value) VolumeOrange else GrayThree),
                 ) {
-                    Crossfade(targetState = hasBeenClicked.value) { hasBeenClicked ->
+                    Crossfade(targetState = hasBeenClicked.value, label = "") { hasBeenClicked ->
                         if (hasBeenClicked) {
                             Text(
                                 text = "Following",
@@ -136,22 +149,23 @@ fun CreateIndividualPublicationHeading(
             }
 
             Text(
-                text = "${publication.numArticles.toInt()} articles · ${publication.shoutouts.toInt()} shoutouts",
+                text = statsText,
                 fontFamily = lato,
                 fontWeight = FontWeight.Medium,
                 fontSize = 10.sp,
                 color = GrayOne
             )
-
-            Text(
-                modifier = Modifier.padding(top = 2.dp),
-                text = publication.bio,
-                maxLines = 6,
-                overflow = TextOverflow.Ellipsis,
-                fontFamily = lato,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
-            )
+            bio?.let {
+                Text(
+                    modifier = Modifier.padding(top = 2.dp),
+                    text = it,
+                    maxLines = 6,
+                    overflow = TextOverflow.Ellipsis,
+                    fontFamily = lato,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp
+                )
+            }
 
             Row(
                 modifier = Modifier
@@ -159,9 +173,9 @@ fun CreateIndividualPublicationHeading(
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(13.dp)
             ) {
-                for (social in publication.socials) {
+                socials?.forEach { social ->
                     val socialName =
-                        formattedSocialNameMap.getOrDefault(social.social, social.social)
+                        Social.formattedSocialNameMap.getOrDefault(social.social, social.social)
 
                     Row {
                         // Make sure that the drawable is in the socialLogoMap or the painter is null
@@ -169,18 +183,18 @@ fun CreateIndividualPublicationHeading(
                             displayText = socialName,
                             uri = social.url,
                             style = TextStyle(fontFamily = lato, color = VolumeOrange),
-                            painter = socialLogoMap[socialName]?.let { painterResource(it) },
+                            painter = Social.socialLogoMap[socialName]?.let { painterResource(it) },
                         )
                     }
                 }
 
-                val websiteURL =
-                    publication.websiteURL.removePrefix("https://").removePrefix("http://")
+                val formattedWebsiteURL =
+                    websiteURL.removePrefix("https://").removePrefix("http://")
                         .removePrefix("www.").removeSuffix("/")
 
                 HyperlinkText(
-                    displayText = websiteURL,
-                    uri = publication.websiteURL,
+                    displayText = formattedWebsiteURL,
+                    uri = websiteURL,
                     style = TextStyle(
                         fontFamily = lato,
                         color = VolumeOrange,
@@ -193,35 +207,3 @@ fun CreateIndividualPublicationHeading(
     }
 }
 
-@Composable
-fun HyperlinkText(
-    displayText: String,
-    uri: String,
-    style: TextStyle,
-    painter: Painter?
-) {
-    val uriHandler = LocalUriHandler.current
-
-    TextButton(
-        contentPadding = PaddingValues(0.dp),
-        onClick = {
-            uriHandler.openUri(uri)
-        }
-    ) {
-        if (painter != null) {
-            Image(
-                painter = painter,
-                contentDescription = "Icon",
-            )
-
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-        }
-
-        Text(
-            text = displayText,
-            maxLines = 1,
-            style = style,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
-}

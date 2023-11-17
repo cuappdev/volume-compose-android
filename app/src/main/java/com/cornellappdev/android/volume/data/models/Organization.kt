@@ -5,9 +5,10 @@ data class Organization(
     val id: String,
     val categorySlug: String,
     val websiteURL: String,
-    val backgroundImageURL: String? = null,
-    val bio: String? = null,
+    val backgroundImageURL: String?,
+    val bio: String?,
     val slug: String,
+    val profileImageURL: String?,
 )
 
 val organizationTypes = listOf(

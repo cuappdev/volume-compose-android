@@ -35,8 +35,11 @@ fun IndividualPublicationScreen(
 
     var tabIndex by remember { mutableStateOf(0) };
 
-    // Publication heading
+    val statsText = "TODO get stats text"
+
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+
+        // Publication heading item
         item(span = { GridItemSpan(2) }) {
             when (val publicationState = publicationUiState.publicationState) {
                 PublicationRetrievalState.Loading -> {
@@ -47,16 +50,24 @@ fun IndividualPublicationScreen(
                 }
 
                 is PublicationRetrievalState.Success -> {
-                    CreateIndividualPublicationHeading(
-                        publication = publicationState.publication,
-                        publicationUiState.isFollowed
-                    ) { isFollowing ->
-                        if (isFollowing) {
-                            individualPublicationViewModel.followPublication()
-                        } else {
-                            individualPublicationViewModel.unfollowPublication()
-                        }
-                    }
+                    val publication = publicationState.publication
+                    CreateIndividualPartnerHeading(
+                        followButton = publicationUiState.isFollowed,
+                        followButtonClicked = { isFollowing ->
+                            if (isFollowing) {
+                                individualPublicationViewModel.followPublication()
+                            } else {
+                                individualPublicationViewModel.unfollowPublication()
+                            }
+                        },
+                        backgroundImageUrl = publication.backgroundImageURL,
+                        profileImageURL = publication.profileImageURL,
+                        partnerName = publication.name,
+                        statsText = "${publication.numArticles} articles • ${publication.shoutouts.toInt()} shout-outs",
+                        bio = publication.bio,
+                        socials = publication.socials,
+                        websiteURL = publication.websiteURL,
+                    )
                 }
             }
         }

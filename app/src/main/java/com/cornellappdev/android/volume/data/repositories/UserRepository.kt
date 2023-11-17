@@ -18,12 +18,13 @@ import javax.inject.Singleton
  * @see Article
  */
 private const val TAG = "UserRepository"
+
 @Singleton
 class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
 
     suspend fun createUser(
         followPublications: List<String>,
-        deviceToken: String
+        deviceToken: String,
     ): User =
         networkApi.createUser(followPublications, deviceToken).dataAssertNoErrors.mapDataToUser()
 
@@ -32,13 +33,13 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
             followPublication(it, uuid)
         }
 
-    suspend fun followPublication(slug: String, uuid: String): User  {
+    suspend fun followPublication(slug: String, uuid: String): User {
         return networkApi.followPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
     }
 
     suspend fun unfollowPublication(
         slug: String,
-        uuid: String
+        uuid: String,
     ): User =
         networkApi.unfollowPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
 
@@ -76,7 +77,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
                         numBookmarkedArticles = weeklyDebrief.numBookmarkedArticles.toInt(),
                         numReadArticles = weeklyDebrief.numReadArticles.toInt()
                     )
-                }
+                },
+                followedOrganizationSlugs = TODO("Waiting on backend")
             )
         }
     }
@@ -87,7 +89,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
                 uuid = userData.uuid,
                 followedPublicationSlugs = userData.followedPublications.map {
                     it.slug
-                }
+                },
+                followedOrganizationSlugs = TODO("Waiting on backend")
             )
         }
     }
@@ -95,10 +98,11 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
     private fun FollowPublicationMutation.Data.mapDataToUser(): User {
         return this.followPublication.let { userData ->
             User(
-                uuid = userData?.uuid ?: "", // TODO figure out why user data is initially null
+                uuid = userData?.uuid ?: "",
                 followedPublicationSlugs = userData?.followedPublications?.map {
                     it.slug
-                } ?: listOf()
+                } ?: listOf(),
+                followedOrganizationSlugs = TODO("Waiting on backend")
             )
         }
     }
@@ -109,7 +113,8 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
                 uuid = userData!!.uuid,
                 followedPublicationSlugs = userData.followedPublications.map {
                     it.slug
-                }
+                },
+                followedOrganizationSlugs = TODO("Waiting on backend")
             )
         }
     }

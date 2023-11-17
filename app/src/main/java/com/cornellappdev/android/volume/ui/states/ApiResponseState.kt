@@ -2,6 +2,7 @@ package com.cornellappdev.android.volume.ui.states
 
 /**
  * A generic response state class for the loading, error, and success states during network requests.
+ * Delete all other response state classes, and replace them with this one
  */
 sealed class ResponseState<out T> {
     object Loading : ResponseState<Nothing>()

@@ -21,6 +21,7 @@ import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
+import com.cornellappdev.android.volume.data.models.Organization
 import com.cornellappdev.android.volume.data.models.Publication
 import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.VolumePeriod
@@ -40,6 +41,7 @@ fun ReadsScreen(
     onMagazineClick: (Magazine) -> Unit,
     onPublicationClick: (Publication) -> Unit,
     onSearchClick: (Int) -> Unit,
+    onOrganizationClick: (Organization) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
