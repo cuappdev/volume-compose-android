@@ -35,4 +35,18 @@ class OrganizationRepository @Inject constructor(private val networkApi: Network
                 profileImageURL = it.profileImageURL,
             )
         }
+
+    suspend fun getAllOrganizations(): List<Organization> =
+        networkApi.fetchAllOrganizations().dataAssertNoErrors.getAllOrganizations.map {
+            Organization(
+                name = it.name,
+                categorySlug = it.categorySlug,
+                websiteURL = it.websiteURL,
+                backgroundImageURL = it.backgroundImageURL,
+                bio = it.bio,
+                id = it.id,
+                slug = it.slug,
+                profileImageURL = it.profileImageURL,
+            )
+        }
 }

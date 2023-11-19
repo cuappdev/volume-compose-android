@@ -22,7 +22,6 @@ import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.data.models.Article
 import com.cornellappdev.android.volume.data.models.Magazine
 import com.cornellappdev.android.volume.data.models.Organization
-import com.cornellappdev.android.volume.data.models.Publication
 import com.cornellappdev.android.volume.ui.components.general.SearchBar
 import com.cornellappdev.android.volume.ui.components.general.VolumePeriod
 import com.cornellappdev.android.volume.ui.theme.VolumeOffWhite
@@ -39,7 +38,7 @@ fun ReadsScreen(
     onArticleClick: (Article, NavigationSource) -> Unit,
     showBottomBar: MutableState<Boolean>,
     onMagazineClick: (Magazine) -> Unit,
-    onPublicationClick: (Publication) -> Unit,
+    onPublicationClick: (String) -> Unit,
     onSearchClick: (Int) -> Unit,
     onOrganizationClick: (Organization) -> Unit,
 ) {

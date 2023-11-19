@@ -54,6 +54,7 @@ fun OrganizationHomeScreen(
     organizationsHomeViewModel: OrganizationsHomeViewModel = hiltViewModel(),
     onFlyerUploadClicked: () -> Unit,
     onFlyerEditClicked: (flyerId: String) -> Unit,
+    onOrganizationNameClick: (slug: String) -> Unit,
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     var alertDialogShowing by remember { mutableStateOf(false) }
@@ -224,7 +225,8 @@ fun OrganizationHomeScreen(
                                     onRemoveClick = {
                                         mostRecentlyClickedFlyerId = it.id
                                         alertDialogShowing = true
-                                    }
+                                    },
+                                    onOrganizationNameClick = onOrganizationNameClick
                                 )
                             }
                         }
@@ -269,7 +271,9 @@ fun OrganizationHomeScreen(
                                     onRemoveClick = {
                                         mostRecentlyClickedFlyerId = it.id
                                         alertDialogShowing = true
-                                    })
+                                    },
+                                    onOrganizationNameClick = onOrganizationNameClick
+                                )
                             }
                         }
 

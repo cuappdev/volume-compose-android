@@ -15,9 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.volume.R
-import com.cornellappdev.android.volume.data.models.Publication
-import com.cornellappdev.android.volume.ui.components.general.CreatePublicationColumn
-import com.cornellappdev.android.volume.ui.components.general.CreatePublicationRow
+import com.cornellappdev.android.volume.ui.components.general.CreatePartnerColumn
+import com.cornellappdev.android.volume.ui.components.general.CreatePartnerRow
 import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.components.general.VolumeHeaderText
 import com.cornellappdev.android.volume.ui.components.general.VolumeLoading
@@ -29,7 +28,7 @@ private const val TAG = "PublicationsMenu"
 @Composable
 fun PublicationsMenu(
     publicationsViewModel: PublicationsViewModel = hiltViewModel(),
-    onPublicationClick: (Publication) -> Unit,
+    onPublicationClick: (String) -> Unit,
 ) {
     val publicationsUiState = publicationsViewModel.publicationsUiState
 
@@ -65,8 +64,12 @@ fun PublicationsMenu(
                     ) {
 
                         items(followingPublicationsState.publications) { publication ->
-                            CreatePublicationColumn(publication) {
-                                onPublicationClick(publication)
+                            CreatePartnerColumn(
+                                profileImageURL = publication.profileImageURL,
+                                slug = publication.slug,
+                                title = publication.name
+                            ) {
+                                onPublicationClick(it)
                             }
                         }
                     }
@@ -106,17 +109,22 @@ fun PublicationsMenu(
                             top = if (index != 0) 24.dp else 0.dp
                         )
                     ) {
-                        CreatePublicationRow(
-                            publication = publication,
-                            onPublicationClick
-                        ) { publicationFromCallback, isFollowing ->
+                        CreatePartnerRow(
+                            bio = publication.bio,
+                            name = publication.name,
+                            onPartnerClick = onPublicationClick,
+                            profileImageURL = publication.profileImageURL,
+                            slug = publication.slug,
+                            mostRecentArticleTitle = publication.mostRecentArticle?.title,
+                            isFollowed = false,
+                        ) { slug, isFollowing ->
                             if (isFollowing) {
-                                publicationsViewModel.followPublication(
-                                    publicationFromCallback.slug
+                                publicationsViewModel.unfollowPublication(
+                                    slug
                                 )
                             } else {
-                                publicationsViewModel.unfollowPublication(
-                                    publicationFromCallback.slug
+                                publicationsViewModel.followPublication(
+                                    slug
                                 )
                             }
                         }

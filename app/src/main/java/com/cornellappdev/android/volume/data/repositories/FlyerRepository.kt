@@ -81,7 +81,10 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
                 categorySlug = flyerData.organization.categorySlug,
                 name = flyerData.organization.name,
                 slug = flyerData.organization.slug,
-                websiteURL = flyerData.organization.websiteURL
+                websiteURL = flyerData.organization.websiteURL,
+                backgroundImageURL = flyerData.organization.backgroundImageURL,
+                bio = flyerData.organization.bio,
+                profileImageURL = flyerData.organization.profileImageURL,
             ),
             location = flyerData.location,
             flyerURL = flyerData.flyerURL,
@@ -190,7 +193,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         backgroundImageURL = this.backgroundImageURL,
         bio = this.bio,
         id = this.id,
-        slug = this.slug
+        slug = this.slug,
+        profileImageURL = this.profileImageURL,
     )
 
     private fun FlyersByIDsQuery.Organization.mapToOrganization(): Organization = Organization(
@@ -200,7 +204,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         backgroundImageURL = this.backgroundImageURL,
         bio = this.bio,
         id = this.id,
-        slug = this.slug
+        slug = this.slug,
+        profileImageURL = this.profileImageURL,
     )
 
     private fun FlyersByCategorySlugQuery.Organization.mapToOrganization(): Organization =
@@ -211,7 +216,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             backgroundImageURL = this.backgroundImageURL,
             bio = this.bio,
             id = this.id,
-            slug = this.slug
+            slug = this.slug,
+            profileImageURL = this.profileImageURL,
         )
 
     private fun TrendingFlyersQuery.Organization.mapToOrganization(): Organization = Organization(
@@ -221,7 +227,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         backgroundImageURL = this.backgroundImageURL,
         bio = this.bio,
         id = this.id,
-        slug = this.slug
+        slug = this.slug,
+        profileImageURL = this.profileImageURL,
     )
 
     private fun FlyersAfterDateQuery.Organization.mapToOrganization(): Organization = Organization(
@@ -231,7 +238,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         backgroundImageURL = this.backgroundImageURL,
         bio = this.bio,
         id = this.id,
-        slug = this.slug
+        slug = this.slug,
+        profileImageURL = this.profileImageURL,
     )
 
     private fun FlyersBeforeDateQuery.Organization.mapToOrganization(): Organization = Organization(
@@ -241,7 +249,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
         backgroundImageURL = this.backgroundImageURL,
         bio = this.bio,
         id = this.id,
-        slug = this.slug
+        slug = this.slug,
+        profileImageURL = this.profileImageURL,
     )
 
     private fun FlyersByOrganizationSlugQuery.Organization.mapToOrganization(): Organization =
@@ -252,7 +261,8 @@ class FlyerRepository @Inject constructor(private val networkApi: NetworkApi) {
             backgroundImageURL = this.backgroundImageURL,
             bio = this.bio,
             id = this.id,
-            slug = this.slug
+            slug = this.slug,
+            profileImageURL = this.profileImageURL,
         )
 }
 

@@ -2,11 +2,28 @@ package com.cornellappdev.android.volume.ui.components.general
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedButton
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
@@ -24,22 +41,31 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.cornellappdev.android.volume.data.models.Publication
-import com.cornellappdev.android.volume.ui.theme.*
+import com.cornellappdev.android.volume.ui.theme.GrayFour
+import com.cornellappdev.android.volume.ui.theme.GrayOne
+import com.cornellappdev.android.volume.ui.theme.VolumeOrange
+import com.cornellappdev.android.volume.ui.theme.lato
+import com.cornellappdev.android.volume.ui.theme.notoserif
 
 /**
- * Creates a Horizontal Publication Row for the Publication passed in.
+ * Creates a Horizontal Partner Row for the Partner passed in.
  *
- * The callback returns the publication back when the follow button is
- * clicked, and returns true when the publication is followed.
+ * The callback returns the partner back when the follow button is
+ * clicked, and returns true when the partner is followed.
  *
  * @param publication
  * @param followButtonClicked
  */
 @Composable
-fun CreatePublicationRow(
-    publication: Publication,
-    followButtonClicked: (Publication, Boolean) -> Unit,
+fun CreatePartnerRow(
+    profileImageURL: String?,
+    name: String,
+    slug: String,
+    bio: String?,
+    mostRecentArticleTitle: String? = null,
+    onPartnerClick: (slug: String) -> Unit,
+    isFollowed: Boolean,
+    followButtonClicked: (partnerSlug: String, Boolean) -> Unit,
 ) {
     val hasBeenClicked = rememberSaveable { mutableStateOf(false) }
     Row(
@@ -48,12 +74,14 @@ fun CreatePublicationRow(
             .fillMaxWidth(),
     ) {
         AsyncImage(
-            model = publication.profileImageURL,
+            model = profileImageURL,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .padding(end = 8.dp)
                 .size(64.dp)
-                .clip(CircleShape),
+                .clip(CircleShape)
+                .background(Color.Gray)
+                .clickable { onPartnerClick(slug) },
             contentDescription = null
         )
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -63,8 +91,9 @@ fun CreatePublicationRow(
                 Text(
                     modifier = Modifier
                         .padding(end = 20.dp)
-                        .weight(1f),
-                    text = publication.name,
+                        .weight(1f)
+                        .clickable { onPartnerClick(slug) },
+                    text = name,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontFamily = notoserif,
@@ -77,14 +106,14 @@ fun CreatePublicationRow(
                     // Passes true to callback if followed, false if unfollowed.
                     onClick = {
                         hasBeenClicked.value = !hasBeenClicked.value
-                        followButtonClicked(publication, hasBeenClicked.value)
+                        followButtonClicked(slug, isFollowed)
                     },
                     shape = RoundedCornerShape(12.dp),
                     contentPadding = PaddingValues(0.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked.value) VolumeOrange else Color.White),
                     border = if (hasBeenClicked.value) null else BorderStroke(2.dp, Color.Black)
                 ) {
-                    Crossfade(targetState = hasBeenClicked.value) { hasBeenClicked ->
+                    Crossfade(targetState = hasBeenClicked.value, label = "") { hasBeenClicked ->
                         if (hasBeenClicked) {
                             Icon(
                                 Icons.Default.Done,
@@ -102,152 +131,29 @@ fun CreatePublicationRow(
                 }
 
             }
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .height(IntrinsicSize.Min)
-                    .padding(bottom = 2.dp)
-            ) {
-
-                Text(
-                    modifier = Modifier.padding(end = 20.dp),
-                    text = publication.bio,
-                    color = GrayOne,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    fontFamily = lato,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 12.sp
-                )
-
-                Spacer(modifier = Modifier.fillMaxHeight())
-            }
-
-            publication.mostRecentArticle?.let {
+            if (!bio.isNullOrBlank()) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.height(IntrinsicSize.Min)
-                ) {
-                    Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-                        Divider(
-                            color = GrayFour,
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .width(1.dp)
-                        )
-
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp, end = 20.dp),
-                            text = "\"${it.title}\"",
-                            color = Color.Black,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            fontFamily = lato,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 12.sp
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.fillMaxHeight())
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CreatePublicationRow(
-    publication: Publication,
-    onPublicationClick: (Publication) -> Unit,
-    followButtonClicked: (Publication, Boolean) -> Unit
-) {
-
-    var hasBeenClicked = false
-    Row(
-        modifier = Modifier
-            .height(100.dp)
-            .fillMaxWidth()
-            .clickable {
-                onPublicationClick(publication)
-            },
-    ) {
-        AsyncImage(
-            model = publication.profileImageURL,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .padding(end = 8.dp)
-                .size(64.dp)
-                .clip(CircleShape),
-            contentDescription = null
-        )
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(
-                modifier = Modifier.height(IntrinsicSize.Min)
-            ) {
-                Text(
                     modifier = Modifier
-                        .padding(end = 20.dp)
-                        .weight(1f),
-                    text = publication.name,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    fontFamily = notoserif,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp
-                )
-
-                OutlinedButton(
-                    modifier = Modifier.size(33.dp),
-                    // Passes true to callback if followed, false if unfollowed.
-                    onClick = {
-                        hasBeenClicked = !hasBeenClicked
-                        followButtonClicked(publication, hasBeenClicked)
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked) VolumeOrange else Color.White),
-                    border = if (hasBeenClicked) null else BorderStroke(2.dp, Color.Black)
+                        .height(IntrinsicSize.Min)
+                        .padding(bottom = 2.dp)
                 ) {
-                    Crossfade(targetState = hasBeenClicked) { hasBeenClicked ->
-                        if (hasBeenClicked) {
-                            Icon(
-                                Icons.Default.Done,
-                                contentDescription = "Followed",
-                                tint = Color.White
-                            )
-                        } else {
-                            Icon(
-                                Icons.Default.Add,
-                                contentDescription = "Follow",
-                                tint = Color.Black
-                            )
-                        }
-                    }
+
+                    Text(
+                        modifier = Modifier.padding(end = 20.dp),
+                        text = bio,
+                        color = GrayOne,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        fontFamily = lato,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 12.sp
+                    )
+
+                    Spacer(modifier = Modifier.fillMaxHeight())
                 }
             }
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .height(IntrinsicSize.Min)
-                    .padding(bottom = 2.dp)
-            ) {
-                Text(
-                    modifier = Modifier.padding(end = 20.dp),
-                    text = publication.bio,
-                    color = GrayOne,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    fontFamily = lato,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 12.sp
-                )
-
-                Spacer(modifier = Modifier.fillMaxHeight())
-            }
-
-            publication.mostRecentArticle?.let {
+            mostRecentArticleTitle?.let {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.height(IntrinsicSize.Min)
@@ -262,7 +168,7 @@ fun CreatePublicationRow(
 
                         Text(
                             modifier = Modifier.padding(start = 8.dp, end = 20.dp),
-                            text = "\"${it.title}\"",
+                            text = "\"$it\"",
                             color = Color.Black,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -280,36 +186,37 @@ fun CreatePublicationRow(
 }
 
 @Composable
-fun CreatePublicationColumn(
-    publication: Publication,
-    onPublicationClick: (Publication) -> Unit
+fun CreatePartnerColumn(
+    profileImageURL: String?,
+    slug: String,
+    title: String,
+    onPartnerClick: (slug: String) -> Unit,
 ) {
-    val title = publication.name
-
     Column(
         modifier = Modifier
             .wrapContentHeight()
             .width(100.dp)
             .clickable {
-                onPublicationClick(publication)
+                onPartnerClick(slug)
             },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AsyncImage(
-            model = publication.profileImageURL, modifier = Modifier
+            model = profileImageURL, modifier = Modifier
                 .height(100.dp)
                 .width(100.dp)
-                .clip(CircleShape), contentDescription = null, contentScale = ContentScale.Crop
+                .clip(CircleShape)
+                .background(Color.Gray), contentDescription = null, contentScale = ContentScale.Crop
         )
         Text(
             modifier = Modifier.padding(bottom = 2.dp, top = 2.dp),
             text = title,
-            maxLines = 3,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             fontFamily = notoserif,
             fontWeight = FontWeight.Medium,
             fontSize = 12.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }

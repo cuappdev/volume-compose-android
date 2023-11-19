@@ -1,8 +1,10 @@
 package com.cornellappdev.android.volume.data.repositories
 
 import com.cornellappdev.android.volume.CreateUserMutation
+import com.cornellappdev.android.volume.FollowOrganizationMutation
 import com.cornellappdev.android.volume.FollowPublicationMutation
 import com.cornellappdev.android.volume.GetUserQuery
+import com.cornellappdev.android.volume.UnfollowOrganizationMutation
 import com.cornellappdev.android.volume.UnfollowPublicationMutation
 import com.cornellappdev.android.volume.data.NetworkApi
 import com.cornellappdev.android.volume.data.models.Article
@@ -33,15 +35,23 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
             followPublication(it, uuid)
         }
 
-    suspend fun followPublication(slug: String, uuid: String): User {
-        return networkApi.followPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
-    }
+    suspend fun followPublication(slug: String, uuid: String): User =
+        networkApi.followPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
+
+    suspend fun followOrganization(slug: String, uuid: String): User =
+        networkApi.followOrganization(slug, uuid).dataAssertNoErrors.mapDataToUser()
 
     suspend fun unfollowPublication(
         slug: String,
         uuid: String,
     ): User =
         networkApi.unfollowPublication(slug, uuid).dataAssertNoErrors.mapDataToUser()
+
+    suspend fun unfollowOrganization(
+        slug: String,
+        uuid: String,
+    ): User =
+        networkApi.unfollowOrganization(slug, uuid).dataAssertNoErrors.mapDataToUser()
 
     // Only getUser returns a User with WeeklyDebrief, can be updated in queries.graphql
     suspend fun getUser(uuid: String): User =
@@ -78,7 +88,7 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
                         numReadArticles = weeklyDebrief.numReadArticles.toInt()
                     )
                 },
-                followedOrganizationSlugs = TODO("Waiting on backend")
+                followedOrganizationSlugs = userData.followedOrganizations.map { it.slug }
             )
         }
     }
@@ -90,7 +100,7 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
                 followedPublicationSlugs = userData.followedPublications.map {
                     it.slug
                 },
-                followedOrganizationSlugs = TODO("Waiting on backend")
+                followedOrganizationSlugs = userData.followedOrganizations.map { it.slug }
             )
         }
     }
@@ -98,11 +108,23 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
     private fun FollowPublicationMutation.Data.mapDataToUser(): User {
         return this.followPublication.let { userData ->
             User(
-                uuid = userData?.uuid ?: "",
-                followedPublicationSlugs = userData?.followedPublications?.map {
+                uuid = userData!!.uuid,
+                followedPublicationSlugs = userData.followedPublications.map {
                     it.slug
-                } ?: listOf(),
-                followedOrganizationSlugs = TODO("Waiting on backend")
+                },
+                followedOrganizationSlugs = userData.followedOrganizations.map { it.slug }
+            )
+        }
+    }
+
+    private fun FollowOrganizationMutation.Data.mapDataToUser(): User {
+        return this.followOrganization.let { userData ->
+            User(
+                uuid = userData!!.uuid,
+                followedPublicationSlugs = userData.followedPublications.map {
+                    it.slug
+                },
+                followedOrganizationSlugs = userData.followedOrganizations.map { it.slug }
             )
         }
     }
@@ -114,7 +136,19 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
                 followedPublicationSlugs = userData.followedPublications.map {
                     it.slug
                 },
-                followedOrganizationSlugs = TODO("Waiting on backend")
+                followedOrganizationSlugs = userData.followedOrganizations.map { it.slug }
+            )
+        }
+    }
+
+    private fun UnfollowOrganizationMutation.Data.mapDataToUser(): User {
+        return this.unfollowOrganization.let { userData ->
+            User(
+                uuid = userData!!.uuid,
+                followedPublicationSlugs = userData.followedPublications.map {
+                    it.slug
+                },
+                followedOrganizationSlugs = userData.followedOrganizations.map { it.slug }
             )
         }
     }

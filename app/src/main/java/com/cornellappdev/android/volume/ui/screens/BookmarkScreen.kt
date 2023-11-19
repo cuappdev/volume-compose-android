@@ -72,6 +72,7 @@ fun BookmarkScreen(
     onArticleClick: (Article, NavigationSource) -> Unit,
     onMagazineClick: (Magazine) -> Unit,
     onSettingsClick: () -> Unit,
+    onOrganizationNameClick: (slug: String) -> Unit,
 ) {
     val bookmarkUiState = bookmarkViewModel.bookmarkUiState
 
@@ -89,11 +90,12 @@ fun BookmarkScreen(
         BookmarksTopBar(onSettingsClick)
     }, content = { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            TabbedBooksmarksView(
+            TabbedBookmarksView(
                 onArticleClick = onArticleClick,
                 onMagazineClick = onMagazineClick,
                 bookmarkUiState = bookmarkUiState,
                 bookmarkViewModel = bookmarkViewModel,
+                onOrganizationNameClick = onOrganizationNameClick
             )
         }
     })
@@ -101,11 +103,12 @@ fun BookmarkScreen(
 
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
-fun TabbedBooksmarksView(
+fun TabbedBookmarksView(
     onArticleClick: (Article, NavigationSource) -> Unit,
     bookmarkUiState: BookmarkViewModel.BookmarkUiState,
     bookmarkViewModel: BookmarkViewModel,
     onMagazineClick: (Magazine) -> Unit,
+    onOrganizationNameClick: (slug: String) -> Unit,
 ) {
     var tabIndex by remember { mutableStateOf(0) };
 
@@ -126,7 +129,8 @@ fun TabbedBooksmarksView(
         when (tabIndex) {
             0 -> BookmarkedFlyersView(
                 bookmarkUiState = bookmarkUiState,
-                bookmarkViewModel = bookmarkViewModel
+                bookmarkViewModel = bookmarkViewModel,
+                onOrganizationNameClick = onOrganizationNameClick,
             )
 
             1 -> BookmarkedArticlesView(
@@ -147,6 +151,7 @@ fun TabbedBooksmarksView(
 fun BookmarkedFlyersView(
     bookmarkUiState: BookmarkViewModel.BookmarkUiState,
     bookmarkViewModel: BookmarkViewModel,
+    onOrganizationNameClick: (slug: String) -> Unit,
 ) {
     var upcomingSelectedIndex by remember { mutableStateOf(0) }
     var upcomingExpanded by remember { mutableStateOf(false) }
@@ -289,7 +294,11 @@ fun BookmarkedFlyersView(
                             modifier = Modifier.height(308.dp)
                         ) {
                             items(upcomingState.flyers) {
-                                SmallFlyer(isExtraSmall = true, flyer = it)
+                                SmallFlyer(
+                                    isExtraSmall = true,
+                                    flyer = it,
+                                    onOrganizationNameClick = onOrganizationNameClick
+                                )
                             }
                         }
                     }
@@ -420,7 +429,12 @@ fun BookmarkedFlyersView(
                         )
                     }
                     items(pastState.flyers) {
-                        SmallFlyer(isExtraSmall = false, flyer = it, showTag = false)
+                        SmallFlyer(
+                            isExtraSmall = false,
+                            flyer = it,
+                            showTag = false,
+                            onOrganizationNameClick = onOrganizationNameClick
+                        )
                         Spacer(
                             modifier = Modifier
                                 .height(16.dp)

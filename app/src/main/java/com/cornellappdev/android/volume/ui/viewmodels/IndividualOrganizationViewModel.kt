@@ -10,11 +10,13 @@ import com.cornellappdev.android.volume.data.repositories.OrganizationRepository
 import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.volume.data.repositories.UserRepository
 import com.cornellappdev.android.volume.ui.states.ResponseState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class IndividualOrganizationViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -71,6 +73,27 @@ class IndividualOrganizationViewModel @Inject constructor(
         } catch (_: Exception) {
             _isFollowingFlow.value = ResponseState.Error()
         }
+    }
 
+    fun followOrganization() = viewModelScope.launch {
+        val uuid = userPreferencesRepository.fetchUuid()
+        try {
+            val newUser = userRepository.followOrganization(organizationSlug, uuid)
+            _isFollowingFlow.value =
+                ResponseState.Success(organizationSlug in newUser.followedOrganizationSlugs)
+        } catch (_: Exception) {
+            _isFollowingFlow.value = ResponseState.Error()
+        }
+    }
+
+    fun unfollowOrganization() = viewModelScope.launch {
+        val uuid = userPreferencesRepository.fetchUuid()
+        try {
+            val newUser = userRepository.unfollowOrganization(organizationSlug, uuid)
+            _isFollowingFlow.value =
+                ResponseState.Success(organizationSlug in newUser.followedOrganizationSlugs)
+        } catch (_: Exception) {
+            _isFollowingFlow.value = ResponseState.Error()
+        }
     }
 }

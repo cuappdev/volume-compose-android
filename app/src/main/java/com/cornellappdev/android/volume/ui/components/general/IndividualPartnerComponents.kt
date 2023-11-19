@@ -1,6 +1,7 @@
 package com.cornellappdev.android.volume.ui.components.general
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,12 +23,15 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -58,32 +62,50 @@ fun CreateIndividualPartnerHeading(
     socials: List<Social>?,
     websiteURL: String,
 ) {
-    val hasBeenClicked = rememberSaveable { mutableStateOf(followButton) }
+    var hasBeenClicked by remember { mutableStateOf(followButton) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
         Box {
-            AsyncImage(
-                model = backgroundImageUrl,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentDescription = null
-            )
-
-            AsyncImage(
-                model = profileImageURL,
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.TopStart,
-                modifier = Modifier
-                    .padding(start = 8.dp, top = 130.dp)
-                    .size(64.dp)
-                    .clip(CircleShape)
-                    .shadow(4.dp, CircleShape),
-                contentDescription = null
-            )
+            if (backgroundImageUrl.isNullOrBlank()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Gray)
+                )
+            } else {
+                AsyncImage(
+                    model = backgroundImageUrl,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentDescription = null
+                )
+            }
+            if (profileImageURL.isNullOrBlank()) {
+                Box(
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 130.dp)
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .shadow(4.dp, CircleShape)
+                        .background(Color.Gray)
+                )
+            } else {
+                AsyncImage(
+                    model = profileImageURL,
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.TopStart,
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 130.dp)
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .shadow(4.dp, CircleShape),
+                    contentDescription = null
+                )
+            }
         }
 
         Column(
@@ -111,13 +133,13 @@ fun CreateIndividualPartnerHeading(
                     modifier = Modifier
                         .height(33.dp),
                     onClick = {
-                        hasBeenClicked.value = !hasBeenClicked.value
-                        followButtonClicked(hasBeenClicked.value)
+                        hasBeenClicked = !hasBeenClicked
+                        followButtonClicked(hasBeenClicked)
                     },
                     shape = RoundedCornerShape(5.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked.value) VolumeOrange else GrayThree),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = if (hasBeenClicked) VolumeOrange else GrayThree),
                 ) {
-                    Crossfade(targetState = hasBeenClicked.value, label = "") { hasBeenClicked ->
+                    Crossfade(targetState = hasBeenClicked, label = "") { hasBeenClicked ->
                         if (hasBeenClicked) {
                             Text(
                                 text = "Following",

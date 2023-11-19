@@ -7,6 +7,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.cornellappdev.android.volume.AllArticlesQuery
 import com.cornellappdev.android.volume.AllMagazinesQuery
+import com.cornellappdev.android.volume.AllOrganizationsQuery
 import com.cornellappdev.android.volume.AllPublicationSlugsQuery
 import com.cornellappdev.android.volume.AllPublicationsQuery
 import com.cornellappdev.android.volume.ArticleByIDQuery
@@ -25,6 +26,7 @@ import com.cornellappdev.android.volume.FlyersBeforeDateQuery
 import com.cornellappdev.android.volume.FlyersByCategorySlugQuery
 import com.cornellappdev.android.volume.FlyersByIDsQuery
 import com.cornellappdev.android.volume.FlyersByOrganizationSlugQuery
+import com.cornellappdev.android.volume.FollowOrganizationMutation
 import com.cornellappdev.android.volume.FollowPublicationMutation
 import com.cornellappdev.android.volume.GetUserQuery
 import com.cornellappdev.android.volume.IncrementMagazineShoutoutsMutation
@@ -44,6 +46,7 @@ import com.cornellappdev.android.volume.SearchMagazinesQuery
 import com.cornellappdev.android.volume.ShuffledArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.TrendingArticlesQuery
 import com.cornellappdev.android.volume.TrendingFlyersQuery
+import com.cornellappdev.android.volume.UnfollowOrganizationMutation
 import com.cornellappdev.android.volume.UnfollowPublicationMutation
 import com.cornellappdev.android.volume.data.models.Flyer
 import com.cornellappdev.android.volume.util.deriveFileName
@@ -69,6 +72,9 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
 
     suspend fun fetchAllPublications(): ApolloResponse<AllPublicationsQuery.Data> =
         apolloClient.query(AllPublicationsQuery()).execute()
+
+    suspend fun fetchAllOrganizations(): ApolloResponse<AllOrganizationsQuery.Data> =
+        apolloClient.query(AllOrganizationsQuery()).execute()
 
     suspend fun fetchAllPublicationSlugs(): ApolloResponse<AllPublicationSlugsQuery.Data> =
         apolloClient.query(AllPublicationSlugsQuery()).execute()
@@ -312,11 +318,23 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     ): ApolloResponse<FollowPublicationMutation.Data> =
         apolloClient.mutation(FollowPublicationMutation(slug, uuid)).execute()
 
+    suspend fun followOrganization(
+        slug: String,
+        uuid: String,
+    ): ApolloResponse<FollowOrganizationMutation.Data> =
+        apolloClient.mutation(FollowOrganizationMutation(slug, uuid)).execute()
+
     suspend fun unfollowPublication(
         slug: String,
         uuid: String,
     ): ApolloResponse<UnfollowPublicationMutation.Data> =
         apolloClient.mutation(UnfollowPublicationMutation(slug, uuid)).execute()
+
+    suspend fun unfollowOrganization(
+        slug: String,
+        uuid: String,
+    ): ApolloResponse<UnfollowOrganizationMutation.Data> =
+        apolloClient.mutation(UnfollowOrganizationMutation(slug, uuid)).execute()
 
     suspend fun readArticle(
         articleId: String,

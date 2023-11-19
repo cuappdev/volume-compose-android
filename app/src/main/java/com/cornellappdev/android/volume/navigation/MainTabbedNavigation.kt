@@ -190,7 +190,10 @@ private fun MainScreenNavigationConfigurations(
                 navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource}")
             }, onMagazineClick = { magazine ->
                 navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.HOME.route}")
-            })
+            },
+                onOrganizationNameClick = { slug ->
+                    navController.navigate("${Routes.INDIVIDUAL_ORGANIZATION.route}/$slug")
+                })
         }
         composable(route = Routes.WEEKLY_DEBRIEF.route, deepLinks = listOf(
             navDeepLink { uriPattern = "volume://${Routes.WEEKLY_DEBRIEF.route}" }
@@ -283,15 +286,14 @@ private fun MainScreenNavigationConfigurations(
                     navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
                 },
                 showBottomBar = showBottomBar,
-                onPublicationClick =
-                { publication ->
-                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/${publication.slug}")
+                onPublicationClick = { publicationSlug ->
+                    navController.navigate("${Routes.INDIVIDUAL_PUBLICATION.route}/$publicationSlug")
                 },
                 onSearchClick = {
                     navController.navigate("${Routes.SEARCH.route}/$it")
                 },
-                onOrganizationClick = {
-                    TODO()
+                onOrganizationClick = { organizationSlug ->
+                    "${Routes.INDIVIDUAL_ORGANIZATION.route}/$organizationSlug"
                 }
             )
         }
@@ -323,6 +325,8 @@ private fun MainScreenNavigationConfigurations(
         composable(Routes.FLYERS.route) {
             FlyersScreen(onSearchClick = {
                 navController.navigate("${Routes.SEARCH.route}/$it")
+            }, onOrganizationNameClick = { slug ->
+                navController.navigate("${Routes.INDIVIDUAL_ORGANIZATION.route}/$slug")
             })
         }
         composable(
@@ -346,6 +350,9 @@ private fun MainScreenNavigationConfigurations(
                 onSettingsClick = { navController.navigate(Routes.SETTINGS.route) },
                 onMagazineClick = { magazine ->
                     navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.BOOKMARKS.route}")
+                },
+                onOrganizationNameClick = { slug ->
+                    navController.navigate("${Routes.INDIVIDUAL_ORGANIZATION.route}/$slug")
                 })
         }
         composable(Routes.SETTINGS.route,
@@ -399,7 +406,11 @@ private fun MainScreenNavigationConfigurations(
                 navController.navigate("${Routes.OPEN_ARTICLE.route}/${article.id}/${navigationSource.name}")
             }, onMagazineClick = { magazine ->
                 navController.navigate("${Routes.OPEN_MAGAZINE.route}/${magazine.id}/${Routes.SEARCH.route}")
-            }, defaultTab = tabIndex ?: 0)
+            }, defaultTab = tabIndex ?: 0,
+                onOrganizationNameClick = { slug ->
+                    navController.navigate("${Routes.INDIVIDUAL_ORGANIZATION.route}/$slug")
+                }
+            )
         }
         composable(route = Routes.ORGANIZATION_LOGIN.route,
             enterTransition = {
@@ -424,6 +435,8 @@ private fun MainScreenNavigationConfigurations(
                     navController.navigate(
                         "${Routes.UPLOAD_FLYER.route}/$orgSlug/$flyerId"
                     )
+                }, onOrganizationNameClick = { slug ->
+                    navController.navigate("${Routes.INDIVIDUAL_ORGANIZATION.route}/$slug")
                 }
             )
         }
