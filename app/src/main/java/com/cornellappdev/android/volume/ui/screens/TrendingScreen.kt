@@ -48,6 +48,7 @@ fun TrendingScreen(
     trendingViewModel: TrendingViewModel = hiltViewModel(),
     onArticleClick: (Article, NavigationSource) -> Unit,
     onMagazineClick: (Magazine) -> Unit,
+    onOrganizationNameClick: (slug: String) -> Unit,
 ) {
     val config = LocalConfiguration.current
     val screenWidthDp = config.screenWidthDp.dp
@@ -159,7 +160,11 @@ fun TrendingScreen(
                     Column {
                         Row {
                             Spacer(modifier = Modifier.width(16.dp))
-                            BigFlyer(imgSize = screenWidthDp - 32.dp, flyer = flyers[index])
+                            BigFlyer(
+                                imgSize = screenWidthDp - 32.dp,
+                                flyer = flyers[index],
+                                onOrganizationNameClick = onOrganizationNameClick
+                            )
                         }
                         Spacer(modifier = Modifier.height(40.dp))
                     }

@@ -8,6 +8,7 @@ import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -64,11 +65,17 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.theme.lato
 import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.cornellappdev.android.volume.ui.viewmodels.FlyersViewModel
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltViewModel()) {
+fun BigFlyer(
+    imgSize: Dp,
+    flyer: Flyer,
+    flyersViewModel: FlyersViewModel = hiltViewModel(),
+    onOrganizationNameClick: (slug: String) -> Unit,
+) {
     val iconSize = if (imgSize > 256.dp) 24.dp else 16.dp
     val imageURL = flyer.imageURL
     val context = LocalContext.current
@@ -131,7 +138,9 @@ fun BigFlyer(imgSize: Dp, flyer: Flyer, flyersViewModel: FlyersViewModel = hiltV
             iconSize = iconSize,
             url = flyer.flyerURL ?: flyer.organization.websiteURL,
             context = LocalContext.current,
-            flyerId = flyer.id
+            flyerId = flyer.id,
+            organizationSlug = flyer.organization.slug,
+            onOrganizationNameClick = onOrganizationNameClick,
         )
 
         // Event title text
@@ -161,6 +170,7 @@ fun SmallFlyer(
     showMenuIcon: Boolean = false,
     onMenuIconClick: (() -> Unit)? = null,
     clickAction: (() -> Unit)? = null,
+    onOrganizationNameClick: (slug: String) -> Unit,
 ) {
     val imageURL = flyer.imageURL
     val context = LocalContext.current
@@ -204,7 +214,7 @@ fun SmallFlyer(
                 contentDescription = null,
                 modifier = if (isExtraSmall) Modifier
                     .background(color = averageColor)
-                    .size(123.dp) else Modifier
+                    .size(80.dp) else Modifier
                     .size(width = 130.dp, height = 130.dp)
                     .background(color = averageColor)
             )
@@ -218,6 +228,8 @@ fun SmallFlyer(
                 context = LocalContext.current,
                 flyerId = flyer.id,
                 onMenuItemClick = onMenuIconClick,
+                organizationSlug = flyer.organization.slug,
+                onOrganizationNameClick = onOrganizationNameClick,
             )
             // Flyer title
             Text(
@@ -285,9 +297,11 @@ fun Organization.formatCategory(): String {
 }
 
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OrganizationAndIconsRow(
     organizationName: String,
+    organizationSlug: String,
     inBigFlyer: Boolean = false,
     iconSize: Dp,
     url: String,
@@ -295,8 +309,10 @@ fun OrganizationAndIconsRow(
     flyerId: String,
     onMenuItemClick: (() -> Unit)? = null,
     flyersViewModel: FlyersViewModel = hiltViewModel(),
+    onOrganizationNameClick: (slug: String) -> Unit,
 ) {
     var isBookmarked by remember { mutableStateOf(false) }
+    val navController = rememberAnimatedNavController()
     // Update isBookmarked in a separate thread
     LaunchedEffect(key1 = "check bookmarked $flyerId") {
         isBookmarked = flyersViewModel.getIsBookmarked(flyerId)
@@ -320,7 +336,11 @@ fun OrganizationAndIconsRow(
             fontSize = 12.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.widthIn(0.dp, 150.dp)
+            modifier = Modifier
+                .widthIn(0.dp, 150.dp)
+                .clickable {
+                    onOrganizationNameClick(organizationSlug)
+                }
         )
         Spacer(modifier = Modifier.weight(1F))
         // Bookmark icon
@@ -397,7 +417,12 @@ fun IconTextRow(text: String, iconId: Int, modifier: Modifier = Modifier) {
  * Used for the Organizations home screen, and should only be viewable by organiztions.
  */
 @Composable
-fun FlyerWithContextDropdown(flyer: Flyer, onEditClick: () -> Unit, onRemoveClick: () -> Unit) {
+fun FlyerWithContextDropdown(
+    flyer: Flyer,
+    onEditClick: () -> Unit,
+    onRemoveClick: () -> Unit,
+    onOrganizationNameClick: (slug: String) -> Unit,
+) {
     var contextDropdownShowing by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -411,7 +436,8 @@ fun FlyerWithContextDropdown(flyer: Flyer, onEditClick: () -> Unit, onRemoveClic
                 onMenuIconClick = {
                     contextDropdownShowing = true
                 },
-                clickAction = onEditClick
+                clickAction = onEditClick,
+                onOrganizationNameClick = onOrganizationNameClick
             )
         }
         Box {

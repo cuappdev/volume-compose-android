@@ -1,5 +1,6 @@
 package com.cornellappdev.android.volume.ui.components.onboarding
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -52,7 +53,7 @@ import com.cornellappdev.android.volume.R
 import com.cornellappdev.android.volume.analytics.EventType
 import com.cornellappdev.android.volume.analytics.NavigationSource
 import com.cornellappdev.android.volume.analytics.VolumeEvent
-import com.cornellappdev.android.volume.ui.components.general.CreatePublicationRow
+import com.cornellappdev.android.volume.ui.components.general.CreatePartnerRow
 import com.cornellappdev.android.volume.ui.components.general.ErrorState
 import com.cornellappdev.android.volume.ui.states.PublicationsRetrievalState
 import com.cornellappdev.android.volume.ui.theme.GrayOne
@@ -154,26 +155,35 @@ fun SecondPage(
                             ) { publication ->
                                 // Clicking on row IN onboarding should not lead to IndividualPublicationScreen. They are not
                                 // an official user yet so they shouldn't be interacting with the articles.
-                                CreatePublicationRow(publication = publication) { publicationFromCallback, isFollowing ->
-                                    if (isFollowing) {
-                                        onboardingViewModel.addPublicationToFollowed(
-                                            publicationFromCallback.slug
-                                        )
-                                        VolumeEvent.logEvent(
-                                            EventType.PUBLICATION,
-                                            VolumeEvent.FOLLOW_PUBLICATION,
-                                            NavigationSource.ONBOARDING,
-                                            publicationFromCallback.slug
-                                        )
-                                    } else {
+                                CreatePartnerRow(
+                                    bio = publication.bio,
+                                    profileImageURL = publication.profileImageURL,
+                                    name = publication.name,
+                                    slug = publication.slug,
+                                    mostRecentArticleTitle = publication.mostRecentArticle?.title,
+                                    onPartnerClick = {},
+                                    isFollowed = false
+                                ) { slugFromCallback, notFollowing ->
+                                    if (notFollowing) {
                                         onboardingViewModel.removePublicationFromFollowed(
-                                            publicationFromCallback.slug
+                                            slugFromCallback
                                         )
                                         VolumeEvent.logEvent(
                                             EventType.PUBLICATION,
                                             VolumeEvent.UNFOLLOW_PUBLICATION,
                                             NavigationSource.ONBOARDING,
-                                            publicationFromCallback.slug
+                                            slugFromCallback
+                                        )
+                                    } else {
+                                        onboardingViewModel.addPublicationToFollowed(
+                                            slugFromCallback
+                                        )
+
+                                        VolumeEvent.logEvent(
+                                            EventType.PUBLICATION,
+                                            VolumeEvent.FOLLOW_PUBLICATION,
+                                            NavigationSource.ONBOARDING,
+                                            slugFromCallback
                                         )
                                     }
 

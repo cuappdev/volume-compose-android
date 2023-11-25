@@ -5,10 +5,12 @@ package com.cornellappdev.android.volume.data.models
  *
  * @property uuid
  * @property followedPublicationSlugs
+ * @property followedOrganizationSlugs
  * @property weeklyDebrief
  */
 data class User(
     val uuid: String,
     val followedPublicationSlugs: List<String>,
-    val weeklyDebrief: WeeklyDebrief? = null
+    val followedOrganizationSlugs: List<String>,
+    val weeklyDebrief: WeeklyDebrief? = null,
 )

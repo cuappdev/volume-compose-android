@@ -55,6 +55,7 @@ fun SearchScreen(
     searchViewModel: SearchViewModel = hiltViewModel(),
     onMagazineClick: (Magazine) -> Unit,
     onArticleClick: (Article, NavigationSource) -> Unit,
+    onOrganizationNameClick: (slug: String) -> Unit,
     defaultTab: Int = 0,
 ) {
     var search by remember { mutableStateOf("") }
@@ -251,7 +252,11 @@ fun SearchScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                                        SmallFlyer(isExtraSmall = false, it)
+                                        SmallFlyer(
+                                            isExtraSmall = false,
+                                            it,
+                                            onOrganizationNameClick = onOrganizationNameClick
+                                        )
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(16.dp))

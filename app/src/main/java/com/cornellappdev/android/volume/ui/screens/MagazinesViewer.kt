@@ -36,8 +36,6 @@ import com.cornellappdev.android.volume.ui.theme.VolumeOrange
 import com.cornellappdev.android.volume.ui.viewmodels.MagazinesViewModel
 import java.util.*
 
-private const val TAG = "MagazinesScreen"
-
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun MagazinesViewer(

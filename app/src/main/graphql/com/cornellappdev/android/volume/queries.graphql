@@ -70,6 +70,21 @@ query AllPublications {
     }
 }
 
+query AllOrganizations {
+    getAllOrganizations {
+        id
+        backgroundImageURL
+        bio
+        categorySlug
+        name
+        profileImageURL
+        slug
+        shoutouts
+        websiteURL
+        clicks
+    }
+}
+
 query PublicationBySlug($slug: String!) {
     getPublicationBySlug(slug: $slug) {
         backgroundImageURL
@@ -952,6 +967,9 @@ query GetUser($uuid: String!) {
         followedPublications {
             slug
         }
+        followedOrganizations {
+            slug
+        }
         weeklyDebrief {
             uuid
             creationDate
@@ -975,6 +993,9 @@ mutation CreateUser($deviceType: String!, $followedPublications: [String!]!, $de
         followedPublications {
             slug
         }
+        followedOrganizations {
+            slug
+        }
     }
 }
 
@@ -984,12 +1005,42 @@ mutation FollowPublication($slug: String!, $uuid: String!) {
         followedPublications {
             slug
         }
+        followedOrganizations {
+            slug
+        }
+    }
+}
+
+mutation FollowOrganization($slug: String!, $uuid: String!) {
+    followOrganization(slug: $slug, uuid: $uuid) {
+        uuid
+        followedOrganizations {
+            slug
+        }
+        followedPublications {
+            slug
+        }
     }
 }
 
 mutation UnfollowPublication($slug: String!, $uuid: String!) {
     unfollowPublication(slug: $slug, uuid: $uuid) {
         uuid
+        followedPublications {
+            slug
+        }
+        followedOrganizations {
+            slug
+        }
+    }
+}
+
+mutation UnfollowOrganization($slug: String!, $uuid: String!) {
+    unfollowOrganization(slug: $slug, uuid: $uuid) {
+        uuid
+        followedOrganizations {
+            slug
+        }
         followedPublications {
             slug
         }
