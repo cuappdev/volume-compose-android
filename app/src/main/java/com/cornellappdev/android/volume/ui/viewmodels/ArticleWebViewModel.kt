@@ -58,7 +58,7 @@ class ArticleWebViewModel @Inject constructor(
         /**
          * Represents the current shoutout count of the article.
          */
-        val shoutoutCount: Int = 0
+        val shoutoutCount: Int = 0,
     )
 
     var webViewUiState by mutableStateOf(WebViewUiState())
@@ -113,6 +113,7 @@ class ArticleWebViewModel @Inject constructor(
     fun bookmarkArticle() = viewModelScope.launch {
         if (webViewUiState.isBookmarked) {
             userPreferencesRepository.removeBookmarkedArticle(articleId)
+            userRepository.unbookmarkArticle(articleId, userPreferencesRepository.fetchUuid())
             VolumeEvent.logEvent(
                 EventType.ARTICLE,
                 VolumeEvent.UNBOOKMARK_ARTICLE,
@@ -120,6 +121,7 @@ class ArticleWebViewModel @Inject constructor(
             )
         } else {
             userPreferencesRepository.addBookmarkedArticle(articleId)
+            userRepository.bookmarkArticle(articleId, userPreferencesRepository.fetchUuid())
             VolumeEvent.logEvent(
                 EventType.ARTICLE,
                 VolumeEvent.BOOKMARK_ARTICLE,

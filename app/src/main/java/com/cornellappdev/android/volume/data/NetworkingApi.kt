@@ -15,6 +15,7 @@ import com.cornellappdev.android.volume.ArticlesByIDsQuery
 import com.cornellappdev.android.volume.ArticlesByPublicationSlugQuery
 import com.cornellappdev.android.volume.ArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.BookmarkArticleMutation
+import com.cornellappdev.android.volume.BookmarkFlyerMutation
 import com.cornellappdev.android.volume.BookmarkMagazineMutation
 import com.cornellappdev.android.volume.BuildConfig
 import com.cornellappdev.android.volume.CheckAccessCodeQuery
@@ -47,6 +48,9 @@ import com.cornellappdev.android.volume.SearchMagazinesQuery
 import com.cornellappdev.android.volume.ShuffledArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.TrendingArticlesQuery
 import com.cornellappdev.android.volume.TrendingFlyersQuery
+import com.cornellappdev.android.volume.UnbookmarkArticleMutation
+import com.cornellappdev.android.volume.UnbookmarkFlyerMutation
+import com.cornellappdev.android.volume.UnbookmarkMagazineMutation
 import com.cornellappdev.android.volume.UnfollowOrganizationMutation
 import com.cornellappdev.android.volume.UnfollowPublicationMutation
 import com.cornellappdev.android.volume.data.models.Flyer
@@ -358,6 +362,24 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
     suspend fun bookmarkFlyer(
         magazineId: String,
         uuid: String,
-    ): ApolloResponse<BookmarkMagazineMutation.Data> =
-        apolloClient.mutation(BookmarkMagazineMutation(magazineId, uuid)).execute()
+    ): ApolloResponse<BookmarkFlyerMutation.Data> =
+        apolloClient.mutation(BookmarkFlyerMutation(magazineId, uuid)).execute()
+
+    suspend fun unbookmarkArticle(
+        articleId: String,
+        uuid: String,
+    ): ApolloResponse<UnbookmarkArticleMutation.Data> =
+        apolloClient.mutation(UnbookmarkArticleMutation(articleId, uuid)).execute()
+
+    suspend fun unbookmarkMagazine(
+        magazineId: String,
+        uuid: String,
+    ): ApolloResponse<UnbookmarkMagazineMutation.Data> =
+        apolloClient.mutation(UnbookmarkMagazineMutation(magazineId, uuid)).execute()
+
+    suspend fun unbookmarkFlyer(
+        magazineId: String,
+        uuid: String,
+    ): ApolloResponse<UnbookmarkFlyerMutation.Data> =
+        apolloClient.mutation(UnbookmarkFlyerMutation(magazineId, uuid)).execute()
 }

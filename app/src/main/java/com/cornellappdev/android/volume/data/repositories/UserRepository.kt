@@ -73,6 +73,18 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         networkApi.bookmarkFlyer(flyerId, uuid)
     }
 
+    suspend fun unbookmarkArticle(articleId: String, uuid: String) {
+        networkApi.unbookmarkArticle(articleId, uuid)
+    }
+
+    suspend fun unbookmarkMagazine(magazineId: String, uuid: String) {
+        networkApi.unbookmarkMagazine(magazineId, uuid)
+    }
+
+    suspend fun unbookmarkFlyer(flyerId: String, uuid: String) {
+        networkApi.unbookmarkFlyer(flyerId, uuid)
+    }
+
     private fun GetUserQuery.Data.mapDataToUser(): User {
         return this.getUser.let { userData ->
             User(

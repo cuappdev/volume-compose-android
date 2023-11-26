@@ -8,17 +8,20 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.volume.data.repositories.MagazineRepository
 import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository.Companion.MAX_SHOUTOUT
+import com.cornellappdev.android.volume.data.repositories.UserRepository
 import com.cornellappdev.android.volume.ui.states.MagazineRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val TAG = "MagazinesViewModel"
+
 @HiltViewModel
 class IndividualMagazineViewModel @Inject constructor(
     private val magazineRepository: MagazineRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
-    ) : ViewModel() {
+    private val userRepository: UserRepository,
+) : ViewModel() {
     data class IndividualMagazineUiState(
         val magazineState: MagazineRetrievalState = MagazineRetrievalState.Loading,
 
@@ -34,12 +37,11 @@ class IndividualMagazineViewModel @Inject constructor(
 
         val hasMaxShoutouts: Boolean = false,
 
-        val magazineId: String = ""
+        val magazineId: String = "",
     )
 
     var magazineUiState by mutableStateOf(IndividualMagazineUiState())
         private set
-
 
 
     /**
@@ -82,10 +84,18 @@ class IndividualMagazineViewModel @Inject constructor(
                 magazineUiState = magazineUiState.copy(
                     isBookmarked = false
                 )
+                userRepository.bookmarkMagazine(
+                    magazineUiState.magazineId,
+                    userPreferencesRepository.fetchUuid()
+                )
             } else {
                 userPreferencesRepository.addBookmarkedMagazine(id)
                 magazineUiState = magazineUiState.copy(
                     isBookmarked = true
+                )
+                userRepository.unbookmarkMagazine(
+                    magazineUiState.magazineId,
+                    userPreferencesRepository.fetchUuid()
                 )
             }
         }

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.volume.data.models.Flyer
 import com.cornellappdev.android.volume.data.repositories.FlyerRepository
 import com.cornellappdev.android.volume.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.volume.data.repositories.UserRepository
 import com.cornellappdev.android.volume.ui.states.FlyersRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -24,6 +25,7 @@ private const val TAG = "FlyersViewModel"
 class FlyersViewModel @Inject constructor(
     private val flyerRepository: FlyerRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     data class FlyersUiState(
@@ -189,12 +191,14 @@ class FlyersViewModel @Inject constructor(
 
     fun addBookmarkedFlyer(flyerId: String) {
         viewModelScope.launch {
+            userRepository.bookmarkFlyer(flyerId, userPreferencesRepository.fetchUuid())
             userPreferencesRepository.addBookmarkedFlyer(flyerId)
         }
     }
 
     fun removeBookmarkedFlyer(flyerId: String) {
         viewModelScope.launch {
+            userRepository.unbookmarkFlyer(flyerId, userPreferencesRepository.fetchUuid())
             userPreferencesRepository.removeBookmarkedFlyer(flyerId)
         }
     }
