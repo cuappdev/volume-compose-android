@@ -15,6 +15,7 @@ import com.cornellappdev.android.volume.ArticlesByIDsQuery
 import com.cornellappdev.android.volume.ArticlesByPublicationSlugQuery
 import com.cornellappdev.android.volume.ArticlesByPublicationSlugsQuery
 import com.cornellappdev.android.volume.BookmarkArticleMutation
+import com.cornellappdev.android.volume.BookmarkMagazineMutation
 import com.cornellappdev.android.volume.BuildConfig
 import com.cornellappdev.android.volume.CheckAccessCodeQuery
 import com.cornellappdev.android.volume.CreateUserMutation
@@ -343,9 +344,20 @@ class NetworkApi @Inject constructor(private val apolloClient: ApolloClient) {
         apolloClient.mutation(ReadArticleMutation(articleId, uuid)).execute()
 
     suspend fun bookmarkArticle(
+        articleId: String,
         uuid: String,
     ): ApolloResponse<BookmarkArticleMutation.Data> =
-        apolloClient.mutation(BookmarkArticleMutation(uuid)).execute()
+        apolloClient.mutation(BookmarkArticleMutation(articleId, uuid)).execute()
 
+    suspend fun bookmarkMagazine(
+        magazineId: String,
+        uuid: String,
+    ): ApolloResponse<BookmarkMagazineMutation.Data> =
+        apolloClient.mutation(BookmarkMagazineMutation(magazineId, uuid)).execute()
 
+    suspend fun bookmarkFlyer(
+        magazineId: String,
+        uuid: String,
+    ): ApolloResponse<BookmarkMagazineMutation.Data> =
+        apolloClient.mutation(BookmarkMagazineMutation(magazineId, uuid)).execute()
 }

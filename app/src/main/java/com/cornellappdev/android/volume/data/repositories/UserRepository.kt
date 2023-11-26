@@ -57,12 +57,20 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun getUser(uuid: String): User =
         networkApi.getUser(uuid).dataAssertNoErrors.mapDataToUser()
 
-    suspend fun bookmarkArticle(uuid: String) {
-        networkApi.bookmarkArticle(uuid)
-    }
-
     suspend fun readArticle(articleId: String, uuid: String) {
         networkApi.readArticle(articleId, uuid)
+    }
+
+    suspend fun bookmarkArticle(articleId: String, uuid: String) {
+        networkApi.bookmarkArticle(articleId, uuid)
+    }
+
+    suspend fun bookmarkMagazine(magazineId: String, uuid: String) {
+        networkApi.bookmarkMagazine(magazineId, uuid)
+    }
+
+    suspend fun bookmarkFlyer(flyerId: String, uuid: String) {
+        networkApi.bookmarkFlyer(flyerId, uuid)
     }
 
     private fun GetUserQuery.Data.mapDataToUser(): User {

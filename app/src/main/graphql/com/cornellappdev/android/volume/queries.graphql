@@ -1170,12 +1170,6 @@ mutation ReadArticle($articleID: String!, $uuid: String!) {
     }
 }
 
-mutation BookmarkArticle($uuid: String!) {
-    bookmarkArticle(uuid: $uuid) {
-        uuid
-    }
-}
-
 mutation createFlyer($title: String!, $startDate: String!, $organizationID: String!, $location: String!, $imageB64: String!, $flyerURL: String, $endDate: String!, $categorySlug: String!){
     createFlyer(title: $title, startDate: $startDate, organizationID: $organizationID, location: $location, imageB64: $imageB64, flyerURL: $flyerURL, endDate: $endDate, categorySlug: $categorySlug){
         id
@@ -1232,3 +1226,38 @@ mutation DeleteFlyer($id: String!){
     }
 }
 
+mutation BookmarkArticle($articleID: String!, $uuid: String!) {
+    bookmarkArticle(articleID: $articleID, uuid: $uuid) {
+        uuid
+    }
+}
+
+mutation BookmarkMagazine($magazineID: String!, $uuid: String!) {
+    bookmarkMagazine(magazineID: $magazineID, uuid: $uuid) {
+        uuid
+    }
+}
+
+mutation BookmarkFlyer($flyerID: String!, $uuid: String!) {
+    bookmarkFlyer(flyerID: $flyerID, uuid: $uuid) {
+        uuid
+    }
+}
+
+mutation UnbookmarkArticle($articleID: String!, $uuid: String!) {
+    unbookmarkArticle(articleID: $articleID, uuid: $uuid) {
+        uuid
+    }
+}
+
+mutation UnbookmarkMagazine($magazineID: String!, $uuid: String!) {
+    unbookmarkMagazine(magazineID: $magazineID, uuid: $uuid) {
+        uuid
+    }
+}
+
+mutation UnbookmarkFlyer($flyerID: String!, $uuid: String!) {
+    unbookmarkFlyer(flyerID: $flyerID, uuid: $uuid) {
+        uuid
+    }
+}

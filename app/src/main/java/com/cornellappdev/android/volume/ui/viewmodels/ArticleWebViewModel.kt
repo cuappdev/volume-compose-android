@@ -120,7 +120,6 @@ class ArticleWebViewModel @Inject constructor(
             )
         } else {
             userPreferencesRepository.addBookmarkedArticle(articleId)
-            userRepository.bookmarkArticle(userPreferencesRepository.fetchUuid())
             VolumeEvent.logEvent(
                 EventType.ARTICLE,
                 VolumeEvent.BOOKMARK_ARTICLE,
