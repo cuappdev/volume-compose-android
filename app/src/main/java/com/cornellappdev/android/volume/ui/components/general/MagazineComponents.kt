@@ -29,8 +29,6 @@ import com.cornellappdev.android.volume.ui.theme.notoserif
 import com.rizzi.bouquet.*
 
 
-private const val TAG = "MagazineComponents"
-
 @OptIn(ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable

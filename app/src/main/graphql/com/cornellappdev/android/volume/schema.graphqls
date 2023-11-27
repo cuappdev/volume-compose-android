@@ -118,11 +118,16 @@ type Mutation {
     """Adds the <Flyer> given by the <flyerID> to the <User's> read flyers"""
     readFlyer(flyerID: String!, uuid: String!): User
 
-    """Increments the number of bookmarks for the <User> given by <uuid>"""
-    bookmarkArticle(uuid: String!): User
+    bookmarkArticle(articleID: String!, uuid: String!): User
+    bookmarkMagazine(magazineID: String!, uuid: String!): User
+    bookmarkFlyer(flyerID: String!, uuid: String!): User
+    unbookmarkArticle(articleID: String!, uuid: String!): User
+    unbookmarkMagazine(magazineID: String!, uuid: String!): User
+    unbookmarkFlyer(flyerID: String!, uuid: String!): User
 
     """Creates Weekly Debriefs for all users"""
     getWeeklyDebrief: [User!]!
+
 }
 
 """The Organization Model"""
@@ -359,6 +364,10 @@ type Query {
 
     """Returns a single [User] via a given [uuid]"""
     getUser(uuid: String!): User
+
+    bookmarkArticle(articleID: String!, uuid: String!): User
+    bookmarkMagazine(magazineID: String!, uuid: String!): User
+    bookmarkFlyer(flyerID: String!, uuid: String!): User
 }
 
 """Holds information about social"""
