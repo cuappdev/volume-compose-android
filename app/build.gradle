@@ -19,8 +19,8 @@ android {
         applicationId "com.cornellappdev.android.volume"
         minSdk 27
         targetSdk 33
-        versionCode 16
-        versionName "1.4"
+        versionCode 17
+        versionName "1.4.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "FEEDBACK_FORM", secretsProperties['FEEDBACK_FORM'])

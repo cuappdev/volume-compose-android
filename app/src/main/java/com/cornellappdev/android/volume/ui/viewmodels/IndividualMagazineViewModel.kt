@@ -84,7 +84,7 @@ class IndividualMagazineViewModel @Inject constructor(
                 magazineUiState = magazineUiState.copy(
                     isBookmarked = false
                 )
-                userRepository.bookmarkMagazine(
+                userRepository.unbookmarkMagazine(
                     magazineUiState.magazineId,
                     userPreferencesRepository.fetchUuid()
                 )
@@ -93,7 +93,7 @@ class IndividualMagazineViewModel @Inject constructor(
                 magazineUiState = magazineUiState.copy(
                     isBookmarked = true
                 )
-                userRepository.unbookmarkMagazine(
+                userRepository.bookmarkMagazine(
                     magazineUiState.magazineId,
                     userPreferencesRepository.fetchUuid()
                 )
